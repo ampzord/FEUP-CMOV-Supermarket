@@ -25,9 +25,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 
 //Server and user communication
-app.use('/register', usersRouter); //register
-app.use('/signin', usersRouter); //sign in
-app.use('/pastTransactions', usersRouter); //user past transactions
+app.use('/api', usersRouter); //register
+//app.use('/login', usersRouter); //login
+//app.use('/pastTransactions', usersRouter); //user past transactions
 
 //Server and Terminal communication
 
