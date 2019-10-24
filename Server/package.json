@@ -1,17 +1,25 @@
 {
-  "name": "acme-server",
-  "version": "1.0.0",
-  "description": "ACME Server for Supermarket",
-  "main": "app.js",
+  "name": "acme",
+  "version": "0.0.0",
+  "description": "Supermarket Server",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "set DEBUG=acme & node ./bin/www"
   },
-  "author": "Amp",
-  "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1",
-    "joi": "^14.3.1"
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "express-session": "^1.17.0",
+    "express-validator": "^6.2.0",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1",
+    "pug": "2.0.0-beta11",
+    "sequelize": "^5.21.1",
+    "sqlite3": "^4.1.0",
+    "uuid": "^3.3.3"
   },
-  "devDependencies": {},
-  "keywords": []
+  "devDependencies": {
+    "nodemon": "^1.19.4"
+  }
 }
