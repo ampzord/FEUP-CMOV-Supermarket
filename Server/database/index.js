@@ -32,9 +32,8 @@ sequelize
   .then(() => {
     console.log(`Database & tables created!`)
     User.bulkCreate([
-      { name: 'Ricardo Fonseca', username: 'rfonseca', password: 'password1', credit_card: '4611441749020896' },
-      { name: 'Miguel Moreira', username: 'mmoreira', password: 'password2', credit_card: '4025668462246072' },
-      { name: 'André Durães', username: 'aduraes', password: 'password3', credit_card: '4116789962427150' }
+      { name: 'Ricardo Fonseca', username: 'rfonseca', password: 'password1', password_conf: 'password1', credit_card: '4611441749020896' },
+      { name: 'Miguel Moreira', username: 'mmoreira', password: 'password2', password_conf: 'password2', credit_card: '4025668462246072' },
     ])
   })
 
