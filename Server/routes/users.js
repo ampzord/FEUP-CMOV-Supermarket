@@ -4,33 +4,31 @@ const router = express.Router();
 const { check, validationResult, signupFailures } = require('express-validator')
 const { User } = require('../database')
 
-const { validateRegister } = require('./validator.js')
-
 const validationRules = [
-  check('name').isAlphanumeric(),
-  check('name').isLength({ min: 3 }),
-  check('username').isAlphanumeric(),
-  check('username').isLength({ min: 3 }),
-  check('password').isLength({ min: 6 }),
-  check('password_conf').isLength({ min: 6 }),
+  check('fName','First Name is not alphanumeric.').isAlphanumeric(),
+  check('fName','First Name does not meet minimum length (3).').isLength({ min: 3}),
+  check('lName','Last Name is not alphanumeric.').isAlphanumeric(),
+  check('lName','Last Name does not meet minimum length (3).').isLength({ min: 3}),
+  check('username','Username is not alphanumeric.').isAlphanumeric(),
+  check('username','Username does not meet minimum length (3).').isLength({ min: 3}),
+  check('password', 'Password does not meet minimum length (3).').isLength({ min: 3 }),
+  check('password_conf', 'Passwords do not match.').custom((value, {req}) => (value === req.body.password)),
+  check('credit_card', 'Credit card must be 16 length number.').isLength(16),
 ]
 
 /* Register user in database */
-router.post('/register', validateRegister, function(req, res, next) {
+router.post('/register', validationRules, function(req, res, next) {
   //check if username is unique
   //validate inputs
   //gets public key from user (App)
   //return user()
 
-  var errors = validationResult(req).formatWith(signupFailures);
+  const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-      res.status(400).json(errors.array());
+    return res.status(422).jsonp(errors.array()[0].msg);
   } else {
-      res.sendStatus(200);
-  }
-
-  const user = new User(req.body);
+    const user = new User(req.body);
   user.save()
   .then(user => {
       res.json('User added successfully.');
@@ -38,8 +36,7 @@ router.post('/register', validateRegister, function(req, res, next) {
   .catch(err => {
       res.status(400).send("Unable to save to database.");
   });
-
-  
+  }
 });
 
 /* GET all users listing. */

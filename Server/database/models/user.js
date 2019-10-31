@@ -1,7 +1,8 @@
 module.exports = (sequelize, type) => {
   return sequelize.define('user', {
     id: { type: type.INTEGER, primaryKey: true, autoIncrement: true },
-    name: { type: type.STRING, allowNull: false },
+    fName: { type: type.STRING, allowNull: false },
+    lName: { type: type.STRING, allowNull: false },
     username: { type: type.STRING, allowNull: false, unique: true },
     password: { type: type.STRING, allowNull: false },
     password_conf: { type: type.STRING, allowNull: false },
