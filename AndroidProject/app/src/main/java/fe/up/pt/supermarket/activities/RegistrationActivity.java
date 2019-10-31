@@ -1,8 +1,10 @@
-package fe.up.pt.supermarket;
+package fe.up.pt.supermarket.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import fe.up.pt.supermarket.R;
 
 public class RegistrationActivity extends AppCompatActivity {
 
