@@ -81,7 +81,7 @@ CRYPTOGRAPHY
 			AND
 		signature transmitted together
 
-	To verify the signature the server should use the corresponding pubic key which was transmitted on the registration process.
+	To verify the signature the server should use the corresponding public key which was transmitted on the registration process.
 
 	For the signature use a key length of 512 bits with the algorithm "SHA256WithRSA"
 		this produces a signature of 64 bytes
