@@ -5,10 +5,10 @@ const { check, validationResult, signupFailures } = require('express-validator')
 const { User } = require('../database')
 
 const validationRules = [
-  check('fName','First Name is not alphanumeric.').isAlphanumeric(),
-  check('fName','First Name does not meet minimum length (3).').isLength({ min: 3}),
-  check('lName','Last Name is not alphanumeric.').isAlphanumeric(),
-  check('lName','Last Name does not meet minimum length (3).').isLength({ min: 3}),
+  check('fName','First name is not alphanumeric.').isAlphanumeric(),
+  check('fName','First name does not meet minimum length (3).').isLength({ min: 3}),
+  check('lName','Last name is not alphanumeric.').isAlphanumeric(),
+  check('lName','Last name does not meet minimum length (3).').isLength({ min: 3}),
   check('username','Username is not alphanumeric.').isAlphanumeric(),
   check('username','Username does not meet minimum length (3).').isLength({ min: 3}),
   check('password', 'Password does not meet minimum length (3).').isLength({ min: 3 }),
@@ -23,6 +23,8 @@ router.post('/register', validationRules, function(req, res, next) {
   //gets public key from user (App)
   //return user()
 
+  console.log(req.body);
+
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -31,12 +33,22 @@ router.post('/register', validationRules, function(req, res, next) {
     const user = new User(req.body);
   user.save()
   .then(user => {
-      res.json('User added successfully.');
+      //res.status(200).send("User created successfully.");
+      res.status(200).json({
+        ok: true,
+        user: user,
+        message: 'User created successfully.'
+      })
   })
   .catch(err => {
-      res.status(400).send("Unable to save to database.");
+      //res.status(400).send("Unable to save to database.");
+      res.status(500).json({
+        ok: false,
+        message: 'Failed to create user.'
+      })
   });
   }
+  
 });
 
 /* GET all users listing. */
