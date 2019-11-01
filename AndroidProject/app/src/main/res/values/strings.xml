@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">Supermarket</string>
+
+    <!-- Registration Page -->
+    <string name="text_first_name">First Name</string>
+    <string name="text_last_name">Last Name</string>
+    <string name="text_username">Username</string>
+    <string name="text_password">Password</string>
+    <string name="text_password_conf">Password Conf.</string>
+    <string name="text_credit_card">Credit Card</string>
+
+    <!-- Login Page -->
+    <string name="btLOGIN">LOGIN</string>
+    <string name="hint_username">Username</string>
+    <string name="hint_password">Password</string>
+
 </resources>

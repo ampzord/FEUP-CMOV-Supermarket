@@ -2,8 +2,12 @@ package fe.up.pt.supermarket.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -29,43 +33,60 @@ import fe.up.pt.supermarket.R;
 import static fe.up.pt.supermarket.activities.LandingPageActivity.URL;
 
 public class RegistrationActivity extends AppCompatActivity {
-
+    private Button register;
+    private EditText firstName;
+    private EditText lastName;
+    private EditText username;
+    private EditText password;
+    private EditText password_conf;
+    private EditText credit_card;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
-        //getJSONRequest();
-        sendRegistrationRequest();
-        //stringPostRequest();
+        register = findViewById(R.id.bt_send_registration);
+        firstName = findViewById(R.id.edit_first_name);
+        lastName = findViewById(R.id.edit_last_name);
+        username = findViewById(R.id.edit_username);
+        password = findViewById(R.id.edit_password);
+        password_conf = findViewById(R.id.edit_password_conf);
+        credit_card = findViewById(R.id.credit_card);
+
+        register.setOnClickListener(
+                new View.OnClickListener()
+                {
+                    public void onClick(View view)
+                    {
+                        sendRegistrationRequest();
+                    }
+                });
     }
 
     private void sendRegistrationRequest() {
         RequestQueue queue = Volley.newRequestQueue(this);
         try {
-
-            JSONArray array = new JSONArray();
             JSONObject jsonBody = new JSONObject();
+            jsonBody.put("fName", firstName.getText().toString());
+            jsonBody.put("lName", lastName.getText().toString());
+            jsonBody.put("username", username.getText().toString());
+            jsonBody.put("password", password.getText().toString());
+            jsonBody.put("password_conf", password_conf.getText().toString());
+            jsonBody.put("credit_card", credit_card.getText().toString());
 
-            jsonBody.put("fName", "Antonio");
-            jsonBody.put("lName", "Pereira");
-            jsonBody.put("username", "AMPZORD");
-            jsonBody.put("password", "catsanddogs123");
-            jsonBody.put("password_conf", "catsanddogs123");
-            jsonBody.put("credit_card", "123456781234567");
+            String newURL = URL + "/api/register";
+            Log.d("DEBUG", "HERE URL: " + newURL);
 
-            array.put(jsonBody);
-
-            String newURL = URL + "api/register";
-
-            JsonObjectRequest jobReq = new JsonObjectRequest(Request.Method.POST, newURL, jsonBody,
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, newURL, jsonBody,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             try {
                                 String message = response.getString("message");
                                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                                startActivity(intent);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -82,7 +103,7 @@ public class RegistrationActivity extends AppCompatActivity {
                         }
             });
 
-            queue.add(jobReq);
+            queue.add(jsonObjectRequest);
 
         } catch (JSONException e) {
             e.printStackTrace();

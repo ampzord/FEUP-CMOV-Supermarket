@@ -11,6 +11,7 @@ const validationRules = [
   check('lName','Last name does not meet minimum length (3).').isLength({ min: 3}),
   check('username','Username is not alphanumeric.').isAlphanumeric(),
   check('username','Username does not meet minimum length (3).').isLength({ min: 3}),
+  check('username','Username does not meet minimum length (3).').isLength({ min: 3}),
   check('password', 'Password does not meet minimum length (3).').isLength({ min: 3 }),
   check('password_conf', 'Passwords do not match.').custom((value, {req}) => (value === req.body.password)),
   check('credit_card', 'Credit card must be 16 length number.').isLength(16),
@@ -19,9 +20,7 @@ const validationRules = [
 /* Register user in database */
 router.post('/register', validationRules, function(req, res, next) {
   //check if username is unique
-  //validate inputs
   //gets public key from user (App)
-  //return user()
 
   console.log(req.body);
 
@@ -33,7 +32,6 @@ router.post('/register', validationRules, function(req, res, next) {
     const user = new User(req.body);
   user.save()
   .then(user => {
-      //res.status(200).send("User created successfully.");
       res.status(200).json({
         ok: true,
         user: user,
@@ -41,11 +39,7 @@ router.post('/register', validationRules, function(req, res, next) {
       })
   })
   .catch(err => {
-      //res.status(400).send("Unable to save to database.");
-      res.status(500).json({
-        ok: false,
-        message: 'Failed to create user.'
-      })
+      res.status(500).json('Username already exists');
   });
   }
   
@@ -64,16 +58,6 @@ router.get('/user/:id', function(req, res) {
   res.send(user);
 });
 
-
-
-/* POST signup page. */
-/*
-router.post('/asdada', validationRules, (req, res, next) => {
-  console.log(req.body)
-  console.log((validationResult(req).array()))
-  return res.render('signup', { title: 'PicoBlog' });;
-});
-*/
 module.exports = router;
 
 

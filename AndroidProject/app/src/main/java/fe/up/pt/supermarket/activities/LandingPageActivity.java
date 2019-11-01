@@ -8,11 +8,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
+
 import fe.up.pt.supermarket.R;
 
 public class LandingPageActivity extends AppCompatActivity {
 
-    public static String URL = "http://10.227.157.174:3000/";
+    //public static String URL = "http://192.168.1.12:3000";
+    public static String URL = "https://grisly-mummy-10353.herokuapp.com";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,24 +31,24 @@ public class LandingPageActivity extends AppCompatActivity {
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendToRegisterPage(view);
+                sendToRegisterPage();
             }
         });
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendToLoginPage(view);
+                sendToLoginPage();
             }
         });
     }
 
-    private void sendToRegisterPage(View view) {
+    private void sendToRegisterPage() {
         Intent intent = new Intent(this, RegistrationActivity.class);
         startActivity(intent);
     }
 
-    private void sendToLoginPage(View view) {
+    private void sendToLoginPage() {
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
     }

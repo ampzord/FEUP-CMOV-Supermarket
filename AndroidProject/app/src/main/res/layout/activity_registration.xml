@@ -10,92 +10,108 @@
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
         android:stretchColumns="1">
 
         <TableRow>
+
             <TextView
+                android:id="@+id/text_first_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="First name"/>
+                android:text="@string/text_first_name" />
 
             <EditText
-                android:id="@+id/first_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:imeOptions="actionNext"
-                android:inputType="text"/>
-        </TableRow>
-
-        <TableRow>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Last name"/>
-
-            <EditText
-                android:id="@+id/last_name"
+                android:id="@+id/edit_first_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:imeOptions="actionNext"
                 android:inputType="text"
-                />
+                android:importantForAutofill="no"
+                android:singleLine="true" />
         </TableRow>
 
         <TableRow>
+
             <TextView
+                android:id="@+id/text_last_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Username"/>
+                android:text="@string/text_last_name" />
 
             <EditText
-                android:id="@+id/username"
+                android:id="@+id/edit_last_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:imeOptions="actionNext"
                 android:inputType="text"
-                />
+                android:importantForAutofill="no"
+                android:singleLine="true"/>
         </TableRow>
 
         <TableRow>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Password"/>
+                android:text="@string/text_username" />
 
             <EditText
-                android:id="@+id/password"
+                android:id="@+id/edit_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:importantForAutofill="no"
+                android:singleLine="true"/>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/text_password" />
+
+            <EditText
+                android:id="@+id/edit_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:imeOptions="actionNext"
                 android:inputType="textPassword"
-                />
+                android:importantForAutofill="no"
+                android:singleLine="true"/>
         </TableRow>
 
         <TableRow>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Password conf."/>
+                android:text="@string/text_password_conf" />
 
             <EditText
-                android:id="@+id/password_conf"
+                android:id="@+id/edit_password_conf"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:imeOptions="actionNext"
                 android:inputType="textPassword"
-                />
+                android:importantForAutofill="no"
+                android:singleLine="true"/>
         </TableRow>
 
         <TableRow>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Credit card"/>
+                android:text="@string/text_credit_card" />
 
             <EditText
                 android:id="@+id/credit_card"
@@ -104,7 +120,8 @@
                 android:ems="10"
                 android:imeOptions="actionDone"
                 android:inputType="text"
-                />
+                android:importantForAutofill="no"
+                android:singleLine="true" />
         </TableRow>
 
 
@@ -114,6 +131,7 @@
         android:id="@+id/bt_send_registration"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:backgroundTint="@color/cardview_dark_background"
         android:textColor="@android:color/white"
         android:text="SEND"
