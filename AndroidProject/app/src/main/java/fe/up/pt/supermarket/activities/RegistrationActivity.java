@@ -10,24 +10,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
-
+import fe.up.pt.supermarket.utils.HttpsTrustManager;
 import fe.up.pt.supermarket.R;
 
 import static fe.up.pt.supermarket.activities.LandingPageActivity.URL;
@@ -46,7 +39,7 @@ public class RegistrationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
-        register = findViewById(R.id.bt_send_registration);
+        register = findViewById(R.id.bt_send_register);
         firstName = findViewById(R.id.edit_first_name);
         lastName = findViewById(R.id.edit_last_name);
         username = findViewById(R.id.edit_username);
@@ -65,6 +58,7 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     private void sendRegistrationRequest() {
+        HttpsTrustManager.allowAllSSL();
         RequestQueue queue = Volley.newRequestQueue(this);
         try {
             JSONObject jsonBody = new JSONObject();
@@ -75,13 +69,15 @@ public class RegistrationActivity extends AppCompatActivity {
             jsonBody.put("password_conf", password_conf.getText().toString());
             jsonBody.put("credit_card", credit_card.getText().toString());
 
-            String newURL = URL + "/api/register";
-            Log.d("DEBUG", "HERE URL: " + newURL);
+            String newURL = URL + "/register";
+
+            //Log.d("RegistrationRequest", "URL: " + newURL);
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, newURL, jsonBody,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
+                            //Log.d("RegistrationRequest", "Entered1");
                             try {
                                 String message = response.getString("message");
                                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
@@ -95,6 +91,8 @@ public class RegistrationActivity extends AppCompatActivity {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
+                            //Log.d("RegistrationRequest", "Entered2");
+                            Log.d("RegisRequest", volleyError.toString());
                             if (volleyError.networkResponse != null) {
                                 Log.d("Error.Response", "Status Code Error: " + volleyError.networkResponse.statusCode);
                                 Log.d("Error.Response", "Server Error Response: " + new String(volleyError.networkResponse.data));
@@ -111,7 +109,7 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     public void getJSONRequest() {
-        String newURL = URL + "api/register";
+        String newURL = URL + "/register";
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         JsonObjectRequest objectRequest = new JsonObjectRequest(
                 Request.Method.GET,

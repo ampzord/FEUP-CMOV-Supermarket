@@ -7,11 +7,11 @@ REGISTRATION
 
 cryptographic key pair generated in the phone app.
 private key goes to app (local)
-public key is transmitted with the other information to the server -> DB (?????????????)
+public key is transmitted with the other information to the server -> DB 
 
 	Server:
-		- generates unique identifier UUID (16 byte value) -> SENDS TO APP.
-		- Sends supermarket public key + UUID. (????? - can it send public key + UUID together or does it have to send UUID and public_key+UUID separately)
+		- generates unique identifier UUID (16 byte value)
+		- Sends supermarket public key + UUID to APP.
 
 
 SHOPPING BASKET

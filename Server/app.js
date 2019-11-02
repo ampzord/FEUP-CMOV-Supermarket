@@ -26,8 +26,6 @@ app.use('/', indexRouter);
 
 //Server and user communication
 app.use('/api', usersRouter); //register
-//app.use('/login', usersRouter); //login
-//app.use('/pastTransactions', usersRouter); //user past transactions
 
 //Server and Terminal communication
 

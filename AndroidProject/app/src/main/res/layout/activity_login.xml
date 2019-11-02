@@ -39,7 +39,7 @@
         android:importantForAutofill="no"/>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/bt_send_registration"
+        android:id="@+id/bt_send_login"
         android:layout_width="134dp"
         android:layout_height="47dp"
         android:layout_marginTop="28dp"
