@@ -21,11 +21,13 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var key = fs.readFileSync(__dirname + '/../certs/selfsigned.key');
-var cert = fs.readFileSync(__dirname + '/../certs/selfsigned.crt');
+var key = fs.readFileSync(__dirname + '/../certs/1.key');
+var cert = fs.readFileSync(__dirname + '/../certs/1.crt');
+var ca = fs.readFileSync(__dirname + '/../certs/intermediate.crt');
 var options = {
   key: key,
-  cert: cert
+  cert: cert,
+  ca: ca
 };
 
 //var server = https.createServer(app);
