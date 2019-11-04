@@ -6,6 +6,7 @@ module.exports = (sequelize, type) => {
     username: { type: type.STRING, allowNull: false, unique: true },
     password: { type: type.STRING, allowNull: false },
     password_conf: { type: type.STRING, allowNull: false },
-    credit_card: { type: type.BIGINT, allowNull: false},
+    credit_card: { type: type.BIGINT, allowNull: false },
+    public_key: { type: type.STRING, allowNull: false },
   })
 }

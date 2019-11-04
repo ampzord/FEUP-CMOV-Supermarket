@@ -4,7 +4,7 @@ const UserModel = require('./models/user')
 const sequelize = new Sequelize('acme', 'admin', 'sqladmin', {
   host: 'localhost',
   dialect: 'sqlite',
-  operatorsAliases: false,
+  //operatorsAliases: false,
   logging: false,
 
   pool: {
@@ -30,10 +30,10 @@ sequelize
 sequelize
   .sync({ force: true })
   .then(() => {
-    console.log(`Database & tables created!`)
+    //console.log(`Database & tables created!`)
     User.bulkCreate([
-      { fName: 'Ricardo', lName: 'Fonseca', username: 'rfonseca', password: 'password1', password_conf: 'password1', credit_card: '4611441749020896' },
-      { fName: 'Miguel', lName: 'Moreira', username: 'mmoreira', password: 'password2', password_conf: 'password2', credit_card: '4025668462246072' },
+      { fName: 'Ricardo', lName: 'Fonseca', username: 'rfonseca', password: 'password1', password_conf: 'password1', credit_card: '4611441749020896', public_key: 'publickey1' },
+      { fName: 'Miguel', lName: 'Moreira', username: 'mmoreira', password: 'password2', password_conf: 'password2', credit_card: '4025668462246072', public_key: 'publickey2'  },
     ])
   })
 

@@ -3,7 +3,6 @@ package fe.up.pt.supermarket.activities;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,37 +22,15 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
+import java.security.NoSuchProviderException;
 
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import fe.up.pt.supermarket.utils.HttpsTrustManager;
+import fe.up.pt.supermarket.utils.HttpsTrustManagerUtils;
 import fe.up.pt.supermarket.R;
+import fe.up.pt.supermarket.utils.KeyStoreUtils;
 
 import static fe.up.pt.supermarket.activities.LandingPageActivity.URL;
-import static java.lang.System.out;
 
 public class RegistrationActivity extends AppCompatActivity {
     private Button register;
@@ -63,6 +40,8 @@ public class RegistrationActivity extends AppCompatActivity {
     private EditText password;
     private EditText password_conf;
     private EditText credit_card;
+
+    private String TAG_COMMUNICATION = "TAG_COMMUNICATION";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +67,7 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     private void sendRegistrationRequest() {
-        HttpsTrustManager.allowAllSSL();
+        HttpsTrustManagerUtils.allowAllSSL();
         RequestQueue queue = Volley.newRequestQueue(this);
         try {
             JSONObject jsonBody = new JSONObject();
@@ -101,6 +80,10 @@ public class RegistrationActivity extends AppCompatActivity {
 
             String newURL = URL + "/register";
 
+            String pubKey = KeyStoreUtils.generateKeys(username.getText().toString());
+
+            jsonBody.put("public_key", pubKey);
+
             //Log.d("RegistrationRequest", "URL: " + newURL);
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, newURL, jsonBody,
@@ -110,9 +93,10 @@ public class RegistrationActivity extends AppCompatActivity {
                         public void onResponse(JSONObject response) {
                             //Log.d("RegistrationRequest", "Entered1");
                             try {
-                                String message = response.getString("message");
-                                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                                generateKeys();
+                                String server_msg_response = response.getString("message");
+                                Toast.makeText(getApplicationContext(), server_msg_response, Toast.LENGTH_SHORT).show();
+                                Log.d(TAG_COMMUNICATION, "UUID: " + response.getString("uuid"));
+                                Log.d(TAG_COMMUNICATION, "SERVER PUBLIC KEY: " + response.getString("server_public_key"));
                                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                                 startActivity(intent);
                             } catch (JSONException e) {
@@ -124,10 +108,10 @@ public class RegistrationActivity extends AppCompatActivity {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
                             //Log.d("RegistrationRequest", "Entered2");
-                            Log.d("RegisRequest", volleyError.toString());
+                            Log.d(TAG_COMMUNICATION, volleyError.toString());
                             if (volleyError.networkResponse != null) {
-                                Log.d("Error.Response", "Status Code Error: " + volleyError.networkResponse.statusCode);
-                                Log.d("Error.Response", "Server Error Response: " + new String(volleyError.networkResponse.data));
+                                Log.d(TAG_COMMUNICATION, "Status Code Error: " + volleyError.networkResponse.statusCode);
+                                Log.d(TAG_COMMUNICATION, "Server Error Response: " + new String(volleyError.networkResponse.data));
                                 Toast.makeText(getApplicationContext(), new String(volleyError.networkResponse.data), Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -137,94 +121,11 @@ public class RegistrationActivity extends AppCompatActivity {
 
         } catch (JSONException e) {
             e.printStackTrace();
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void generateKeys() {
-        try {
-
-            /* Generate Public and Private key */
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-            kpg.initialize(2048);
-            KeyPair kp = kpg.generateKeyPair();
-            Key pub = kp.getPublic();
-            Key pvt = kp.getPrivate();
-
-            /* Save Public and Private keys to File */
-            OutputStream out;
-
-            /* Private key */
-            out = new FileOutputStream("private.key");
-            out.write(pvt.getEncoded());
-            out.close();
-
-            /* Public key */
-            out = new FileOutputStream("public.pub");
-            out.write(pub.getEncoded());
-            out.close();
-
-            Log.d("ASSYMETRIC KEYS", "Private key: " + pvt.getFormat());
-            Log.d("ASSYMETRIC KEYS", "Public key: " + pub.getFormat());
-
-            //-------------------------------------------
-
-            /* Read public and private keys bites from file */
-
-            /* Read all bytes from the private key file */
-            Path path = Paths.get("private.key");
-            byte[] bytes = Files.readAllBytes(path);
-
-            /* Generate private key. */
-            PKCS8EncodedKeySpec ks = new PKCS8EncodedKeySpec(bytes);
-            KeyFactory kf = KeyFactory.getInstance("RSA");
-            PrivateKey pvt2 = kf.generatePrivate(ks);
-
-            //--------------------------------
-
-            /* Read all the public key bytes */
-            Path path2 = Paths.get("public.pub");
-            byte[] bytes2 = Files.readAllBytes(path2);
-
-            /* Generate public key. */
-            X509EncodedKeySpec ks2 = new X509EncodedKeySpec(bytes2);
-            KeyFactory kf2 = KeyFactory.getInstance("RSA");
-            PublicKey pub2 = kf2.generatePublic(ks2);
-
-            //--------------------------------------------------
-
-            /* Write public and private keys to txt file */
-
-            Base64.Encoder encoder = Base64.getEncoder();
-
-            String publickeyString = "public_key_string";
-            String privatekeyString = "private_key_string";
-
-            Writer out2 = new FileWriter(privatekeyString + ".key");
-            out2.write("-----BEGIN RSA PRIVATE KEY-----\n");
-            out2.write(encoder.encodeToString(pvt.getEncoded()));
-            out2.write("\n-----END RSA PRIVATE KEY-----\n");
-            out2.close();
-
-            out2 = new FileWriter(publickeyString + ".pub");
-            out2.write("-----BEGIN RSA PUBLIC KEY-----\n");
-            out2.write(encoder.encodeToString(pub.getEncoded()));
-            out2.write("\n-----END RSA PUBLIC KEY-----\n");
-            out2.close();
-
-            /*String filename = "myfile";
-            String fileContents = "Hello world!";
-            FileOutputStream outputStream;
-
-            try {
-                outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
-                outputStream.write(fileContents.getBytes());
-                outputStream.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }*/
-        }
-        catch (NoSuchAlgorithmException | IOException | InvalidKeySpecException e) {
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        } catch (NoSuchProviderException e) {
             e.printStackTrace();
         }
     }

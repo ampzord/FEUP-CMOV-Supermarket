@@ -12,7 +12,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-public class HttpsTrustManager implements X509TrustManager {
+public class HttpsTrustManagerUtils implements X509TrustManager {
 
     private static TrustManager[] trustManagers;
     private static final X509Certificate[] _AcceptedIssuers = new X509Certificate[]{};
@@ -56,7 +56,7 @@ public class HttpsTrustManager implements X509TrustManager {
 
         SSLContext context = null;
         if (trustManagers == null) {
-            trustManagers = new TrustManager[]{new HttpsTrustManager()};
+            trustManagers = new TrustManager[]{new HttpsTrustManagerUtils()};
         }
 
         try {

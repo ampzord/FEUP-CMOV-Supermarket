@@ -3,6 +3,10 @@ const express = require('express');
 const router = express.Router();
 const { check, validationResult, signupFailures } = require('express-validator')
 const { User } = require('../database')
+const uuidv4 = require('uuid/v4');
+const keys = require('../cryptography');
+const { generateKeyPair } = require('crypto');
+const { writeFileSync, fs } = require("fs");
 
 const registrationValidationRules = [
   check('fName','First name is empty.').not().isEmpty(),
@@ -26,7 +30,9 @@ const registrationValidationRules = [
 
 /* Register user in database */
 router.post('/register', registrationValidationRules, function(req, res, next) {
-  //gets public key from user (App)
+  //App sends to server:
+    // - Registration information
+    // - App public key
 
   //Server must send to App:
     // - UUID
@@ -34,15 +40,20 @@ router.post('/register', registrationValidationRules, function(req, res, next) {
 
   console.log(req.body);
   const errors = validationResult(req);
+  const uuid = uuidv4();
+
+  //Load server public key from file
 
   if (errors.isEmpty()) {
     const user = new User(req.body);
     user.save()
     .then(user => {
-        res.status(200).json({
+        res.status(200).json({ //send UUI & server public key
           ok: true,
           user: user,
-          message: 'User created successfully.'
+          message: 'User created successfully.',
+          server_public_key: 'publickeywaiting',
+          uuid: uuid
         })
     })
     .catch(err => {
@@ -52,6 +63,9 @@ router.post('/register', registrationValidationRules, function(req, res, next) {
   else {
     return res.status(422).jsonp(errors.array()[0].msg);
   }
+  
+
+ 
 });
 
 const signinValidationRules = [
@@ -73,13 +87,13 @@ router.post('/login', signinValidationRules, function(req, res, next) {
 
       //check if user exists
       if (!user) {
-        console.log("Username: " + req.body.username + " doesn't exist.")
+        //console.log("Username: " + req.body.username + " doesn't exist.")
         return res.status(404).send("Username: " + req.body.username + " doesn't exist.");
       }
 
       //check if password matches
       if (!checkPassword(req.body.password, user.password)) {
-        console.log("Password is incorrect.");
+        //console.log("Password is incorrect.");
         return res.status(404).send("Password is incorrect.");
       }
 
@@ -100,6 +114,9 @@ function checkPassword(message_pwd, db_password) {
     return true;
   return false;
 }
+
+
+
 
 /* GET all users listing. */
 router.get('/users', function(req, res, next) {

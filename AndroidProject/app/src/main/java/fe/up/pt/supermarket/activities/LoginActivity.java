@@ -1,6 +1,5 @@
 package fe.up.pt.supermarket.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,7 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import fe.up.pt.supermarket.R;
-import fe.up.pt.supermarket.utils.HttpsTrustManager;
+import fe.up.pt.supermarket.utils.HttpsTrustManagerUtils;
 
 import static fe.up.pt.supermarket.activities.LandingPageActivity.URL;
 
@@ -52,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void sendLoginRequest() {
-        HttpsTrustManager.allowAllSSL();
+        HttpsTrustManagerUtils.allowAllSSL();
         RequestQueue queue = Volley.newRequestQueue(this);
         try {
             JSONObject jsonBody = new JSONObject();
@@ -68,6 +67,7 @@ public class LoginActivity extends AppCompatActivity {
                             Log.d("LoginRequest", response.toString());
                             try {
                                 Toast.makeText(getApplicationContext(), response.getString("message"), Toast.LENGTH_SHORT).show();
+                                //generateKeys2();
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }

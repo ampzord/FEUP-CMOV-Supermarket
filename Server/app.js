@@ -3,14 +3,17 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var crypto = require('cryptography')
 
-const uuid = require('uuid/v4')
-const session = require('express-session')
+//const uuid = require('uuid/v4')
+//const session = require('express-session')
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+
+crypto.generateKeys();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
