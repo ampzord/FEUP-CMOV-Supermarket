@@ -5,6 +5,7 @@
     android:id="@+id/constraintlayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/generic1"
     android:orientation="vertical">
 
     <EditText
@@ -40,16 +41,20 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_send_login"
-        android:layout_width="134dp"
-        android:layout_height="47dp"
-        android:layout_marginTop="28dp"
-        android:backgroundTint="@color/cardview_dark_background"
-        android:text="@string/btLOGIN"
+        android:layout_width="172dp"
+        android:layout_height="65dp"
+        android:layout_weight="1"
+        android:backgroundTint="#2F528F"
+        android:fontFamily="@font/archivo_black"
+        android:text="Login"
         android:textAlignment="center"
         android:textColor="@android:color/white"
-        android:textSize="18dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_password" />
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/login_password"
+        app:layout_constraintVertical_bias="0.136" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
