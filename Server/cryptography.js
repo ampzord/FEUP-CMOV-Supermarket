@@ -2,7 +2,6 @@ var crypto = require("crypto");
 var path = require("path");
 const { writeFileSync, fs } = require("fs");
 const { generateKeyPair } = require('crypto');
-//const NodeRSA = require('node-rsa');
 
 function generateKeys() {
   generateKeyPair('rsa', {
@@ -24,9 +23,7 @@ function generateKeys() {
     } else {
       writeFileSync('/keys/server_private_key.pem', privateKey);
       writeFileSync('/keys/server_public_key.pem', publicKey);
-      return publicKey;
     }
-
   });
 }
 
@@ -61,7 +58,7 @@ console.log('dec', dec)
 */
 
 module.exports = {
-    encryptStringWithRsaPublicKey: encryptStringWithRsaPublicKey,
-    decryptStringWithRsaPrivateKey: decryptStringWithRsaPrivateKey,
+    encrypt,
+    decrypt,
     generateKeys
 }

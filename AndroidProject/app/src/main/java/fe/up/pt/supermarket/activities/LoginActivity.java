@@ -1,5 +1,6 @@
 package fe.up.pt.supermarket.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -28,6 +29,8 @@ public class LoginActivity extends AppCompatActivity {
     private Button btLogin;
     private EditText username;
     private EditText password;
+
+    private static String TAG_LOGIN = "TAG_LOGIN";
 
 
     @Override
@@ -64,10 +67,13 @@ public class LoginActivity extends AppCompatActivity {
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            Log.d("LoginRequest", response.toString());
+                            Log.d(TAG_LOGIN, response.toString());
                             try {
-                                Toast.makeText(getApplicationContext(), response.getString("message"), Toast.LENGTH_SHORT).show();
-                                //generateKeys2();
+                                //Toast.makeText(getApplicationContext(), response.getString("message"), Toast.LENGTH_SHORT).show();
+                                Log.d(TAG_LOGIN, "UUID VALUE: " + response.getString("uuid"));
+                                Log.d(TAG_LOGIN, "Server public key value: " + response.getString("server_public_key"));
+                                Intent intent = new Intent(getApplicationContext(), MainMenuActivity.class);
+                                startActivity(intent);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -76,7 +82,7 @@ public class LoginActivity extends AppCompatActivity {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
-                            Log.d("LoginRequest", volleyError.toString());
+                            Log.d(TAG_LOGIN, volleyError.toString());
                             if (volleyError.networkResponse != null) {
                                 Log.d("Error.Response", "Status Code Error: " + volleyError.networkResponse.statusCode);
                                 Log.d("Error.Response", "Server Error Response: " + new String(volleyError.networkResponse.data));

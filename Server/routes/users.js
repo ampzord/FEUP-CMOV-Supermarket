@@ -7,6 +7,9 @@ const uuidv4 = require('uuid/v4');
 const keys = require('../cryptography');
 const { generateKeyPair } = require('crypto');
 const { writeFileSync, fs } = require("fs");
+var ursa = require('ursa');
+const forge = require("node-forge");
+const pem = require('pem-file')
 
 const registrationValidationRules = [
   check('fName','First name is empty.').not().isEmpty(),
@@ -30,29 +33,29 @@ const registrationValidationRules = [
 
 /* Register user in database */
 router.post('/register', registrationValidationRules, function(req, res, next) {
-  //App sends to server:
-    // - Registration information
-    // - App public key
-
   //Server must send to App:
     // - UUID
     // - Server public key
 
   console.log(req.body);
   const errors = validationResult(req);
+
+  //Create UUID for user
   const uuid = uuidv4();
 
   //Load server public key from file
+  privKey = fs.readFileSync('./keys/server_public_key.pem.pem', 'utf8');
+  console.log('publickey:' + privKey);
 
   if (errors.isEmpty()) {
     const user = new User(req.body);
     user.save()
     .then(user => {
-        res.status(200).json({ //send UUI & server public key
+        res.status(200).json({
           ok: true,
           user: user,
           message: 'User created successfully.',
-          server_public_key: 'publickeywaiting',
+          server_public_key: 'help',
           uuid: uuid
         })
     })
@@ -63,9 +66,6 @@ router.post('/register', registrationValidationRules, function(req, res, next) {
   else {
     return res.status(422).jsonp(errors.array()[0].msg);
   }
-  
-
- 
 });
 
 const signinValidationRules = [
