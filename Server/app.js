@@ -3,7 +3,9 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-//var crypto = require('cryptography')
+var cryp = require('./crypto_utils');
+const { generateKeyPairSync } = require('crypto');
+const { writeFileSync, fs } = require('fs');
 
 //const uuid = require('uuid/v4')
 //const session = require('express-session')
@@ -13,7 +15,8 @@ var usersRouter = require('./routes/users');
 
 var app = express();
 
-//crypto.generateKeys();
+//only runs once for the keys only need to be generated once
+//cryp.generateKeys();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

@@ -7,6 +7,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -15,8 +16,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
+
+import static android.content.ContentValues.TAG;
 
 public class KeyStoreUtils {
 
@@ -41,8 +47,8 @@ public class KeyStoreUtils {
         KeyPair kp = kpg.generateKeyPair();
         PublicKey publicKey = kp.getPublic();
         PrivateKey privateKey = kp.getPrivate();
-        Log.d(KEY_TAG, "Public key: " + publicKey.toString());
-        Log.d(KEY_TAG, "Private key: " + privateKey.toString());
+        //Log.d(KEY_TAG, "Public key: " + publicKey.toString());
+        //Log.d(KEY_TAG, "Private key: " + privateKey.toString());
 
 
         byte[] pKbytes = Base64.encode(publicKey.getEncoded(), 0);
@@ -53,8 +59,7 @@ public class KeyStoreUtils {
         return pubKeyFormmated;
     }
 
-
-    public void getAllKeyStoreKeys() throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException {
+    public static void getAllKeyStoreKeys() throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException {
         /*
          * Load the Android KeyStore instance using the
          * "AndroidKeyStore" provider to list out what entries are
@@ -79,6 +84,52 @@ public class KeyStoreUtils {
                 | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+        return false;
+    }
+
+    //TODO CHANGE TO SHA256WithRSA
+    public static byte[] signData(String alias, byte[] data)
+            throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException,
+            InvalidKeyException, UnrecoverableEntryException, SignatureException {
+        /*
+         * Use a PrivateKey in the KeyStore to create a signature over
+         * some data.
+         */
+        KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
+        ks.load(null);
+        KeyStore.Entry entry = ks.getEntry(alias, null);
+        if (!(entry instanceof KeyStore.PrivateKeyEntry)) {
+            Log.w(KEY_TAG, "Not an instance of a PrivateKeyEntry");
+            return null;
+        }
+        Signature s = Signature.getInstance("SHA256withECDSA");
+        s.initSign(((KeyStore.PrivateKeyEntry) entry).getPrivateKey());
+        s.update(data);
+        byte[] signature = s.sign();
+        return signature;
+    }
+
+    //TODO CHANGE TO SHA256WithRSA
+    public static boolean verifyData(String alias, byte[] data)
+            throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException,
+            InvalidKeyException, SignatureException, UnrecoverableEntryException {
+        /*
+         * Verify a signature previously made by a PrivateKey in our
+         * KeyStore. This uses the X.509 certificate attached to our
+         * private key in the KeyStore to validate a previously
+         * generated signature.
+         */
+        KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
+        ks.load(null);
+        KeyStore.Entry entry = ks.getEntry(alias, null);
+        if (!(entry instanceof KeyStore.PrivateKeyEntry)) {
+            Log.w(TAG, "Not an instance of a PrivateKeyEntry");
+            return false;
+        }
+        Signature s = Signature.getInstance("SHA256withECDSA");
+        s.initVerify(((KeyStore.PrivateKeyEntry) entry).getCertificate());
+        s.update(data);
+        //boolean valid = s.verify(signature); //TODO server_public_key
         return false;
     }
 }

@@ -1,15 +1,11 @@
 const Joi = require('joi');
 const express = require('express');
 const router = express.Router();
-const { check, validationResult, signupFailures } = require('express-validator')
+const { check, validationResult } = require('express-validator')
 const { User } = require('../database')
 const uuidv4 = require('uuid/v4');
-const keys = require('../cryptography');
-const { generateKeyPair } = require('crypto');
-const { writeFileSync, fs } = require("fs");
-var ursa = require('ursa');
-const forge = require("node-forge");
-const pem = require('pem-file')
+const cryp = require('../crypto_utils');
+const forge = require('node-forge');
 
 const registrationValidationRules = [
   check('fName','First name is empty.').not().isEmpty(),
@@ -44,8 +40,19 @@ router.post('/register', registrationValidationRules, function(req, res, next) {
   const uuid = uuidv4();
 
   //Load server public key from file
-  privKey = fs.readFileSync('./keys/server_public_key.pem.pem', 'utf8');
-  console.log('publickey:' + privKey);
+
+  // convert PEM-formatted private key to a Forge private key
+  var forgePrivateKey = forge.pki.privateKeyFromPem(cryp.server_private_key);
+
+  // get a Forge public key from the Forge private key
+  var forgePublicKey = forge.pki.setRsaPublicKey(forgePrivateKey.n, forgePrivateKey.e);
+
+  // convert the Forge public key to a PEM-formatted public key
+  var publicKey = forge.pki.publicKeyToPem(forgePublicKey);
+
+  // convert the Forge public key to an OpenSSH-formatted public key for authorized_keys
+  //var sshPublicKey = forge.ssh.publicKeyToOpenSSH(forgePublicKey);
+
 
   if (errors.isEmpty()) {
     const user = new User(req.body);
@@ -55,7 +62,7 @@ router.post('/register', registrationValidationRules, function(req, res, next) {
           ok: true,
           user: user,
           message: 'User created successfully.',
-          server_public_key: 'help',
+          server_public_key: publicKey,
           uuid: uuid
         })
     })

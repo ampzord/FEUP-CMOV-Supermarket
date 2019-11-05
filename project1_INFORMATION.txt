@@ -36,7 +36,7 @@ CHECKOUT
 		- list of products (max 10 items)
 		- id
 		- price
-		- userID (transmitted in registration)
+		- UUID (transmitted in registration)
 		- possibly ONE VOUCHER ID (selected by the user)
 		- possibility to discount the amount accumulated so far (BOOLEAN)
 		- SIGNED BY USER PRIVATE KEY
@@ -57,7 +57,7 @@ PAYMENT AND RESULT
 
 PAST TRANSACTIONS 
 
-	user can ask server for past transactions data using its userID, signed with user private key. (????? - how is this sent? like json format ? { UUID: value, private_key: value})
+	user can ask server for past transactions data using its UUID, signed with user private key. 
 	If available the server also transmits back all the emmited and still unused vouchers.
 	(UPDATES THE LOCAL LIST OF VOUCHERS THE USER HAS).
 
