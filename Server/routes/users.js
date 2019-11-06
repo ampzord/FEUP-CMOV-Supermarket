@@ -14,10 +14,7 @@ const registrationValidationRules = [
   check('password','Password is empty.').not().isEmpty(),
   check('password_conf','Password confirmation is empty.').not().isEmpty(),
   check('credit_card','Credit card is empty.').not().isEmpty(),
-  check('fName','First name is empty.').not().isEmpty(),
-  check('fName','First name is not alphanumeric.').isAlphanumeric(),
   check('fName','First name does not meet minimum length (3).').isLength({ min: 3}),
-  check('lName','Last name is not alphanumeric.').isAlphanumeric(),
   check('lName','Last name does not meet minimum length (3).').isLength({ min: 3}),
   check('username','Username is not alphanumeric.').isAlphanumeric(),
   check('username','Username does not meet minimum length (3).').isLength({ min: 3}),
@@ -33,11 +30,12 @@ router.post('/register', registrationValidationRules, function(req, res, next) {
     // - UUID
     // - Server public key
 
+  console.log('\nAPP /register REQUEST\n');
   console.log(req.body);
   const errors = validationResult(req);
 
   //Create UUID for user
-  const uuid = uuidv4();
+  //const uuid = uuidv4();
 
   //Load server public key from file
 
@@ -53,22 +51,30 @@ router.post('/register', registrationValidationRules, function(req, res, next) {
   // convert the Forge public key to an OpenSSH-formatted public key for authorized_keys
   //var sshPublicKey = forge.ssh.publicKeyToOpenSSH(forgePublicKey);
 
-
   if (errors.isEmpty()) {
-    const user = new User(req.body);
-    user.save()
-    .then(user => {
-        res.status(200).json({
-          ok: true,
-          user: user,
-          message: 'User created successfully.',
-          server_public_key: publicKey,
-          uuid: uuid
-        })
-    })
-    .catch(err => {
-        res.status(500).json('Username already exists.');
+
+    // Create a new user
+    User.create({
+      fName: req.body.fName,
+      lName: req.body.lName,
+      username: req.body.username,
+      password: req.body.password,
+      password_conf: req.body.password_conf,
+      credit_card: req.body.credit_card,
+      public_key: req.body.public_key,
+      uuid: uuidv4(),
+    }).then(user => {
+      res.status(200).json({
+        ok: true,
+        user: user,
+        message: 'User created successfully.',
+        server_public_key: publicKey,
+      })
+    }).catch(err => {
+      console.log(err);
+      res.status(500).json('Username already exists.');
     });
+
   }
   else {
     return res.status(422).jsonp(errors.array()[0].msg);
@@ -82,6 +88,9 @@ const signinValidationRules = [
 
 /* Sign in user */
 router.post('/login', signinValidationRules, function(req, res, next) {
+
+  console.log('\nAPP /login REQUEST\n');
+  console.log(req.body);
 
   const errors = validationResult(req);
 

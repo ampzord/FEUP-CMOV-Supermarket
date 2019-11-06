@@ -1,4 +1,4 @@
-package fe.up.pt.supermarket;
+package fe.up.pt.supermarket.activities;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -11,7 +11,9 @@ import android.widget.TextView;
 
 import java.nio.charset.StandardCharsets;
 
-public class ScanQR extends AppCompatActivity {
+import fe.up.pt.supermarket.R;
+
+public class ScanQRActivity extends AppCompatActivity {
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     TextView message;
 

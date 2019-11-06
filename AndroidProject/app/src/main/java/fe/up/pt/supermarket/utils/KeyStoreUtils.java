@@ -87,7 +87,6 @@ public class KeyStoreUtils {
         return false;
     }
 
-    //TODO CHANGE TO SHA256WithRSA
     public static byte[] signData(String alias, byte[] data)
             throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException,
             InvalidKeyException, UnrecoverableEntryException, SignatureException {
@@ -102,14 +101,14 @@ public class KeyStoreUtils {
             Log.w(KEY_TAG, "Not an instance of a PrivateKeyEntry");
             return null;
         }
-        Signature s = Signature.getInstance("SHA256withECDSA");
+        Signature s = Signature.getInstance("SHA256withRSA");
         s.initSign(((KeyStore.PrivateKeyEntry) entry).getPrivateKey());
         s.update(data);
         byte[] signature = s.sign();
         return signature;
     }
 
-    //TODO CHANGE TO SHA256WithRSA
+    //TODO server_public_key
     public static boolean verifyData(String alias, byte[] data)
             throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException,
             InvalidKeyException, SignatureException, UnrecoverableEntryException {
@@ -126,10 +125,10 @@ public class KeyStoreUtils {
             Log.w(TAG, "Not an instance of a PrivateKeyEntry");
             return false;
         }
-        Signature s = Signature.getInstance("SHA256withECDSA");
+        Signature s = Signature.getInstance("SHA256withRSA");
         s.initVerify(((KeyStore.PrivateKeyEntry) entry).getCertificate());
         s.update(data);
-        //boolean valid = s.verify(signature); //TODO server_public_key
+        //boolean valid = s.verify(signature);
         return false;
     }
 }

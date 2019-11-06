@@ -8,5 +8,6 @@ module.exports = (sequelize, type) => {
     password_conf: { type: type.STRING, allowNull: false },
     credit_card: { type: type.BIGINT, allowNull: false },
     public_key: { type: type.STRING, allowNull: false },
+    uuid: { type: type.STRING, allowNull: false, unique: true  },
   })
 }

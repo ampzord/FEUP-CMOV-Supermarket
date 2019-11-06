@@ -17,7 +17,7 @@ public class LandingPageActivity extends AppCompatActivity {
 
     //public static String URL = "https://localhost:3000/api";
     //public static String URL = "https://192.168.1.12:3000/api"; //HOME
-    public static String URL = "https://10.227.159.165:3000/api"; //FEUP
+    public static String URL = "https://10.227.149.211:3000/api"; //FEUP
     //public static String URL = "https://grisly-mummy-10353.herokuapp.com";
 
     @Override

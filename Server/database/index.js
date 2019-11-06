@@ -32,8 +32,8 @@ sequelize
   .then(() => {
     //console.log(`Database & tables created!`)
     User.bulkCreate([
-      { fName: 'Ricardo', lName: 'Fonseca', username: 'rfonseca', password: 'password1', password_conf: 'password1', credit_card: '4611441749020896', public_key: 'publickey1' },
-      { fName: 'Miguel', lName: 'Moreira', username: 'mmoreira', password: 'password2', password_conf: 'password2', credit_card: '4025668462246072', public_key: 'publickey2'  },
+      { fName: 'Ricardo', lName: 'Fonseca', username: 'rfonseca', password: 'password1', password_conf: 'password1', credit_card: '4611441749020896', public_key: 'publickey1', uuid: 'uuid1' },
+      { fName: 'Miguel', lName: 'Moreira', username: 'mmoreira', password: 'password2', password_conf: 'password2', credit_card: '4025668462246072', public_key: 'publickey2', uuid: 'uuid2'  },
     ])
   })
 

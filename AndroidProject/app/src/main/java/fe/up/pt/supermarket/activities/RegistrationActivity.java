@@ -41,12 +41,12 @@ public class RegistrationActivity extends AppCompatActivity {
     private EditText password_conf;
     private EditText credit_card;
 
-    private String TAG_COMMUNICATION = "TAG_COMMUNICATION";
+    private String TAG_REGISTER = "TAG_REGISTER";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registration);
+        setContentView(R.layout.activity_registration2);
 
         register = findViewById(R.id.bt_send_register);
         firstName = findViewById(R.id.edit_first_name);
@@ -56,14 +56,11 @@ public class RegistrationActivity extends AppCompatActivity {
         password_conf = findViewById(R.id.edit_password_conf);
         credit_card = findViewById(R.id.credit_card);
 
-        register.setOnClickListener(
-                new View.OnClickListener()
-                {
-                    public void onClick(View view)
-                    {
+        register.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View view) {
                         sendRegistrationRequest();
                     }
-                });
+        });
     }
 
     private void sendRegistrationRequest() {
@@ -95,8 +92,10 @@ public class RegistrationActivity extends AppCompatActivity {
                             try {
                                 String server_msg_response = response.getString("message");
                                 Toast.makeText(getApplicationContext(), server_msg_response, Toast.LENGTH_SHORT).show();
-                                Log.d(TAG_COMMUNICATION, "UUID: " + response.getString("uuid"));
-                                Log.d(TAG_COMMUNICATION, "SERVER PUBLIC KEY: " + response.getString("server_public_key"));
+                                JSONObject getSth = response.getJSONObject("user");
+                                Object uuid = getSth.get("uuid");
+                                Log.d(TAG_REGISTER, "UUID: " + uuid.toString());
+                                Log.d(TAG_REGISTER, "SERVER PUBLIC KEY: " + response.getString("server_public_key"));
                                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                                 startActivity(intent);
                             } catch (JSONException e) {
@@ -108,10 +107,10 @@ public class RegistrationActivity extends AppCompatActivity {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
                             //Log.d("RegistrationRequest", "Entered2");
-                            Log.d(TAG_COMMUNICATION, volleyError.toString());
+                            Log.d(TAG_REGISTER, volleyError.toString());
                             if (volleyError.networkResponse != null) {
-                                Log.d(TAG_COMMUNICATION, "Status Code Error: " + volleyError.networkResponse.statusCode);
-                                Log.d(TAG_COMMUNICATION, "Server Error Response: " + new String(volleyError.networkResponse.data));
+                                Log.d(TAG_REGISTER, "Status Code Error: " + volleyError.networkResponse.statusCode);
+                                Log.d(TAG_REGISTER, "Server Error Response: " + new String(volleyError.networkResponse.data));
                                 Toast.makeText(getApplicationContext(), new String(volleyError.networkResponse.data), Toast.LENGTH_SHORT).show();
                             }
                         }

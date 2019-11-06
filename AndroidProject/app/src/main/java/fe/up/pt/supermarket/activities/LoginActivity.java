@@ -68,15 +68,11 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(JSONObject response) {
                             Log.d(TAG_LOGIN, response.toString());
-                            try {
-                                //Toast.makeText(getApplicationContext(), response.getString("message"), Toast.LENGTH_SHORT).show();
-                                Log.d(TAG_LOGIN, "UUID VALUE: " + response.getString("uuid"));
-                                Log.d(TAG_LOGIN, "Server public key value: " + response.getString("server_public_key"));
-                                Intent intent = new Intent(getApplicationContext(), MainMenuActivity.class);
-                                startActivity(intent);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                            //Toast.makeText(getApplicationContext(), response.getString("message"), Toast.LENGTH_SHORT).show();
+                            //Log.d(TAG_LOGIN, "UUID VALUE: " + response.getString("uuid"));
+                            //Log.d(TAG_LOGIN, "Server public key value: " + response.getString("server_public_key"));
+                            Intent intent = new Intent(getApplicationContext(), MainMenuActivity.class);
+                            startActivity(intent);
                         }
                     },
                     new Response.ErrorListener() {
@@ -84,8 +80,8 @@ public class LoginActivity extends AppCompatActivity {
                         public void onErrorResponse(VolleyError volleyError) {
                             Log.d(TAG_LOGIN, volleyError.toString());
                             if (volleyError.networkResponse != null) {
-                                Log.d("Error.Response", "Status Code Error: " + volleyError.networkResponse.statusCode);
-                                Log.d("Error.Response", "Server Error Response: " + new String(volleyError.networkResponse.data));
+                                Log.d(TAG_LOGIN, "Status Code Error: " + volleyError.networkResponse.statusCode);
+                                Log.d(TAG_LOGIN, "Server Error Response: " + new String(volleyError.networkResponse.data));
                                 Toast.makeText(getApplicationContext(), new String(volleyError.networkResponse.data), Toast.LENGTH_SHORT).show();
                             }
                         }
