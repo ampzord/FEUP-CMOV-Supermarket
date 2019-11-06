@@ -6,35 +6,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@drawable/new_splash"
     tools:context=".activities.LandingPageActivity">
-
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_register_page"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
-        android:backgroundTint="@color/cardview_dark_background"
-        android:text="REGISTER"
+        android:layout_width="172dp"
+        android:layout_height="65dp"
+        android:backgroundTint="#2F528F"
+        android:fontFamily="@font/archivo_black"
+        android:text="Register"
         android:textAlignment="center"
         android:textColor="@android:color/white"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:backgroundTint="#2F528F"
         app:layout_constraintBottom_toTopOf="@+id/bt_login_page"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.75"
         app:layout_constraintVertical_chainStyle="packed" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/bt_login_page"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
-        android:layout_weight="1"
-        android:backgroundTint="@color/cardview_dark_background"
-        android:text="LOGIN"
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bt_register_page" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/bt_login_page"
+            android:layout_width="172dp"
+            android:layout_height="65dp"
+            android:layout_weight="1"
+            android:backgroundTint="#2F528F"
+            android:fontFamily="@font/archivo_black"
+            android:text="Login"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.502"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/bt_register_page" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

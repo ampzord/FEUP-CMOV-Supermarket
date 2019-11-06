@@ -10,9 +10,10 @@ import fe.up.pt.supermarket.R;
 
 public class MainMenuActivity extends AppCompatActivity {
     private Button shopping;
-    private Button checkVouchers;
+    private Button checkVouchers; //->update Vouchers
     private Button pastTransactions;
-    private Button profile;
+    private Button profile; //static
+    private Button logout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

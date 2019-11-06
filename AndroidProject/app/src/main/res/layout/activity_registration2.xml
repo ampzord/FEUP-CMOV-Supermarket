@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/generic1"
     tools:context=".activities.RegistrationActivity">
 
     <TableLayout
@@ -129,14 +128,12 @@
     </TableLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/bt_send_login"
-        android:layout_width="172dp"
-        android:layout_height="188dp"
-        android:layout_weight="1"
-        android:backgroundTint="#2F528F"
-        android:fontFamily="@font/archivo_black"
-        android:text="Send"
+        android:id="@+id/bt_send_register"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:backgroundTint="@color/cardview_dark_background"
+        android:text="SEND"
         android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:textSize="24sp" />
+        android:textColor="@android:color/white" />
 </LinearLayout>
