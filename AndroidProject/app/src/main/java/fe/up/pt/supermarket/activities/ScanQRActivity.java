@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.nio.charset.StandardCharsets;
 
@@ -37,6 +38,7 @@ public class ScanQRActivity extends AppCompatActivity {
     public void onRestoreInstanceState(Bundle bundle) {
         super.onRestoreInstanceState(bundle);
         message.setText(bundle.getCharSequence("Message"));
+        //Toast.makeText(getApplicationContext(), bundle.getCharSequence("Message"), Toast.LENGTH_SHORT).show();
     }
 
     public void scan(boolean qrcode) {
@@ -69,7 +71,9 @@ public class ScanQRActivity extends AppCompatActivity {
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
                 String contents = data.getStringExtra("SCAN_RESULT");
-                String format = data.getStringExtra("SCAN_RESULT_FORMAT");
+                MainMenuActivity.hello = contents;
+                Toast.makeText(this, contents, Toast.LENGTH_LONG).show();
+                /*String format = data.getStringExtra("SCAN_RESULT_FORMAT");
                 try {
                     baMess = contents.getBytes(StandardCharsets.ISO_8859_1);
                 }
@@ -77,7 +81,8 @@ public class ScanQRActivity extends AppCompatActivity {
                     message.setText(ex.getMessage());
                     return;
                 }
-                message.setText("Format: " + format + "\nMessage: " + contents + "\n\nHex: " + byteArrayToHex(baMess));
+                message.setText("Format: " + format + "\nMessage: " + contents + "\n\nHex: " + byteArrayToHex(baMess));*/
+
             }
         }
     }

@@ -18,11 +18,14 @@ import fe.up.pt.supermarket.activities.ScanQRActivity;
 
 public class MainMenuActivity extends AppCompatActivity {
     private Button scanItem;
+    private TextView text;
 
     private Button checkVouchers; //->update Vouchers
     private Button pastTransactions;
     private Button profile; //static
     private Button logout;
+
+    public static String hello = "";
 
 
     @Override
@@ -31,6 +34,9 @@ public class MainMenuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main_menu);
 
         scanItem = findViewById(R.id.bt_shopping);
+        text = findViewById(R.id.answer);
+
+        text.setText(hello);
 
         scanItem.setOnClickListener(
                 new View.OnClickListener() {

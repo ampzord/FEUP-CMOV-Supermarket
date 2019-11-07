@@ -26,16 +26,9 @@ const registrationValidationRules = [
 
 /* Register user in database */
 router.post('/register', registrationValidationRules, function(req, res, next) {
-  //Server must send to App:
-    // - UUID
-    // - Server public key
-
   console.log('\nAPP /register REQUEST\n');
   console.log(req.body);
   const errors = validationResult(req);
-
-  //Create UUID for user
-  //const uuid = uuidv4();
 
   //Load server public key from file
 
@@ -52,7 +45,6 @@ router.post('/register', registrationValidationRules, function(req, res, next) {
   //var sshPublicKey = forge.ssh.publicKeyToOpenSSH(forgePublicKey);
 
   if (errors.isEmpty()) {
-
     // Create a new user
     User.create({
       fName: req.body.fName,
@@ -64,6 +56,13 @@ router.post('/register', registrationValidationRules, function(req, res, next) {
       public_key: req.body.public_key,
       uuid: uuidv4(),
     }).then(user => {
+      /*var password = "password";
+      var password_conf = "password_conf";
+      user.remove(password);
+      user.remove(password_conf);*/
+      delete user.password;
+      delete user.password_conf;
+
       res.status(200).json({
         ok: true,
         user: user,
@@ -103,13 +102,13 @@ router.post('/login', signinValidationRules, function(req, res, next) {
 
       //check if user exists
       if (!user) {
-        //console.log("Username: " + req.body.username + " doesn't exist.")
+        console.log("Username: " + req.body.username + " doesn't exist.")
         return res.status(404).send("Username: " + req.body.username + " doesn't exist.");
       }
 
       //check if password matches
       if (!checkPassword(req.body.password, user.password)) {
-        //console.log("Password is incorrect.");
+        console.log("Password is incorrect.");
         return res.status(404).send("Password is incorrect.");
       }
 

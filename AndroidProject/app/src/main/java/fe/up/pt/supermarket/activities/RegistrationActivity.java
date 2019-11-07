@@ -29,6 +29,7 @@ import java.security.NoSuchProviderException;
 import fe.up.pt.supermarket.utils.HttpsTrustManagerUtils;
 import fe.up.pt.supermarket.R;
 import fe.up.pt.supermarket.utils.KeyStoreUtils;
+import fe.up.pt.supermarket.utils.MultipleClicksUtils;
 
 import static fe.up.pt.supermarket.activities.LandingPageActivity.URL;
 
@@ -58,6 +59,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
         register.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
+                        if (MultipleClicksUtils.prevent()) return;
                         sendRegistrationRequest();
                     }
         });
