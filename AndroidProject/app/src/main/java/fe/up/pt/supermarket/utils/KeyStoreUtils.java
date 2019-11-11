@@ -28,6 +28,29 @@ public class KeyStoreUtils {
 
     private static String KEY_TAG = "KEY_TAG";
 
+    /*
+    private static final String privateKeyString = "...";
+private static PrivateKey privateKey;
+private static final String publicKeyString = "...";
+private static PublicKey publicKey;
+static {
+    KeyFactory kf;
+    try {
+        kf = KeyFactory.getInstance("RSA");
+        byte[] encodedPv = Base64.decodeBase64(privateKeyString);
+        PKCS8EncodedKeySpec keySpecPv = new PKCS8EncodedKeySpec(encodedPv);
+        privateKey = kf.generatePrivate(keySpecPv);
+
+        byte[] encodedPb = Base64.decodeBase64(publicKeyString);
+        X509EncodedKeySpec keySpecPb = new X509EncodedKeySpec(encodedPb);
+        publicKey = kf.generatePublic(keySpecPb);
+
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+
+    }
+}
+     */
+
     public static String generateKeys(String username) throws InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchAlgorithmException {
         /*
          * Generate a new EC key pair entry in the Android Keystore by

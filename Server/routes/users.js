@@ -6,6 +6,7 @@ const { User } = require('../database')
 const uuidv4 = require('uuid/v4');
 const cryp = require('../crypto_utils');
 const forge = require('node-forge');
+const NodeRSA = require('node-rsa');
 
 const registrationValidationRules = [
   check('fName','First name is empty.').not().isEmpty(),
@@ -129,9 +130,6 @@ function checkPassword(message_pwd, db_password) {
     return true;
   return false;
 }
-
-
-
 
 /* GET all users listing. */
 router.get('/users', function(req, res, next) {

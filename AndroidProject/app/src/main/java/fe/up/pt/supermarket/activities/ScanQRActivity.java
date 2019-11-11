@@ -71,7 +71,6 @@ public class ScanQRActivity extends AppCompatActivity {
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
                 String contents = data.getStringExtra("SCAN_RESULT");
-                MainMenuActivity.hello = contents;
                 Toast.makeText(this, contents, Toast.LENGTH_LONG).show();
                 /*String format = data.getStringExtra("SCAN_RESULT_FORMAT");
                 try {

@@ -23,7 +23,7 @@ SHOPPING BASKET
 		- PRODUCT CODE UNIQUE 16 byte UUID
 		- Value (Euros)
 		- Value (Cents)
-		- Name (Strig)
+		- Name (String)
 
 		ENCRYPTED WITH SUPERMARKET PRIVATE KEY
 
