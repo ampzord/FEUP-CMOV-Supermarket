@@ -100,10 +100,12 @@ router.post('/login', signinValidationRules, function(req, res, next) {
     })
     .then((user) => {
       //console.log(user.dataValues);
+      delete user.password;
+      delete user.password_conf;
 
       //check if user exists
       if (!user) {
-        console.log("Username: " + req.body.username + " doesn't exist.")
+        console.log("Username: " + req.body.username + " doesn't exist.");
         return res.status(404).send("Username: " + req.body.username + " doesn't exist.");
       }
 
