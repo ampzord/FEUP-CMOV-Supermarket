@@ -7,6 +7,8 @@ const uuidv4 = require('uuid/v4');
 const cryp = require('../crypto_utils');
 const forge = require('node-forge');
 const NodeRSA = require('node-rsa');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 const registrationValidationRules = [
   check('fName','First name is empty.').not().isEmpty(),
@@ -46,23 +48,21 @@ router.post('/register', registrationValidationRules, function(req, res, next) {
   //var sshPublicKey = forge.ssh.publicKeyToOpenSSH(forgePublicKey);
 
   if (errors.isEmpty()) {
+    var salt = bcrypt.genSaltSync(saltRounds);
+    var hash = bcrypt.hashSync(req.body.password, salt);
+
     // Create a new user
     User.create({
       fName: req.body.fName,
       lName: req.body.lName,
       username: req.body.username,
-      password: req.body.password,
-      password_conf: req.body.password_conf,
+      password: hash,
       credit_card: req.body.credit_card,
       public_key: req.body.public_key,
       uuid: uuidv4(),
     }).then(user => {
-      /*var password = "password";
-      var password_conf = "password_conf";
-      user.remove(password);
-      user.remove(password_conf);*/
-      delete user.password;
-      delete user.password_conf;
+      //delete user.password;
+      //delete user.password_conf;
 
       res.status(200).json({
         ok: true,
@@ -99,10 +99,6 @@ router.post('/login', signinValidationRules, function(req, res, next) {
       where: {username: req.body.username}
     })
     .then((user) => {
-      //console.log(user.dataValues);
-      delete user.password;
-      delete user.password_conf;
-
       //check if user exists
       if (!user) {
         console.log("Username: " + req.body.username + " doesn't exist.");

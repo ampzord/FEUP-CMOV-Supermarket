@@ -39,8 +39,9 @@ CHECKOUT
 		- UUID (transmitted in registration)
 		- possibly ONE VOUCHER ID (selected by the user)
 		- possibility to discount the amount accumulated so far (BOOLEAN)
-		- SIGNED BY USER PRIVATE KEY
-		- AND SIGNATURE APPENDED (?????????)
+
+	 SIGNED BY USER PRIVATE KEY
+	 AND SIGNATURE APPENDED (?????????)
 
 PAYMENT AND RESULT
 
@@ -64,7 +65,8 @@ PAST TRANSACTIONS
 VOUCHER
 
 	15% discount
-	UUID
+			- UUID
+			
 	when voucher are emmited the server takes note of the user possessing it.
 	when the server receives a voucher in a payment he should check if it belongs to the right user AND was not used.
 	the user should retrieve and store in the phone the emitted unused vouchers, in order to be able to use them in a checkout.

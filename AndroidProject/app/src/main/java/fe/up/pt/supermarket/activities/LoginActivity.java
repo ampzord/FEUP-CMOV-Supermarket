@@ -1,7 +1,9 @@
 package fe.up.pt.supermarket.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,6 +22,9 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.PublicKey;
+import java.util.UUID;
+
 import fe.up.pt.supermarket.R;
 import fe.up.pt.supermarket.utils.HttpsTrustManagerUtils;
 import fe.up.pt.supermarket.utils.MultipleClicksUtils;
@@ -32,6 +37,10 @@ public class LoginActivity extends AppCompatActivity {
     private EditText password;
 
     private static String TAG_LOGIN = "TAG_LOGIN";
+
+    public static UUID USER_UUID;
+    //public static PublicKey SERVER_PUBLIC_KEY;
+    public static String SERVER_PUBLIC_KEY;
 
 
     @Override
@@ -73,8 +82,9 @@ public class LoginActivity extends AppCompatActivity {
                             //Toast.makeText(getApplicationContext(), response.getString("message"), Toast.LENGTH_SHORT).show();
                             //Log.d(TAG_LOGIN, "UUID VALUE: " + response.getString("uuid"));
                             //Log.d(TAG_LOGIN, "Server public key value: " + response.getString("server_public_key"));
-                            Intent intent = new Intent(getApplicationContext(), MainMenuActivity.class);
-                            startActivity(intent);
+                            getServerPublicKey();
+                            getUserUUID(username.getText().toString());
+                            sendToMainMenu();
                         }
                     },
                     new Response.ErrorListener() {
@@ -95,4 +105,22 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+    //TODO load user UUID
+    public void getUserUUID(String username) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String s_uuid = preferences.getString(username, "");
+        USER_UUID = UUID.fromString(s_uuid);
+    }
+    public void getServerPublicKey() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SERVER_PUBLIC_KEY = preferences.getString("SERVER_PUBLIC_KEY", "");
+    }
+
+    private void sendToMainMenu() {
+        Intent intent = new Intent(this, MainMenuActivity.class);
+        startActivity(intent);
+    }
+
+
 }

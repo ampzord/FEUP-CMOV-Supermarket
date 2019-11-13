@@ -4,8 +4,10 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -95,9 +97,11 @@ public class RegistrationActivity extends AppCompatActivity {
                                 String server_msg_response = response.getString("message");
                                 Toast.makeText(getApplicationContext(), server_msg_response, Toast.LENGTH_SHORT).show();
                                 JSONObject getSth = response.getJSONObject("user");
-                                Object uuid = getSth.get("uuid");
-                                Log.d(TAG_REGISTER, "UUID: " + uuid.toString());
-                                Log.d(TAG_REGISTER, "SERVER PUBLIC KEY: " + response.getString("server_public_key"));
+                                //Object uuid = getSth.get("uuid");
+                                //Log.d(TAG_REGISTER, "UUID: " + uuid.toString());
+                                //Log.d(TAG_REGISTER, "SERVER PUBLIC KEY: " + response.getString("server_public_key"));
+                                saveServerPublicKey(response);
+                                saveUserUUID(getSth);
                                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                                 startActivity(intent);
                             } catch (JSONException e) {
@@ -129,6 +133,25 @@ public class RegistrationActivity extends AppCompatActivity {
         } catch (NoSuchProviderException e) {
             e.printStackTrace();
         }
+    }
+
+    public void saveServerPublicKey(JSONObject str) throws JSONException {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = preferences.edit();
+        //Log.d(TAG_REGISTER, "SAVING SV PUB KEY TO APP:" + str.getString("server_public_key"));
+        editor.putString("SERVER_PUBLIC_KEY",str.getString("server_public_key"));
+        editor.apply();
+    }
+
+    public void saveUserUUID(JSONObject str) throws JSONException {
+        Object username = str.get("username");
+        Object uuid = str.get("uuid");
+        //Log.d(TAG_REGISTER, "Username: " + username.toString());
+        //Log.d(TAG_REGISTER, "UUID: " + uuid.toString());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(username.toString(), uuid.toString());
+        editor.apply();
     }
 
     public void getJSONRequest() {

@@ -6,8 +6,10 @@ import android.util.Base64;
 import android.util.Log;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -20,6 +22,7 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Enumeration;
 
 import static android.content.ContentValues.TAG;
@@ -74,12 +77,35 @@ static {
         //Log.d(KEY_TAG, "Private key: " + privateKey.toString());
 
 
-        byte[] pKbytes = Base64.encode(publicKey.getEncoded(), 0);
+        byte[] pKbytes = Base64.encode(publicKey.getEncoded(), Base64.DEFAULT);
         String pK = new String(pKbytes);
-        String pubKeyFormmated = "-----BEGIN PUBLIC KEY-----\n" + pK + "-----END PUBLIC KEY-----\n";
+        String pubKeyFormated = "-----BEGIN PUBLIC KEY-----\n" + pK + "-----END PUBLIC KEY-----\n";
+        //Log.d(KEY_TAG, "Public key FORMATTED: " + pubKeyFormated);
 
-        Log.d(KEY_TAG, "Public key FORMATTED: " + pubKeyFormmated);
-        return pubKeyFormmated;
+        String encodedPubKey = new String(Base64.encode(pubKeyFormated.getBytes(), Base64.DEFAULT));
+        //Log.d(KEY_TAG, "Public key ENCODED: " + encodedPubKey);
+
+        /*byte[] privKeyBytes = Base64.encode(privateKey.getEncoded(), Base64.DEFAULT);
+        String privK = new String(privKeyBytes);
+        String privKeyFormated = "-----BEGIN PRIVATE KEY-----\n" + privK + "-----END PRIVATE KEY-----\n";
+        Log.d(KEY_TAG, "Private key FORMATTED: " + privKeyFormated);*/
+
+        return encodedPubKey;
+    }
+
+    public static PublicKey getKey(String key){
+        try{
+            byte[] byteKey = Base64.decode(key.getBytes(), Base64.DEFAULT);
+            X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(byteKey);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+
+            return kf.generatePublic(X509publicKey);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     public static void getAllKeyStoreKeys() throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException {
