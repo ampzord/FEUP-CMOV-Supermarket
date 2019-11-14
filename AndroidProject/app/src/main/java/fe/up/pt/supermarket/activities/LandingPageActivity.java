@@ -11,6 +11,8 @@ import android.widget.Button;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
+import java.security.PublicKey;
+
 import fe.up.pt.supermarket.R;
 import fe.up.pt.supermarket.utils.MultipleClicksUtils;
 
@@ -18,8 +20,10 @@ public class LandingPageActivity extends AppCompatActivity {
 
     //public static String URL = "https://localhost:3000/api";
     //public static String URL = "https://192.168.1.12:3000/api"; //HOME
-    public static String URL = "https://10.227.158.201:3001/api"; //FEUP
+    public static String URL = "https://10.227.147.104:3001/api"; //FEUP
     //public static String URL = "https://grisly-mummy-10353.herokuapp.com";
+
+    public static PublicKey SERVER_PUBLIC_KEY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

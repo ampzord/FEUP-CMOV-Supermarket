@@ -17,11 +17,13 @@ import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -43,7 +45,10 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.UUID;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.security.auth.x500.X500Principal;
 
 public class MainActivity extends AppCompatActivity {
@@ -57,20 +62,21 @@ public class MainActivity extends AppCompatActivity {
   EditText edUUID, edName, edEuros, edCents;
   TextView tvNoKey, tvKey;
 
-  private final String sv_private_key = "-----BEGIN RSA PRIVATE KEY-----\n"
-    + "MIIBOgIBAAJBAMUfX/Pj+RMmLGGk7UXp9J54i7FTXueOR+h9Y9FXpiDi37KSqTil\n"
-    + "jd8Kf+RHx+Vj8Yazeg+aQCCmONk9akjrzv8CAwEAAQJAaIVwXWPeKBcvpT7MSSv6\n"
-    + "dyS3/XiVc/ZvjokeKlxtTDXRPe2zeGtGljdazBVSp3qPuqOOJZpZjcch1NfiOqQQ\n"
-    + "IQIhAPIbb1+8NbLfAksD/ouJvjGgqxnLSs07jXL9gM1tns/nAiEA0G8dJcF1mCCJ\n"
-    + "CBMhr04oNWgX5lI+sBzrCsD7dZKLBSkCIAZ/hAK+y3YslCQtTES0gr1UQaNkmHJf\n"
-    + "udEvSqi4231bAiAr5isiZ5OH3dpenADtNi3bybe2572SRBTw5+JOSfYDuQIhAJ9V\n"
-    + "s6JR7AiSsjj83z9knxd0q/iLTTPtZB0exxIS7x3o\n"
-    + "-----END RSA PRIVATE KEY-----";
+  private final String sv_private_key = "-----BEGIN PRIVATE KEY-----\n" +
+          "MIIBVQIBADANBgkqhkiG9w0BAQEFAASCAT8wggE7AgEAAkEAwzTF8SZuWwUCPlZN\n" +
+          "pTytoD+GH5aQj7N6UYgHZlXHErqaWJvnajrL7e0k9FpdpuOYfYAP2w+ResKuMkIi\n" +
+          "gHnxKQIDAQABAkBcfkvwOMJ/dD8c5G3EBp1KWe8mVoRG4sbpjOfcsHY0Q8zag+hW\n" +
+          "w8+YVa+5WDjYL3Z9F0Rl0WOENi5Xc3hiId0BAiEA5weGX+fCFMN8x1pahcaKpr57\n" +
+          "pxWc1qgYAuoEiZ/NHgkCIQDYTgkqIgYrud+Z3V6bLDKas6aa99ZKGSFgr391qaUC\n" +
+          "IQIhAITZiOXhaXNzLm+cf21pzBUyd/yOqw+svZH/a/iP0e2xAiEAmTqer2Qu7ubb\n" +
+          "iYoSLOagaor9aSZMfW1UAcQRDO9CX0ECIDU21TL/mABbUajV9viEb86YpbPbYdbO\n" +
+          "DpTgNGb9GJFY\n" +
+          "-----END PRIVATE KEY-----";
 
-  private final String sv_public_key = "-----BEGIN RSA PUBLIC KEY-----\n"
-   + "MEgCQQDFH1/z4/kTJixhpO1F6fSeeIuxU17njkfofWPRV6Yg4t+ykqk4pY3fCn/k\n"
-   + "R8flY/GGs3oPmkAgpjjZPWpI687/AgMBAAE=\n"
-   + "-----END RSA PUBLIC KEY-----";
+  private final String sv_public_key = "-----BEGIN PUBLIC KEY-----\n" +
+          "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMM0xfEmblsFAj5WTaU8raA/hh+WkI+z\n" +
+          "elGIB2ZVxxK6mlib52o6y+3tJPRaXabjmH2AD9sPkXrCrjJCIoB58SkCAwEAAQ==\n" +
+          "-----END PUBLIC KEY-----";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
     findViewById(R.id.bt_send).setOnClickListener((v)->sendKey());
     findViewById(R.id.bt_showkey).setOnClickListener((v)->showKey());
 
-    try {
+    /*try {
       KeyStore ks = KeyStore.getInstance(Constants.ANDROID_KEYSTORE);
       ks.load(null);
       KeyStore.Entry entry = ks.getEntry(Constants.keyname, null);
@@ -104,21 +110,26 @@ public class MainActivity extends AppCompatActivity {
       }
     }
     catch (Exception e) {
-      genKeysServer();
-    }
+    }*/
+    //Log.d("TAG_KEY", "Value of hasKey: " + hasKey);
 
     try {
-      String publicK = publicKeyToString(pub);
-      Log.d("TAG_KEY", "PublicKey: " + publicK);
-      String privcK = privateKeyToString(pri);
-      Log.d("TAG_KEY", "PrivateKey: " + privcK);
-    } catch (GeneralSecurityException e) {
+      pub = getPublicKeyFromString(sv_public_key);
+      String newPublicKey = publicKeyToString(pub);
+      Log.d("TAG_KEY", "newPublicKey: " + newPublicKey);
+
+      pri = getPrivateKeyFromString(sv_private_key);
+      Log.d("TAG_KEY", "newPrivateKey: " + pri.toString());
+
+    } catch (Exception e) {
+      Log.d("TAG_KEY", "Caught Exception");
       e.printStackTrace();
     }
 
+    Log.d("TAG_KEY", "PASSOU");
 
-
-    //printKeys();
+    hasKey = true;
+    tvNoKey.setText("");
 
     findViewById(R.id.bt_send).setEnabled(hasKey);
     findViewById(R.id.bt_showkey).setEnabled(hasKey);
@@ -163,16 +174,53 @@ public class MainActivity extends AppCompatActivity {
     tvKey.setText(text);
   }
 
-  public static String privateKeyToString(PrivateKey priv) throws GeneralSecurityException {
-    //DatatypeConverter.printBase64Binary(privKey.getEncoded()))
-    return "";
-  }
-
   public static String publicKeyToString(PublicKey publ) throws GeneralSecurityException {
     KeyFactory fact = KeyFactory.getInstance("RSA");
     X509EncodedKeySpec spec = fact.getKeySpec(publ,
             X509EncodedKeySpec.class);
     return Base64.encodeToString(spec.getEncoded(), Base64.DEFAULT);
+  }
+
+  public PublicKey getPublicKeyFromString(String keystr) throws Exception {
+    // Remove the first and last lines
+    //PEM FILE STARTS WITH BEGIN RSA PUBLIC KEY
+    String pubKeyPEM = keystr.replace("-----BEGIN PUBLIC KEY-----\n", "");
+    pubKeyPEM = pubKeyPEM.replace("-----END PUBLIC KEY-----", "");
+
+    // Base64 decode the data
+
+    byte [] encoded = Base64.decode(pubKeyPEM, Base64.DEFAULT);
+    X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
+    KeyFactory kf = KeyFactory.getInstance("RSA");
+    PublicKey pubkey = kf.generatePublic(keySpec);
+
+    return pubkey;
+  }
+
+  public PrivateKey getPrivateKeyFromString(String str) throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException {
+    String privKeyPEM = str.replace("-----BEGIN PRIVATE KEY-----\n", "");
+    privKeyPEM = privKeyPEM.replace("-----END PRIVATE KEY-----", "");
+
+    byte[] encoded = Base64.decode(privKeyPEM, Base64.DEFAULT);
+    PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
+    KeyFactory kf = KeyFactory.getInstance("RSA");
+    PrivateKey sessionkey = kf.generatePrivate(keySpec);
+    return sessionkey;
+  }
+
+  public String RSAEncrypt(final String plain) throws NoSuchAlgorithmException, NoSuchPaddingException,
+          InvalidKeyException, IllegalBlockSizeException, BadPaddingException, IOException {
+
+    /*if (pubKey != null) {
+      cipher = Cipher.getInstance("RSA");
+      cipher.init(Cipher.ENCRYPT_MODE, pubKey);
+      encryptedBytes = cipher.doFinal(plain.getBytes());
+      Log.d("BYTES", new String(encryptedBytes));
+      //return Hex.encodeHexString(encryptedBytes);
+      return new String(Base64.encode(encryptedBytes));
+    }
+    else*/
+      return null;
   }
 
   public void generateKeys(String username) throws InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchAlgorithmException {
@@ -286,7 +334,7 @@ public class MainActivity extends AppCompatActivity {
   }
 
   void genKeys() {
-    String text;
+    /*String text;
 
     try {
       Calendar start = new GregorianCalendar();
@@ -320,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
     text += byteArrayToHex(modulus) + "\n";
     text += "Public Exponent:\n";
     text += byteArrayToHex(((RSAPublicKey)pub).getPublicExponent().toByteArray()) + "\n";
-    tvKey.setText(text);
+    tvKey.setText(text);*/
   }
 
   void sendKey() {

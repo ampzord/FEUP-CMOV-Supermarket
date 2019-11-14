@@ -1,12 +1,17 @@
 package fe.up.pt.supermarket.utils;
 
+import android.provider.SyncStateContract;
+import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
 import android.util.Log;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.math.BigInteger;
+import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -22,37 +27,23 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Calendar;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
+
+import javax.security.auth.x500.X500Principal;
+
+import fe.up.pt.supermarket.activities.LandingPageActivity;
 
 import static android.content.ContentValues.TAG;
 
 public class KeyStoreUtils {
 
     private static String KEY_TAG = "KEY_TAG";
-
-    /*
-    private static final String privateKeyString = "...";
-private static PrivateKey privateKey;
-private static final String publicKeyString = "...";
-private static PublicKey publicKey;
-static {
-    KeyFactory kf;
-    try {
-        kf = KeyFactory.getInstance("RSA");
-        byte[] encodedPv = Base64.decodeBase64(privateKeyString);
-        PKCS8EncodedKeySpec keySpecPv = new PKCS8EncodedKeySpec(encodedPv);
-        privateKey = kf.generatePrivate(keySpecPv);
-
-        byte[] encodedPb = Base64.decodeBase64(publicKeyString);
-        X509EncodedKeySpec keySpecPb = new X509EncodedKeySpec(encodedPb);
-        publicKey = kf.generatePublic(keySpecPb);
-
-    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-
-    }
-}
-     */
 
     public static String generateKeys(String username) throws InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchAlgorithmException {
         /*
@@ -93,19 +84,34 @@ static {
         return encodedPubKey;
     }
 
-    public static PublicKey getKey(String key){
-        try{
-            byte[] byteKey = Base64.decode(key.getBytes(), Base64.DEFAULT);
-            X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(byteKey);
-            KeyFactory kf = KeyFactory.getInstance("RSA");
+    public static PublicKey getPublicKeyFromString(String keystr) throws Exception {
+        String pubKeyPEM = keystr.replace("-----BEGIN PUBLIC KEY-----\n", "");
+        pubKeyPEM = pubKeyPEM.replace("-----END PUBLIC KEY-----", "");
+        // Base64 decode the data
+        byte [] encoded = Base64.decode(pubKeyPEM, Base64.DEFAULT);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        return kf.generatePublic(keySpec);
+    }
 
-            return kf.generatePublic(X509publicKey);
+    private void savePublicKeyToKeyStore() {
+        try {
+            KeyStore keyStore = KeyStore.getInstance(Constants.ANDROID_KEYSTORE);
+            keyStore.load(null);
+            X509Certificate x509 = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(cert));
+            keyStore.setEntry(Constants.keyAlias, new KeyStore.TrustedCertificateEntry(x509), null);
+            LandingPageActivity.SERVER_PUBLIC_KEY = x509.getPublicKey();
         }
-        catch(Exception e){
-            e.printStackTrace();
+        catch(Exception e) {
+            Log.d("KEYSTORE", "Error saving public key to keystore.");
         }
+    }
 
-        return null;
+    public static String publicKeyToString(PublicKey publ) throws GeneralSecurityException {
+        KeyFactory fact = KeyFactory.getInstance("RSA");
+        X509EncodedKeySpec spec = fact.getKeySpec(publ,
+                X509EncodedKeySpec.class);
+        return Base64.encodeToString(spec.getEncoded(), Base64.DEFAULT);
     }
 
     public static void getAllKeyStoreKeys() throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException {

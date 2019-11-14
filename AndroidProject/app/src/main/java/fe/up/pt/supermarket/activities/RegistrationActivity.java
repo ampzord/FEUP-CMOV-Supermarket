@@ -24,9 +24,12 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import fe.up.pt.supermarket.utils.HttpsTrustManagerUtils;
 import fe.up.pt.supermarket.R;
@@ -99,12 +102,20 @@ public class RegistrationActivity extends AppCompatActivity {
                                 JSONObject getSth = response.getJSONObject("user");
                                 //Object uuid = getSth.get("uuid");
                                 //Log.d(TAG_REGISTER, "UUID: " + uuid.toString());
-                                //Log.d(TAG_REGISTER, "SERVER PUBLIC KEY: " + response.getString("server_public_key"));
-                                saveServerPublicKey(response);
+                                Log.d(TAG_REGISTER, "SERVER PUBLIC KEY FROM REQUEST: " + response.getString("server_public_key"));
+
+
+
+
+                                /*saveServerPublicKey(response);
+                                getServerPublicKey();
+                                Log.d("TAG_REGISTER","Server public key AFTER: " + KeyStoreUtils.publicKeyToString( LandingPageActivity.SERVER_PUBLIC_KEY));*/
                                 saveUserUUID(getSth);
                                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                                 startActivity(intent);
                             } catch (JSONException e) {
+                                e.printStackTrace();
+                            } catch (GeneralSecurityException e) {
                                 e.printStackTrace();
                             }
                         }
@@ -154,6 +165,17 @@ public class RegistrationActivity extends AppCompatActivity {
         editor.apply();
     }
 
+    public void getServerPublicKey() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String s_sv_public_key = preferences.getString("SERVER_PUBLIC_KEY", "");
+        try {
+            LandingPageActivity.SERVER_PUBLIC_KEY = KeyStoreUtils.getPublicKeyFromString(s_sv_public_key);
+            Log.d("TAG_REGISTER", "Public key loading from EditPrefenrecs(): " + KeyStoreUtils.publicKeyToString(LandingPageActivity.SERVER_PUBLIC_KEY));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void getJSONRequest() {
         String newURL = URL + "/register";
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -188,5 +210,6 @@ public class RegistrationActivity extends AppCompatActivity {
 
         requestQueue.add(objectRequest);
     }
+
 }
 

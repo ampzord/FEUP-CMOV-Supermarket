@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -11,7 +12,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
+
+import javax.crypto.Cipher;
 
 import fe.up.pt.supermarket.R;
 
@@ -45,7 +50,7 @@ public class MainMenuActivity extends AppCompatActivity {
     public void scan(boolean qrcode) {
         try {
             Intent intent = new Intent(ACTION_SCAN);
-            intent.putExtra("SCAN_MODE", qrcode ? "QR_CODE_MODE" : "PRODUCT_MODE");
+            intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
             startActivityForResult(intent, 0);
         }
         catch (ActivityNotFoundException anfe) {
@@ -71,7 +76,7 @@ public class MainMenuActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
-                String contents = data.getStringExtra("SCAN_RESULT");
+                /*String contents = data.getStringExtra("SCAN_RESULT");
                 Toast.makeText(this, contents, Toast.LENGTH_LONG).show();
                 message.setText(contents);
                 String format = data.getStringExtra("SCAN_RESULT_FORMAT");
@@ -83,9 +88,53 @@ public class MainMenuActivity extends AppCompatActivity {
                     return;
                 }
                 message.setText("Format: " + format + "\nMessage: " + contents + "\n\nHex: " + byteArrayToHex(baMess));
-
+*/
+                String contents = data.getStringExtra("SCAN_RESULT");
+                if (contents != null)
+                    decodeAndShow(contents.getBytes(StandardCharsets.ISO_8859_1));
             }
         }
+    }
+
+    private void decodeAndShow(byte[] encTag) {
+        byte[] clearTag;
+
+        try {
+            Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding");
+            //Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
+            Log.d("QRCODE", "Entered Cypher1");
+            cipher.init(Cipher.DECRYPT_MODE, LandingPageActivity.SERVER_PUBLIC_KEY);
+            Log.d("QRCODE", "Entered Cypher2");
+            clearTag = cipher.doFinal(encTag);
+            Log.d("QRCODE", "Entered Cypher3");
+        }
+        catch (Exception e) {
+            Log.d("QRCODE", "CRASHED CIPHER");
+            return;
+        }
+        ByteBuffer tag = ByteBuffer.wrap(clearTag);
+        int tId = tag.getInt();
+        long most = tag.getLong();
+        long less = tag.getLong();
+        UUID id = new UUID(most, less);
+        int euros = tag.getInt();
+        int cents = tag.getInt();
+        byte l = tag.get();
+        byte[] bName = new byte[l];
+        tag.get(bName);
+        String name = new String(bName, StandardCharsets.ISO_8859_1);
+
+        int tagId = 0x41636D65;
+        String text = "Read Tag (" + clearTag.length + "):\n" + byteArrayToHex(clearTag) + "\n\n" +
+                ((tId==tagId)?"correct":"wrong") + "\n" +
+                "ID: " + id.toString() + "\n" +
+                "Name: " + name + "\n" +
+                "Price: €" + euros + "." + cents;
+
+        Log.d("QRCODE", "QR CODE MESSAGE: " + text);
+        Log.d("QRCODE", "QR CODE MESSAGE: " + text);
+        Log.d("QRCODE", "QR CODE MESSAGE: " + text);
+        Toast.makeText(getApplicationContext(), name, Toast.LENGTH_SHORT).show();
     }
 
     String byteArrayToHex(byte[] ba) {

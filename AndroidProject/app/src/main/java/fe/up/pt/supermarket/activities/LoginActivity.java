@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,11 +23,14 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.KeyFactory;
 import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.UUID;
 
 import fe.up.pt.supermarket.R;
 import fe.up.pt.supermarket.utils.HttpsTrustManagerUtils;
+import fe.up.pt.supermarket.utils.KeyStoreUtils;
 import fe.up.pt.supermarket.utils.MultipleClicksUtils;
 
 import static fe.up.pt.supermarket.activities.LandingPageActivity.URL;
@@ -39,9 +43,6 @@ public class LoginActivity extends AppCompatActivity {
     private static String TAG_LOGIN = "TAG_LOGIN";
 
     public static UUID USER_UUID;
-    //public static PublicKey SERVER_PUBLIC_KEY;
-    public static String SERVER_PUBLIC_KEY;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,13 +115,21 @@ public class LoginActivity extends AppCompatActivity {
     }
     public void getServerPublicKey() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SERVER_PUBLIC_KEY = preferences.getString("SERVER_PUBLIC_KEY", "");
+        String s_sv_public_key = preferences.getString("SERVER_PUBLIC_KEY", "");
+        try {
+            LandingPageActivity.SERVER_PUBLIC_KEY = KeyStoreUtils.getPublicKeyFromString(s_sv_public_key);
+            Log.d("TAG_LOGIN", "Public key loading from EditPrefenrecs(): " + KeyStoreUtils.publicKeyToString(LandingPageActivity.SERVER_PUBLIC_KEY));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void sendToMainMenu() {
         Intent intent = new Intent(this, MainMenuActivity.class);
         startActivity(intent);
     }
+
+
 
 
 }
