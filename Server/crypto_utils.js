@@ -3,30 +3,31 @@ const path = require("path");
 const { writeFileSync, fs } = require("fs");
 const { generateKeyPairSync } = require('crypto');
 
-const server_private_key = `-----BEGIN RSA PRIVATE KEY-----
-MIIBOgIBAAJBAMUfX/Pj+RMmLGGk7UXp9J54i7FTXueOR+h9Y9FXpiDi37KSqTil
-jd8Kf+RHx+Vj8Yazeg+aQCCmONk9akjrzv8CAwEAAQJAaIVwXWPeKBcvpT7MSSv6
-dyS3/XiVc/ZvjokeKlxtTDXRPe2zeGtGljdazBVSp3qPuqOOJZpZjcch1NfiOqQQ
-IQIhAPIbb1+8NbLfAksD/ouJvjGgqxnLSs07jXL9gM1tns/nAiEA0G8dJcF1mCCJ
-CBMhr04oNWgX5lI+sBzrCsD7dZKLBSkCIAZ/hAK+y3YslCQtTES0gr1UQaNkmHJf
-udEvSqi4231bAiAr5isiZ5OH3dpenADtNi3bybe2572SRBTw5+JOSfYDuQIhAJ9V
-s6JR7AiSsjj83z9knxd0q/iLTTPtZB0exxIS7x3o
------END RSA PRIVATE KEY-----`;
+const server_private_key = `-----BEGIN PRIVATE KEY-----
+MIIBVQIBADANBgkqhkiG9w0BAQEFAASCAT8wggE7AgEAAkEAwzTF8SZuWwUCPlZN
+pTytoD+GH5aQj7N6UYgHZlXHErqaWJvnajrL7e0k9FpdpuOYfYAP2w+ResKuMkIi
+gHnxKQIDAQABAkBcfkvwOMJ/dD8c5G3EBp1KWe8mVoRG4sbpjOfcsHY0Q8zag+hW
+w8+YVa+5WDjYL3Z9F0Rl0WOENi5Xc3hiId0BAiEA5weGX+fCFMN8x1pahcaKpr57
+pxWc1qgYAuoEiZ/NHgkCIQDYTgkqIgYrud+Z3V6bLDKas6aa99ZKGSFgr391qaUC
+IQIhAITZiOXhaXNzLm+cf21pzBUyd/yOqw+svZH/a/iP0e2xAiEAmTqer2Qu7ubb
+iYoSLOagaor9aSZMfW1UAcQRDO9CX0ECIDU21TL/mABbUajV9viEb86YpbPbYdbO
+DpTgNGb9GJFY
+-----END PRIVATE KEY-----`;
 
-const server_public_key = `-----BEGIN RSA PUBLIC KEY-----
-MEgCQQDFH1/z4/kTJixhpO1F6fSeeIuxU17njkfofWPRV6Yg4t+ykqk4pY3fCn/k
-R8flY/GGs3oPmkAgpjjZPWpI687/AgMBAAE=
------END RSA PUBLIC KEY-----`;
+const server_public_key = `-----BEGIN PUBLIC KEY-----
+MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMM0xfEmblsFAj5WTaU8raA/hh+WkI+z
+elGIB2ZVxxK6mlib52o6y+3tJPRaXabjmH2AD9sPkXrCrjJCIoB58SkCAwEAAQ==
+-----END PUBLIC KEY-----`;
 
 function generateKeys() {
   const { privateKey, publicKey } = generateKeyPairSync('rsa', {
       modulusLength: 512,
       publicKeyEncoding: {
-        type: 'pkcs1',
+        type: 'spki',
         format: 'pem',
       },
       privateKeyEncoding: {
-        type: 'pkcs1',
+        type: 'pkcs8',
         format: 'pem',
       },
   });

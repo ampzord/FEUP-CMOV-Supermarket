@@ -98,36 +98,44 @@ router.post('/login', signinValidationRules, function(req, res, next) {
     User.findOne({
       where: {username: req.body.username}
     })
-    .then((user) => {
-      //check if user exists
-      if (!user) {
-        console.log("Username: " + req.body.username + " doesn't exist.");
-        return res.status(404).send("Username: " + req.body.username + " doesn't exist.");
-      }
+        .then((user) => {
+          //check if user exists
+          if (!user) {
+            console.log("Username: " + req.body.username + " doesn't exist.");
+            return res.status(404).send("Username: " + req.body.username + " doesn't exist.");
+          }
 
-      //check if password matches
-      if (!checkPassword(req.body.password, user.password)) {
-        console.log("Password is incorrect.");
-        return res.status(404).send("Password is incorrect.");
-      }
+          //check if password matches
+          if (comparePasswords(req.body.password, user.password)) {
+            console.log("Password is incorrect.");
+            return res.status(404).send("Password is incorrect.");
+          }
 
-      //SIGN IN SUCCESSFUL
-      res.status(200).json({
-        ok: true,
-        user: user,
-        message: 'User successfully logged in.'
-      })
-  })
+          //SIGN IN SUCCESSFUL
+          res.status(200).json({
+            ok: true,
+            user: user,
+            message: 'User successfully logged in.'
+          })
+        })
   } else {
     return res.status(422).jsonp(errors.array()[0].msg);
   }
 });
 
-function checkPassword(message_pwd, db_password) {
-  if (message_pwd === db_password)
-    return true;
-  return false;
+function comparePasswords(passwordAttempt, hash) {
+  bcrypt.compare(passwordAttempt, hash, (err, res) => {
+    if (res == true) {
+      //console.log('Password is the same.', res, hash)
+      return true;
+    }
+    else {
+      //console.log('Password is different.', res, hash)
+      return false;
+    }
+  })
 }
+
 
 /* GET all users listing. */
 router.get('/users', function(req, res, next) {
