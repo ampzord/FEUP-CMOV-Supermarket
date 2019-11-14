@@ -95,7 +95,7 @@ public class KeyStoreUtils {
     }
 
     private void savePublicKeyToKeyStore() {
-        try {
+        /*try {
             KeyStore keyStore = KeyStore.getInstance(Constants.ANDROID_KEYSTORE);
             keyStore.load(null);
             X509Certificate x509 = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(cert));
@@ -104,7 +104,7 @@ public class KeyStoreUtils {
         }
         catch(Exception e) {
             Log.d("KEYSTORE", "Error saving public key to keystore.");
-        }
+        }*/
     }
 
     public static String publicKeyToString(PublicKey publ) throws GeneralSecurityException {

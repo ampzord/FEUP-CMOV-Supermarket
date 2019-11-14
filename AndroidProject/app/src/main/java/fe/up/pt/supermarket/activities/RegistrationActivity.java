@@ -115,8 +115,6 @@ public class RegistrationActivity extends AppCompatActivity {
                                 startActivity(intent);
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                            } catch (GeneralSecurityException e) {
-                                e.printStackTrace();
                             }
                         }
                     },
