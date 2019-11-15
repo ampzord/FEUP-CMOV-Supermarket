@@ -24,12 +24,11 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 
 import fe.up.pt.supermarket.utils.HttpsTrustManagerUtils;
 import fe.up.pt.supermarket.R;
@@ -39,6 +38,8 @@ import fe.up.pt.supermarket.utils.MultipleClicksUtils;
 import static fe.up.pt.supermarket.activities.LandingPageActivity.URL;
 
 public class RegistrationActivity extends AppCompatActivity {
+    private final String TAG_REGISTER = "TAG_REGISTER";
+
     private Button register;
     private EditText firstName;
     private EditText lastName;
@@ -47,7 +48,10 @@ public class RegistrationActivity extends AppCompatActivity {
     private EditText password_conf;
     private EditText credit_card;
 
-    private String TAG_REGISTER = "TAG_REGISTER";
+    public static boolean hasServerKey = false;
+
+    public static PrivateKey pri;
+    public static PublicKey pub;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,24 +99,16 @@ public class RegistrationActivity extends AppCompatActivity {
                         @RequiresApi(api = Build.VERSION_CODES.O)
                         @Override
                         public void onResponse(JSONObject response) {
-                            //Log.d("RegistrationRequest", "Entered1");
                             try {
                                 String server_msg_response = response.getString("message");
                                 Toast.makeText(getApplicationContext(), server_msg_response, Toast.LENGTH_SHORT).show();
-                                JSONObject getSth = response.getJSONObject("user");
-                                //Object uuid = getSth.get("uuid");
-                                //Log.d(TAG_REGISTER, "UUID: " + uuid.toString());
-                                Log.d(TAG_REGISTER, "SERVER PUBLIC KEY FROM REQUEST: " + response.getString("server_public_key"));
-
-
-
-
-                                /*saveServerPublicKey(response);
-                                getServerPublicKey();
-                                Log.d("TAG_REGISTER","Server public key AFTER: " + KeyStoreUtils.publicKeyToString( LandingPageActivity.SERVER_PUBLIC_KEY));*/
-                                saveUserUUID(getSth);
-                                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                                startActivity(intent);
+                                JSONObject getUser = response.getJSONObject("user");
+                                KeyStoreUtils.getServerKeyFromKeyStore();
+                                if (!hasServerKey) {
+                                    KeyStoreUtils.getCertificateFromServerMessage(response);
+                                }
+                                saveUserUUID(getUser);
+                                sendToLoginPage();
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -121,7 +117,6 @@ public class RegistrationActivity extends AppCompatActivity {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
-                            //Log.d("RegistrationRequest", "Entered2");
                             Log.d(TAG_REGISTER, volleyError.toString());
                             if (volleyError.networkResponse != null) {
                                 Log.d(TAG_REGISTER, "Status Code Error: " + volleyError.networkResponse.statusCode);
@@ -144,14 +139,6 @@ public class RegistrationActivity extends AppCompatActivity {
         }
     }
 
-    public void saveServerPublicKey(JSONObject str) throws JSONException {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        SharedPreferences.Editor editor = preferences.edit();
-        //Log.d(TAG_REGISTER, "SAVING SV PUB KEY TO APP:" + str.getString("server_public_key"));
-        editor.putString("SERVER_PUBLIC_KEY",str.getString("server_public_key"));
-        editor.apply();
-    }
-
     public void saveUserUUID(JSONObject str) throws JSONException {
         Object username = str.get("username");
         Object uuid = str.get("uuid");
@@ -163,50 +150,9 @@ public class RegistrationActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    public void getServerPublicKey() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String s_sv_public_key = preferences.getString("SERVER_PUBLIC_KEY", "");
-        try {
-            LandingPageActivity.SERVER_PUBLIC_KEY = KeyStoreUtils.getPublicKeyFromString(s_sv_public_key);
-            Log.d("TAG_REGISTER", "Public key loading from EditPrefenrecs(): " + KeyStoreUtils.publicKeyToString(LandingPageActivity.SERVER_PUBLIC_KEY));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void getJSONRequest() {
-        String newURL = URL + "/register";
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        JsonObjectRequest objectRequest = new JsonObjectRequest(
-                Request.Method.GET,
-                newURL,
-                null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.e("REST Response", response.toString());
-
-                        JSONObject obj = response;
-                        try {
-                            String name = obj.getString("username");
-                            Toast.makeText(getApplicationContext(), name,Toast.LENGTH_LONG).show();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e("REST Error Response", error.toString());
-                    }
-                }
-
-
-        );
-
-        requestQueue.add(objectRequest);
+    private void sendToLoginPage() {
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        startActivity(intent);
     }
 
 }

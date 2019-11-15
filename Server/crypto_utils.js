@@ -3,21 +3,29 @@ const path = require("path");
 const { writeFileSync, fs } = require("fs");
 const { generateKeyPairSync } = require('crypto');
 
-const server_private_key = `-----BEGIN PRIVATE KEY-----
-MIIBVQIBADANBgkqhkiG9w0BAQEFAASCAT8wggE7AgEAAkEAwzTF8SZuWwUCPlZN
-pTytoD+GH5aQj7N6UYgHZlXHErqaWJvnajrL7e0k9FpdpuOYfYAP2w+ResKuMkIi
-gHnxKQIDAQABAkBcfkvwOMJ/dD8c5G3EBp1KWe8mVoRG4sbpjOfcsHY0Q8zag+hW
-w8+YVa+5WDjYL3Z9F0Rl0WOENi5Xc3hiId0BAiEA5weGX+fCFMN8x1pahcaKpr57
-pxWc1qgYAuoEiZ/NHgkCIQDYTgkqIgYrud+Z3V6bLDKas6aa99ZKGSFgr391qaUC
-IQIhAITZiOXhaXNzLm+cf21pzBUyd/yOqw+svZH/a/iP0e2xAiEAmTqer2Qu7ubb
-iYoSLOagaor9aSZMfW1UAcQRDO9CX0ECIDU21TL/mABbUajV9viEb86YpbPbYdbO
-DpTgNGb9GJFY
------END PRIVATE KEY-----`;
+const server_private_key = `-----BEGIN RSA PRIVATE KEY-----
+MIIBOQIBAAJBALAMF4uG90wza84n4eP0bUsgwqMMt77yZ7kCNxZPvT0ZS9EUOaeb
+g9m/YIl7OQHoClO4pinWf9AvGTGSp6jFW/ECAwEAAQJAbFBkRCJcEPQqRgLfxqLi
+g7C6UBtJCiCWlIu6XO3enrHkpqLgTQnN6OM0YfFNBnQS63Jr8kW2fTp1ut3fnPHj
+6QIhAO5xk1ygQhp3jXiJQXuIX/CTSvf3Cg9JzWlr+wj6FOebAiEAvQJn/sRrKDoT
+WOo8KMXGXJ8JlnL88LP8amu7ifETkWMCIEdsb/bL7mEdNJxJiPrm884NYOR79GB1
++/i7JpwexQpHAiBI78bFz3Iygca5hxpT+Y4Ea/K9Nf5ZvHrpbk1ee8M7VQIgbVsE
+sjY95b/yercsjfBGMRa1goiapzm0gGjoQTTyEzI=
+-----END RSA PRIVATE KEY-----`;
 
 const server_public_key = `-----BEGIN PUBLIC KEY-----
-MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMM0xfEmblsFAj5WTaU8raA/hh+WkI+z
-elGIB2ZVxxK6mlib52o6y+3tJPRaXabjmH2AD9sPkXrCrjJCIoB58SkCAwEAAQ==
+MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBALAMF4uG90wza84n4eP0bUsgwqMMt77y
+Z7kCNxZPvT0ZS9EUOaebg9m/YIl7OQHoClO4pinWf9AvGTGSp6jFW/ECAwEAAQ==
 -----END PUBLIC KEY-----`;
+
+const server_certificate = `-----BEGIN CERTIFICATE-----
+MIIBGzCBxqADAgECAgQAuPR8MA0GCSqGSIb3DQEBCwUAMBUxEzARBgNVBAMTClNlcnZlcktleTIw
+HhcNMTkxMTE1MDA1NzIyWhcNMzkxMTE1MDA1NzIyWjAVMRMwEQYDVQQDEwpTZXJ2ZXJLZXkyMFww
+DQYJKoZIhvcNAQEBBQADSwAwSAJBAKlB2bN7APf9dZrjhbnE1LHimbp+iastpEgSOzdq5/TB+t4E
+Oc9YCOzx5W3OVoIavTK9FQ490La0ptCa0duMu38CAwEAATANBgkqhkiG9w0BAQsFAANBAHarxbNp
+GUc+u92TGYZM/93+avavi4Ac8BZKcFYBNRYl7uNpljCyC6Iq5owJdovLAnsbKEhJn0UbyF3+dcDi
+ge4=
+-----END CERTIFICATE-----`;
 
 function generateKeys() {
   const { privateKey, publicKey } = generateKeyPairSync('rsa', {
@@ -70,5 +78,6 @@ module.exports = {
   decrypt,
   generateKeys,
   server_private_key,
-  server_public_key
-}
+  server_public_key,
+    server_certificate,
+};

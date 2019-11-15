@@ -1,20 +1,17 @@
 package fe.up.pt.supermarket.utils;
 
-import android.provider.SyncStateContract;
-import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
 import android.util.Log;
 
+import org.json.JSONObject;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.math.BigInteger;
-import java.security.GeneralSecurityException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -26,18 +23,13 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.UnrecoverableEntryException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Calendar;
 import java.util.Enumeration;
-import java.util.GregorianCalendar;
 
-import javax.security.auth.x500.X500Principal;
-
-import fe.up.pt.supermarket.activities.LandingPageActivity;
+import fe.up.pt.supermarket.activities.RegistrationActivity;
 
 import static android.content.ContentValues.TAG;
 
@@ -84,36 +76,6 @@ public class KeyStoreUtils {
         return encodedPubKey;
     }
 
-    public static PublicKey getPublicKeyFromString(String keystr) throws Exception {
-        String pubKeyPEM = keystr.replace("-----BEGIN PUBLIC KEY-----\n", "");
-        pubKeyPEM = pubKeyPEM.replace("-----END PUBLIC KEY-----", "");
-        // Base64 decode the data
-        byte [] encoded = Base64.decode(pubKeyPEM, Base64.DEFAULT);
-        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        return kf.generatePublic(keySpec);
-    }
-
-    private void savePublicKeyToKeyStore() {
-        /*try {
-            KeyStore keyStore = KeyStore.getInstance(Constants.ANDROID_KEYSTORE);
-            keyStore.load(null);
-            X509Certificate x509 = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(cert));
-            keyStore.setEntry(Constants.keyAlias, new KeyStore.TrustedCertificateEntry(x509), null);
-            LandingPageActivity.SERVER_PUBLIC_KEY = x509.getPublicKey();
-        }
-        catch(Exception e) {
-            Log.d("KEYSTORE", "Error saving public key to keystore.");
-        }*/
-    }
-
-    public static String publicKeyToString(PublicKey publ) throws GeneralSecurityException {
-        KeyFactory fact = KeyFactory.getInstance("RSA");
-        X509EncodedKeySpec spec = fact.getKeySpec(publ,
-                X509EncodedKeySpec.class);
-        return Base64.encodeToString(spec.getEncoded(), Base64.DEFAULT);
-    }
-
     public static void getAllKeyStoreKeys() throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException {
         /*
          * Load the Android KeyStore instance using the
@@ -126,6 +88,39 @@ public class KeyStoreUtils {
 
         while (aliases.hasMoreElements()) {
             Log.d(KEY_TAG, "Keys: " + aliases.nextElement());
+        }
+    }
+
+    public static void getServerKeyFromKeyStore() {
+        try {
+            KeyStore keyStore = KeyStore.getInstance(Constants.ANDROID_KEYSTORE);
+            keyStore.load(null);
+            Certificate cert = keyStore.getCertificate(Constants.keyAlias);
+            if (cert != null) {
+                RegistrationActivity.pub = cert.getPublicKey();
+                RegistrationActivity.hasServerKey = true;
+            }
+        }
+        catch(Exception e) {
+            Log.d(KEY_TAG, "Error verifying if server key exists.");
+        }
+    }
+
+    public static void getCertificateFromServerMessage(JSONObject str) {
+        try {
+            String s_pub_key = str.getString("server_public_key");
+            //Log.d(TAG_REGISTER, "s_cert: " + s_pub_key);
+            byte[] cert = s_pub_key.getBytes(StandardCharsets.UTF_8);
+            KeyStore keyStore = KeyStore.getInstance(Constants.ANDROID_KEYSTORE);
+            keyStore.load(null);
+            X509Certificate x509 = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(cert));
+            keyStore.setEntry(Constants.keyAlias, new KeyStore.TrustedCertificateEntry(x509), null);
+            RegistrationActivity.pub = x509.getPublicKey();
+            RegistrationActivity.hasServerKey = true;
+        }
+        catch(Exception e) {
+            Log.d(KEY_TAG, "Error creating certificate.");
+            e.printStackTrace();
         }
     }
 
@@ -186,4 +181,9 @@ public class KeyStoreUtils {
         //boolean valid = s.verify(signature);
         return false;
     }
+
+
+
+
+
 }

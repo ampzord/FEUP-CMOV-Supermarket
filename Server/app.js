@@ -16,7 +16,7 @@ var usersRouter = require('./routes/users');
 var app = express();
 
 //only runs once for the keys only need to be generated once
-cryp.generateKeys();
+//cryp.generateKeys();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

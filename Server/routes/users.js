@@ -29,11 +29,11 @@ const registrationValidationRules = [
 
 /* Register user in database */
 router.post('/register', registrationValidationRules, function(req, res, next) {
-  console.log('\nAPP /register REQUEST\n');
+
   console.log(req.body);
   const errors = validationResult(req);
 
-  //Load server public key from file
+  /*//Load server public key from file
 
   // convert PEM-formatted private key to a Forge private key
   var forgePrivateKey = forge.pki.privateKeyFromPem(cryp.server_private_key);
@@ -45,7 +45,7 @@ router.post('/register', registrationValidationRules, function(req, res, next) {
   var publicKey = forge.pki.publicKeyToPem(forgePublicKey);
 
   // convert the Forge public key to an OpenSSH-formatted public key for authorized_keys
-  //var sshPublicKey = forge.ssh.publicKeyToOpenSSH(forgePublicKey);
+  //var sshPublicKey = forge.ssh.publicKeyToOpenSSH(forgePublicKey);*/
 
   if (errors.isEmpty()) {
     var salt = bcrypt.genSaltSync(saltRounds);
@@ -68,10 +68,10 @@ router.post('/register', registrationValidationRules, function(req, res, next) {
         ok: true,
         user: user,
         message: 'User created successfully.',
-        server_public_key: publicKey,
+        server_public_key: cryp.server_certificate,
       })
     }).catch(err => {
-      console.log(err);
+      console.log(err.errors[0].message);
       res.status(500).json('Username already exists.');
     });
 
@@ -89,7 +89,6 @@ const signinValidationRules = [
 /* Sign in user */
 router.post('/login', signinValidationRules, function(req, res, next) {
 
-  console.log('\nAPP /login REQUEST\n');
   console.log(req.body);
 
   const errors = validationResult(req);

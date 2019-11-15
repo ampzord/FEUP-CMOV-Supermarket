@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import javax.crypto.Cipher;
 
+import fe.up.pt.supermarket.models.Product;
 import fe.up.pt.supermarket.R;
 
 public class MainMenuActivity extends AppCompatActivity {
@@ -72,23 +73,9 @@ public class MainMenuActivity extends AppCompatActivity {
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        byte[] baMess;
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 0) {
             if (resultCode == RESULT_OK) {
-                /*String contents = data.getStringExtra("SCAN_RESULT");
-                Toast.makeText(this, contents, Toast.LENGTH_LONG).show();
-                message.setText(contents);
-                String format = data.getStringExtra("SCAN_RESULT_FORMAT");
-                try {
-                    baMess = contents.getBytes(StandardCharsets.ISO_8859_1);
-                }
-                catch (Exception ex) {
-                    message.setText(ex.getMessage());
-                    return;
-                }
-                message.setText("Format: " + format + "\nMessage: " + contents + "\n\nHex: " + byteArrayToHex(baMess));
-*/
                 String contents = data.getStringExtra("SCAN_RESULT");
                 if (contents != null)
                     decodeAndShow(contents.getBytes(StandardCharsets.ISO_8859_1));
@@ -101,15 +88,11 @@ public class MainMenuActivity extends AppCompatActivity {
 
         try {
             Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding");
-            //Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding");
-            Log.d("QRCODE", "Entered Cypher1");
-            cipher.init(Cipher.DECRYPT_MODE, LandingPageActivity.SERVER_PUBLIC_KEY);
-            Log.d("QRCODE", "Entered Cypher2");
+            cipher.init(Cipher.DECRYPT_MODE, RegistrationActivity.pub);
             clearTag = cipher.doFinal(encTag);
-            Log.d("QRCODE", "Entered Cypher3");
         }
         catch (Exception e) {
-            Log.d("QRCODE", "CRASHED CIPHER");
+            Log.d("QRCODE", "Error doing cipher in qrcode.");
             return;
         }
         ByteBuffer tag = ByteBuffer.wrap(clearTag);
@@ -130,11 +113,14 @@ public class MainMenuActivity extends AppCompatActivity {
                 "ID: " + id.toString() + "\n" +
                 "Name: " + name + "\n" +
                 "Price: €" + euros + "." + cents;
-
-        Log.d("QRCODE", "QR CODE MESSAGE: " + text);
-        Log.d("QRCODE", "QR CODE MESSAGE: " + text);
-        Log.d("QRCODE", "QR CODE MESSAGE: " + text);
+        //String name, Integer euros, Integer cents, UUID uuid
+        Product pro = new Product(name, euros, cents, id.toString());
+        Log.d("QR_RESULT", "Name: " + pro.getName());
+        Log.d("QR_RESULT", "euros: " + pro.getEuros());
+        Log.d("QR_RESULT", "cents: " + pro.getCents());
+        Log.d("QR_RESULT", "UUID: " + pro.getUuid());
         Toast.makeText(getApplicationContext(), name, Toast.LENGTH_SHORT).show();
+        message.setText(name);
     }
 
     String byteArrayToHex(byte[] ba) {
