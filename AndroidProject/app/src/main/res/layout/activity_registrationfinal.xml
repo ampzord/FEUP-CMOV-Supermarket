@@ -14,9 +14,12 @@
         android:id="@+id/imageView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/logo"
-        tools:layout_editor_absoluteX="130dp"
-        tools:layout_editor_absoluteY="109dp" />
+        android:layout_marginBottom="28dp"
+        app:layout_constraintBottom_toTopOf="@+id/editText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/logo" />
 
     <EditText
         android:id="@+id/editText6"
@@ -27,11 +30,12 @@
         android:text="credit card"
         android:textColor="@android:color/white"
         android:textSize="24sp"
-        tools:layout_editor_absoluteX="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="622dp" />
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/login_username"
         android:layout_width="314dp"
         android:layout_height="64dp"
         android:ems="10"
@@ -39,11 +43,12 @@
         android:text="First Name"
         android:textColor="@android:color/white"
         android:textSize="24sp"
-        tools:layout_editor_absoluteX="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="303dp" />
 
     <EditText
-        android:id="@+id/editText2"
+        android:id="@+id/login_password"
         android:layout_width="314dp"
         android:layout_height="64dp"
         android:ems="10"
@@ -51,7 +56,8 @@
         android:text="@string/text_last_name"
         android:textColor="@android:color/white"
         android:textSize="24sp"
-        tools:layout_editor_absoluteX="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="367dp" />
 
     <EditText
@@ -63,7 +69,8 @@
         android:text="@string/hint_username"
         android:textColor="@android:color/white"
         android:textSize="24sp"
-        tools:layout_editor_absoluteX="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="431dp" />
 
     <EditText
@@ -76,7 +83,8 @@
         android:text="@string/hint_password"
         android:textColor="@android:color/white"
         android:textSize="24sp"
-        tools:layout_editor_absoluteX="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="494dp"
         tools:text="@string/hint_password" />
 
@@ -90,7 +98,8 @@
         android:text="@string/hint_password"
         android:textColor="@android:color/white"
         android:textSize="24sp"
-        tools:layout_editor_absoluteX="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="558dp"
         tools:text="@string/hint_password" />
 
@@ -102,7 +111,9 @@
         android:textColor="@android:color/white"
         android:textSize="36sp"
         android:textStyle="bold"
-        tools:layout_editor_absoluteX="37dp"
-        tools:layout_editor_absoluteY="35dp" />
+        app:layout_constraintBottom_toTopOf="@+id/imageView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

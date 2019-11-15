@@ -25,29 +25,34 @@
     ]]>
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/login_username"
         android:layout_width="313dp"
         android:layout_height="63dp"
         android:ems="10"
+        android:hint="@string/hint_username"
         android:inputType="textPersonName"
-        android:text="@string/hint_username"
+        android:text="amp"
         android:textColor="@android:color/white"
         android:textSize="24sp"
-        tools:layout_editor_absoluteX="48dp"
-        tools:layout_editor_absoluteY="334dp" />
+        app:layout_constraintBottom_toTopOf="@+id/login_password"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
     <EditText
-        android:id="@+id/editText2"
+        android:id="@+id/login_password"
         android:layout_width="313dp"
         android:layout_height="64dp"
         android:contentDescription="@string/hint_password"
         android:ems="10"
+        android:hint="@string/hint_password"
         android:inputType="textPassword"
-        android:text="@string/hint_password"
+        android:text="123"
         android:textColor="@android:color/white"
         android:textSize="24sp"
-        tools:layout_editor_absoluteX="48dp"
-        tools:layout_editor_absoluteY="397dp"
+        app:layout_constraintBottom_toTopOf="@+id/bt_send_login"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         tools:text="@string/hint_password" />
 
     <ImageView
