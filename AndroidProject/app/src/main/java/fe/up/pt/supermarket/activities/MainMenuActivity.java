@@ -12,9 +12,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import javax.crypto.Cipher;
@@ -24,29 +29,62 @@ import fe.up.pt.supermarket.R;
 
 public class MainMenuActivity extends AppCompatActivity {
     private ImageButton scanItem;
+    private Button goShopping;
     private TextView message;
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
+
+    public static ArrayList<Product> shoppingCart;
+    ProductAdapter adapter;
+    RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
 
+        if(savedInstanceState == null) {
+            shoppingCart = new ArrayList<>();
+        }
+        else {
+            shoppingCart = savedInstanceState.getParcelableArrayList("shoppingCart");
+        }
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
+
+        adapter = new ProductAdapter(this);
+        recyclerView.setAdapter(adapter);
+
+        adapter.setProductsInfo(MainMenuActivity.shoppingCart);
+
+        //goShopping = findViewById(R.id.bt_shopping);
         scanItem = findViewById(R.id.bt_scan_item);
-        message = findViewById(R.id.answer);
+
 
         scanItem.setOnClickListener((v)->scan(true));
+        //goShopping.setOnClickListener((v)->sendToShopping());
     }
 
     @Override
     public void onSaveInstanceState(Bundle bundle) {
         super.onSaveInstanceState(bundle);
-        bundle.putCharSequence("Message", message.getText());
+        //bundle.putCharSequence("Message", message.getText());
+        bundle.putParcelableArrayList("shoppingCart", shoppingCart);
+        adapter.setProductsInfo(MainMenuActivity.shoppingCart);
     }
 
     public void onRestoreInstanceState(Bundle bundle) {
         super.onRestoreInstanceState(bundle);
-        message.setText(bundle.getCharSequence("Message"));
+        //ArrayList<Product> getShoppingCart = bundle.getSerializable("ShoppingCart");
+        shoppingCart = bundle.getParcelableArrayList("shoppingCart");
+        adapter.setProductsInfo(MainMenuActivity.shoppingCart);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        adapter.setProductsInfo(MainMenuActivity.shoppingCart);
     }
 
     public void scan(boolean qrcode) {
@@ -115,13 +153,16 @@ public class MainMenuActivity extends AppCompatActivity {
                 "Name: " + name + "\n" +
                 "Price: €" + euros + "." + cents;
         //String name, Integer euros, Integer cents, UUID uuid
+        //UUID uuidProduct = UUID.fromString(id.toString());
         Product pro = new Product(name, euros, cents, id.toString());
         Log.d("QRCODE", "Name: " + pro.getName());
         Log.d("QRCODE", "euros: " + pro.getEuros());
         Log.d("QRCODE", "cents: " + pro.getCents());
-        Log.d("QRCODE", "UUID: " + pro.getUuid());
-        Toast.makeText(getApplicationContext(), name, Toast.LENGTH_SHORT).show();
-        message.setText(name);
+        Log.d("QRCODE", "UUID: " + pro.getUuid().toString());
+
+        shoppingCart.add(pro);
+        //Toast.makeText(getApplicationContext(), name, Toast.LENGTH_SHORT).show();
+        //message.setText(name);
     }
 
     String byteArrayToHex(byte[] ba) {
@@ -130,4 +171,5 @@ public class MainMenuActivity extends AppCompatActivity {
             sb.append(String.format("%02x", b));
         return sb.toString();
     }
+
 }

@@ -22,6 +22,7 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.security.PublicKey;
 import java.util.UUID;
 

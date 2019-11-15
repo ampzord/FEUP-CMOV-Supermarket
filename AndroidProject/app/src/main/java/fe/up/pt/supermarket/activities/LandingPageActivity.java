@@ -14,6 +14,7 @@ import com.android.volley.toolbox.Volley;
 import java.security.PublicKey;
 
 import fe.up.pt.supermarket.R;
+import fe.up.pt.supermarket.utils.KeyStoreUtils;
 import fe.up.pt.supermarket.utils.MultipleClicksUtils;
 
 public class LandingPageActivity extends AppCompatActivity {
@@ -57,6 +58,8 @@ public class LandingPageActivity extends AppCompatActivity {
     }
 
     private void sendToLoginPage() {
+        //KeyStoreUtils.deleteKey("ServerKey");
+        //KeyStoreUtils.deleteKey("ServerKey2");
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
     }
