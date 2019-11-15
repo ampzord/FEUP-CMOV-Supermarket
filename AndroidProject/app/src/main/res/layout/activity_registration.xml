@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/generic1"
+    android:background="@drawable/regular_background"
     tools:context=".activities.RegistrationActivity">
 
     <TableLayout
@@ -131,7 +131,7 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_send_login"
         android:layout_width="172dp"
-        android:layout_height="188dp"
+        android:layout_height="297dp"
         android:layout_weight="1"
         android:backgroundTint="#2F528F"
         android:fontFamily="@font/archivo_black"

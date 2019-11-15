@@ -30,8 +30,7 @@
                 android:imeOptions="actionNext"
                 android:importantForAutofill="no"
                 android:inputType="text"
-                android:singleLine="true"
-                android:text="Antonio" />
+                android:singleLine="true" />
         </TableRow>
 
         <TableRow>
@@ -50,8 +49,7 @@
                 android:imeOptions="actionNext"
                 android:importantForAutofill="no"
                 android:inputType="text"
-                android:singleLine="true"
-                android:text="Pereira" />
+                android:singleLine="true" />
         </TableRow>
 
         <TableRow>
@@ -69,8 +67,7 @@
                 android:imeOptions="actionNext"
                 android:importantForAutofill="no"
                 android:inputType="text"
-                android:singleLine="true"
-                android:text="amp" />
+                android:singleLine="true" />
         </TableRow>
 
         <TableRow>
@@ -88,8 +85,7 @@
                 android:imeOptions="actionNext"
                 android:importantForAutofill="no"
                 android:inputType="textPassword"
-                android:singleLine="true"
-                android:text="123" />
+                android:singleLine="true" />
         </TableRow>
 
         <TableRow>
@@ -107,8 +103,7 @@
                 android:imeOptions="actionNext"
                 android:importantForAutofill="no"
                 android:inputType="textPassword"
-                android:singleLine="true"
-                android:text="123" />
+                android:singleLine="true" />
         </TableRow>
 
         <TableRow>
@@ -126,8 +121,7 @@
                 android:imeOptions="actionDone"
                 android:importantForAutofill="no"
                 android:inputType="text"
-                android:singleLine="true"
-                android:text="1234567812345678" />
+                android:singleLine="true" />
         </TableRow>
 
 

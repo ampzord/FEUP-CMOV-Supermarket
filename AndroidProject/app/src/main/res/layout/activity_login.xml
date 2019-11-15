@@ -5,44 +5,64 @@
     android:id="@+id/constraintlayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/generic1"
-    android:orientation="vertical">
+    android:background="@drawable/regular_background"
+    android:orientation="vertical"><![CDATA[
+
+    EditText
+        android:id="@+id/editText"
+        android:layout_width="314dp"
+        android:layout_height="64dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="First Name"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        tools:layout_editor_absoluteX="48dp"
+        tools:layout_editor_absoluteY="303dp" />
+
+
+
+    ]]>
 
     <EditText
-        android:id="@+id/login_username"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
-        android:hint="@string/hint_username"
-        android:imeOptions="actionNext"
-        android:importantForAutofill="no"
-        android:inputType="text"
-        android:singleLine="true"
-        android:text="amp"
-        app:layout_constraintBottom_toTopOf="@+id/login_password"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
+        android:id="@+id/editText"
+        android:layout_width="313dp"
+        android:layout_height="63dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="@string/hint_username"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        tools:layout_editor_absoluteX="48dp"
+        tools:layout_editor_absoluteY="334dp" />
 
     <EditText
-        android:id="@+id/login_password"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
-        android:hint="@string/hint_password"
-        android:imeOptions="actionDone"
-        android:importantForAutofill="no"
+        android:id="@+id/editText2"
+        android:layout_width="313dp"
+        android:layout_height="64dp"
+        android:contentDescription="@string/hint_password"
+        android:ems="10"
         android:inputType="textPassword"
-        android:singleLine="true"
-        android:text="123"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_username" />
+        android:text="@string/hint_password"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        tools:layout_editor_absoluteX="48dp"
+        tools:layout_editor_absoluteY="397dp"
+        tools:text="@string/hint_password" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/logo"
+        tools:layout_editor_absoluteX="130dp"
+        tools:layout_editor_absoluteY="109dp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_send_login"
         android:layout_width="172dp"
         android:layout_height="65dp"
+        android:layout_marginBottom="88dp"
         android:layout_weight="1"
         android:backgroundTint="#2F528F"
         android:fontFamily="@font/archivo_black"
@@ -54,7 +74,7 @@
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_password"
-        app:layout_constraintVertical_bias="0.136" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.865" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
