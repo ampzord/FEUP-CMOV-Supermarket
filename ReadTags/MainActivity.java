@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
@@ -151,7 +152,8 @@ public class MainActivity extends AppCompatActivity {
     byte[] clearTag;
 
     try {
-      Cipher cipher = Cipher.getInstance(Constants.ENC_ALGO);
+      //Cipher cipher = Cipher.getInstance(Constants.ENC_ALGO);
+      Cipher cipher = Cipher.getInstance("RSA/None/PKCS1Padding", "BC");
       cipher.init(Cipher.DECRYPT_MODE, pub);
       clearTag = cipher.doFinal(encTag);
     }
@@ -177,8 +179,12 @@ public class MainActivity extends AppCompatActivity {
         "Name: " + name + "\n" +
         "Price: €" + euros + "." + cents;
     ((TextView)findViewById(R.id.tv_text)).setText(text);
+
+    Toast.makeText(getApplicationContext(), name, Toast.LENGTH_SHORT).show();
     tvTitle.setText(R.string.msg_taginfo);
   }
+
+
 
   String byteArrayToHex(byte[] ba) {                              // converter
     StringBuilder sb = new StringBuilder(ba.length * 2);

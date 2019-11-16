@@ -214,16 +214,16 @@ public class MainActivity extends AppCompatActivity {
       KeyStore.Entry entry = ks.getEntry(Constants.keyname, null);
       if (entry != null) {
         X509Certificate cert = (X509Certificate)((KeyStore.PrivateKeyEntry)entry).getCertificate();
-        Log.d("CERTIFICATE", "Certificate for Server: " + cert.getEncoded());
+        //Log.d("CERTIFICATE", "Certificate for Server: " + cert.getEncoded());
         byte[] encCert = cert.getEncoded();
         String strCert = cert.toString();
         String b64Cert = Base64.encodeToString(encCert, Base64.DEFAULT);
         String text = "cert(b64): " + b64Cert + "\n\n" + strCert;
-        Log.d("CERTIFICATE", "Certificate for ServerB64: " + b64Cert);
+        //Log.d("CERTIFICATE", "Certificate for ServerB64: " + b64Cert);
         tvKey.setText(text);
         text = "-----BEGIN CERTIFICATE-----\n" + b64Cert +
                "-----END CERTIFICATE-----\n";
-        Log.d(TAG, text);
+        Log.d("CERTIFICATE", text);
       }
     }
     catch (Exception e) {
