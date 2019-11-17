@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -19,6 +21,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.Signature;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -26,14 +31,18 @@ import javax.crypto.Cipher;
 
 import fe.up.pt.supermarket.models.Product;
 import fe.up.pt.supermarket.R;
+import fe.up.pt.supermarket.models.User;
+import fe.up.pt.supermarket.utils.Constants;
 
 public class MainMenuActivity extends AppCompatActivity {
     private ImageButton scanItem;
     private Button goShopping;
+    private Button checkout;
     private TextView message;
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
 
-    public static ArrayList<Product> shoppingCart;
+    //public static User user;
+
     ProductAdapter adapter;
     RecyclerView recyclerView;
 
@@ -43,48 +52,56 @@ public class MainMenuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main_menu);
 
         if(savedInstanceState == null) {
-            shoppingCart = new ArrayList<>();
+            RegistrationActivity.user.shoppingCart = new ArrayList<>();
         }
         else {
-            shoppingCart = savedInstanceState.getParcelableArrayList("shoppingCart");
+            RegistrationActivity.user.shoppingCart = savedInstanceState.getParcelableArrayList("shoppingCart");
         }
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
-
         adapter = new ProductAdapter(this);
         recyclerView.setAdapter(adapter);
-
-        adapter.setProductsInfo(MainMenuActivity.shoppingCart);
+        adapter.setProductsInfo(RegistrationActivity.user.shoppingCart);
 
         //goShopping = findViewById(R.id.bt_shopping);
         scanItem = findViewById(R.id.bt_scan_item);
+        checkout = findViewById(R.id.checkout);
 
 
         scanItem.setOnClickListener((v)->scan(true));
-        //goShopping.setOnClickListener((v)->sendToShopping());
+        checkout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /*byte[] message = buildMessage(adapter);
+                Intent intent = new Intent(this, NFCSendActivity.class);
+                intent.putExtra("message", message);
+                intent.putExtra("mime", "application/nfc.feup.apm.ordermsg");
+                startActivity(intent);*/
+            }
+        });
     }
 
     @Override
     public void onSaveInstanceState(Bundle bundle) {
         super.onSaveInstanceState(bundle);
         //bundle.putCharSequence("Message", message.getText());
-        bundle.putParcelableArrayList("shoppingCart", shoppingCart);
-        adapter.setProductsInfo(MainMenuActivity.shoppingCart);
+        bundle.putParcelableArrayList("shoppingCart", RegistrationActivity.user.shoppingCart);
+        adapter.setProductsInfo(RegistrationActivity.user.shoppingCart);
     }
 
     public void onRestoreInstanceState(Bundle bundle) {
         super.onRestoreInstanceState(bundle);
         //ArrayList<Product> getShoppingCart = bundle.getSerializable("ShoppingCart");
-        shoppingCart = bundle.getParcelableArrayList("shoppingCart");
-        adapter.setProductsInfo(MainMenuActivity.shoppingCart);
+        RegistrationActivity.user.shoppingCart = bundle.getParcelableArrayList("shoppingCart");
+        adapter.setProductsInfo(RegistrationActivity.user.shoppingCart);
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        adapter.setProductsInfo(MainMenuActivity.shoppingCart);
+        adapter.setProductsInfo(RegistrationActivity.user.shoppingCart);
     }
 
     public void scan(boolean qrcode) {
@@ -127,7 +144,7 @@ public class MainMenuActivity extends AppCompatActivity {
 
         try {
             Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding");
-            cipher.init(Cipher.DECRYPT_MODE, RegistrationActivity.pub);
+            cipher.init(Cipher.DECRYPT_MODE, RegistrationActivity.SERVER_CERTIFICATE);
             clearTag = cipher.doFinal(encTag);
         }
         catch (Exception e) {
@@ -160,7 +177,7 @@ public class MainMenuActivity extends AppCompatActivity {
         Log.d("QRCODE", "cents: " + pro.getCents());
         Log.d("QRCODE", "UUID: " + pro.getUuid().toString());
 
-        shoppingCart.add(pro);
+        RegistrationActivity.user.shoppingCart.add(pro);
         //Toast.makeText(getApplicationContext(), name, Toast.LENGTH_SHORT).show();
         //message.setText(name);
     }

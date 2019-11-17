@@ -14,4 +14,6 @@
     <string name="hint_username">Username</string>
     <string name="hint_password">Password</string>
 
+    <string name="nfc_send_msg">Tap and touch to send</string>
+
 </resources>

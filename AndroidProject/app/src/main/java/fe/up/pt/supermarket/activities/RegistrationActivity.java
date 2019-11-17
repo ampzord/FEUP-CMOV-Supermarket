@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.security.KeyPairGeneratorSpec;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,12 +25,20 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
+import java.math.BigInteger;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.AlgorithmParameterSpec;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
+import javax.security.auth.x500.X500Principal;
+
+import fe.up.pt.supermarket.models.User;
+import fe.up.pt.supermarket.utils.Constants;
 import fe.up.pt.supermarket.utils.HttpsTrustManagerUtils;
 import fe.up.pt.supermarket.R;
 import fe.up.pt.supermarket.utils.KeyStoreUtils;
@@ -49,9 +58,11 @@ public class RegistrationActivity extends AppCompatActivity {
     private EditText credit_card;
 
     public static boolean hasServerKey = false;
+    //public static boolean hasUserKey = false;
 
-    public static PrivateKey pri;
-    public static PublicKey pub;
+    public static PublicKey SERVER_CERTIFICATE;
+
+    public static User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,9 +99,16 @@ public class RegistrationActivity extends AppCompatActivity {
 
             String newURL = URL + "/register";
 
-            String pubKey = KeyStoreUtils.generateKeys(username.getText().toString());
+            if (!checkUserKeyExists(username.getText().toString())) {
+                generateAndStoreKeys(username.getText().toString());
+                user.certificate = KeyStoreUtils.getUserPublicKeyCertificate(username.getText().toString());
+            }
+            else {
+                Log.d(TAG_REGISTER, "There already exists a KeyStore in this username.");
+                user.certificate = "This user already exists in the database. A new Key was not created.";
+            }
 
-            jsonBody.put("public_key", pubKey);
+            jsonBody.put("public_key", user.certificate);
 
             //Log.d("RegistrationRequest", "URL: " + newURL);
 
@@ -130,12 +148,6 @@ public class RegistrationActivity extends AppCompatActivity {
 
         } catch (JSONException e) {
             e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (NoSuchProviderException e) {
-            e.printStackTrace();
         }
     }
 
@@ -148,6 +160,46 @@ public class RegistrationActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(username.toString(), uuid.toString());
         editor.apply();
+    }
+
+    private void generateAndStoreKeys(String username){
+        try {
+            Calendar start = new GregorianCalendar();
+            Calendar end = new GregorianCalendar();
+            end.add(Calendar.YEAR, 20);
+            KeyPairGenerator kgen = KeyPairGenerator.getInstance(Constants.KEY_ALGO, Constants.ANDROID_KEYSTORE);
+            AlgorithmParameterSpec spec = new KeyPairGeneratorSpec.Builder(this)
+                    .setKeySize(Constants.KEY_SIZE)
+                    .setAlias(username)
+                    .setSubject(new X500Principal("CN=" + username))
+                    .setSerialNumber(BigInteger.valueOf(Constants.CERT_SERIAL))
+                    .setStartDate(start.getTime())
+                    .setEndDate(end.getTime())
+                    .build();
+            kgen.initialize(spec);
+            KeyPair kp = kgen.generateKeyPair();
+            user.privateKey = kp.getPrivate();                                         // private key in a Java class (PrivateKey)
+            user.publicKey = kp.getPublic();                                          // the corresponding public key in a Java class (PublicKey)
+        }
+        catch (Exception e) {
+            Log.d(TAG_REGISTER, e.getMessage());
+        }
+    }
+
+    public boolean checkUserKeyExists(String username) {
+        boolean hasUserKey = false;
+        try {
+            KeyStore ks = KeyStore.getInstance(Constants.ANDROID_KEYSTORE);
+            ks.load(null);
+            KeyStore.Entry entry = ks.getEntry(username, null);
+            hasUserKey = (entry != null);
+            if (hasUserKey)
+                return true;
+        } catch (Exception e) {
+            Log.d(TAG_REGISTER, "User key already exists.");
+            hasUserKey = false;
+        }
+        return hasUserKey;
     }
 
     private void sendToLoginPage() {

@@ -3,6 +3,8 @@
     package="fe.up.pt.supermarket">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-feature android:name="android.hardware.nfc" android:required="true"/>
+    <uses-permission android:name="android.permission.NFC" />
 
     <application
         android:allowBackup="true"

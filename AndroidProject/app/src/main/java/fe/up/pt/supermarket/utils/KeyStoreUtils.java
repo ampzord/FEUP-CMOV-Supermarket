@@ -1,5 +1,6 @@
 package fe.up.pt.supermarket.utils;
 
+import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
@@ -9,6 +10,7 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -27,7 +29,12 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.spec.AlgorithmParameterSpec;
+import java.util.Calendar;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
+
+import javax.security.auth.x500.X500Principal;
 
 import fe.up.pt.supermarket.activities.RegistrationActivity;
 
@@ -36,45 +43,6 @@ import static android.content.ContentValues.TAG;
 public class KeyStoreUtils {
 
     private static String KEY_TAG = "KEY_TAG";
-
-    public static String generateKeys(String username) throws InvalidAlgorithmParameterException, NoSuchProviderException, NoSuchAlgorithmException {
-        /*
-         * Generate a new EC key pair entry in the Android Keystore by
-         * using the KeyPairGenerator API. The private key can only be
-         * used for signing or verification and only with SHA-256 or
-         * SHA-512 as the message digest.
-         */
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance(
-                KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore");
-        kpg.initialize(new KeyGenParameterSpec.Builder(
-                username,
-                KeyProperties.PURPOSE_SIGN | KeyProperties.PURPOSE_VERIFY)
-                .setDigests(KeyProperties.DIGEST_SHA256,
-                        KeyProperties.DIGEST_SHA512)
-                .build());
-
-        KeyPair kp = kpg.generateKeyPair();
-        PublicKey publicKey = kp.getPublic();
-        PrivateKey privateKey = kp.getPrivate();
-        //Log.d(KEY_TAG, "Public key: " + publicKey.toString());
-        //Log.d(KEY_TAG, "Private key: " + privateKey.toString());
-
-
-        byte[] pKbytes = Base64.encode(publicKey.getEncoded(), Base64.DEFAULT);
-        String pK = new String(pKbytes);
-        String pubKeyFormated = "-----BEGIN PUBLIC KEY-----\n" + pK + "-----END PUBLIC KEY-----\n";
-        //Log.d(KEY_TAG, "Public key FORMATTED: " + pubKeyFormated);
-
-        String encodedPubKey = new String(Base64.encode(pubKeyFormated.getBytes(), Base64.DEFAULT));
-        //Log.d(KEY_TAG, "Public key ENCODED: " + encodedPubKey);
-
-        /*byte[] privKeyBytes = Base64.encode(privateKey.getEncoded(), Base64.DEFAULT);
-        String privK = new String(privKeyBytes);
-        String privKeyFormated = "-----BEGIN PRIVATE KEY-----\n" + privK + "-----END PRIVATE KEY-----\n";
-        Log.d(KEY_TAG, "Private key FORMATTED: " + privKeyFormated);*/
-
-        return encodedPubKey;
-    }
 
     public static void getAllKeyStoreKeys() throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException {
         /*
@@ -97,7 +65,7 @@ public class KeyStoreUtils {
             keyStore.load(null);
             Certificate cert = keyStore.getCertificate(Constants.keyAlias);
             if (cert != null) {
-                RegistrationActivity.pub = cert.getPublicKey();
+                RegistrationActivity.SERVER_CERTIFICATE = cert.getPublicKey();
                 RegistrationActivity.hasServerKey = true;
             }
         }
@@ -115,13 +83,39 @@ public class KeyStoreUtils {
             keyStore.load(null);
             X509Certificate x509 = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(cert));
             keyStore.setEntry(Constants.keyAlias, new KeyStore.TrustedCertificateEntry(x509), null);
-            RegistrationActivity.pub = x509.getPublicKey();
+            RegistrationActivity.SERVER_CERTIFICATE = x509.getPublicKey();
             RegistrationActivity.hasServerKey = true;
         }
         catch(Exception e) {
             Log.d(KEY_TAG, "Error creating certificate.");
             e.printStackTrace();
         }
+    }
+
+    public static String getUserPublicKeyCertificate(String username) {
+        try {
+            KeyStore ks = KeyStore.getInstance(Constants.ANDROID_KEYSTORE);
+            ks.load(null);
+            KeyStore.Entry entry = ks.getEntry(username, null);
+            if (entry != null) {
+                X509Certificate cert = (X509Certificate)((KeyStore.PrivateKeyEntry)entry).getCertificate();
+                //Log.d("CERTIFICATE", "Certificate for Server: " + cert.getEncoded());
+                byte[] encCert = cert.getEncoded();
+                String strCert = cert.toString();
+                String b64Cert = Base64.encodeToString(encCert, Base64.DEFAULT);
+                String text = "cert(b64): " + b64Cert + "\n\n" + strCert;
+                //Log.d("CERTIFICATE", "Certificate for ServerB64: " + b64Cert);
+                text = "-----BEGIN CERTIFICATE-----\n" + b64Cert +
+                        "-----END CERTIFICATE-----\n";
+                Log.d("CERTIFICATE", text);
+                return text;
+            }
+        }
+        catch (Exception e) {
+            Log.d("CERTIFICATE", e.getMessage());
+            return "error";
+        }
+        return "";
     }
 
     public static boolean deleteKey(String alias) {
