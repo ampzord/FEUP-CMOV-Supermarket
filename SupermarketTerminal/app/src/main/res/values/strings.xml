@@ -2,4 +2,8 @@
     <string name="app_name">Supermarket Terminal</string>
     <string name="tv_title">NFC Receiver</string>
     <string name="tv_waiting">Waiting for a tap</string>
+    <string name="msg_keyinfo">Key Info</string>
+    <string name="msg_taginfo">Tag Info</string>
+    <string name="tv_nokey">No Key</string>
+    <string name="mn_scan">Scan QR</string>
 </resources>

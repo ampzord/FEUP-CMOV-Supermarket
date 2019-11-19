@@ -1,37 +1,34 @@
 package fe.up.pt.supermarket.activities;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.Signature;
-import java.util.ArrayList;
+import java.security.cert.X509Certificate;
 import java.util.UUID;
 
 import javax.crypto.Cipher;
 
 import fe.up.pt.supermarket.models.Product;
 import fe.up.pt.supermarket.R;
-import fe.up.pt.supermarket.models.User;
 import fe.up.pt.supermarket.utils.Constants;
 
 public class MainMenuActivity extends AppCompatActivity {
@@ -39,8 +36,11 @@ public class MainMenuActivity extends AppCompatActivity {
     private Button goShopping;
     private Button checkout;
     private Button clearList;
+    private Button sendKey;
+    private Button tryNFC;
     private TextView message;
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
+    final Context context = this;
 
     //public static User user;
 
@@ -52,35 +52,34 @@ public class MainMenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
 
-        if(savedInstanceState == null) {
+        /*if(savedInstanceState == null) {
             RegistrationActivity.user.shoppingCart = new ArrayList<>();
         }
         else {
             RegistrationActivity.user.shoppingCart = savedInstanceState.getParcelableArrayList("shoppingCart");
-        }
+        }*/
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
+
         adapter = new ProductAdapter(this);
         recyclerView.setAdapter(adapter);
         adapter.setProductsInfo(RegistrationActivity.user.shoppingCart);
 
         //goShopping = findViewById(R.id.bt_shopping);
+        sendKey = findViewById(R.id.sendKey);
         scanItem = findViewById(R.id.bt_scan_item);
         checkout = findViewById(R.id.checkout);
         clearList = findViewById(R.id.clearList);
+        tryNFC = findViewById(R.id.tryNFC);
 
 
         scanItem.setOnClickListener((v)->scan(true));
         checkout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*byte[] message = buildMessage(adapter);
-                Intent intent = new Intent(this, NFCSendActivity.class);
-                intent.putExtra("message", message);
-                intent.putExtra("mime", "application/nfc.feup.apm.ordermsg");
-                startActivity(intent);*/
+                generateCheckoutTag();
             }
         });
         clearList.setOnClickListener(new View.OnClickListener() {
@@ -90,27 +89,191 @@ public class MainMenuActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         });
+        sendKey.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendUserPublicKeyToTerminal();
+            }
+        });
+        tryNFC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                byte[] message = buildMessage();
+                Intent intent = new Intent(context, NFCSendActivity.class);
+                intent.putExtra("message", message);
+                intent.putExtra("mime", "application/nfc.fe.up.pt.supermarket");
+                startActivity(intent);
+            }
+        });
+    }
+
+
+    void sendUserPublicKeyToTerminal() {
+        X509Certificate cert;
+
+        try {
+            KeyStore ks = KeyStore.getInstance(Constants.ANDROID_KEYSTORE);
+            ks.load(null);
+            KeyStore.Entry entry = ks.getEntry(RegistrationActivity.user.username, null);
+            if (entry != null) {
+                cert = (X509Certificate) ((KeyStore.PrivateKeyEntry) entry).getCertificate();
+                //tvKey.setText(cert.toString());
+                Intent intent = new Intent(MainMenuActivity.this, NFCSendActivity.class);
+                intent.putExtra("message", cert.getEncoded());
+                intent.putExtra("mime", "application/nfc.fe.up.pt.pubkeyforterminal");
+                startActivity(intent);
+            }
+        }
+        catch (Exception e) {
+            //tvNoKey.setText(e.getMessage());
+            Log.d("MAIN_MENU", "Error loading user public key to send to Terminal.");
+        }
+    }
+
+
+    void generateCheckoutTag() {
+        //String name = edName.getText().toString();
+
+        /*if (!hasKey || edUUID.getText().toString().length() == 0 || name.length() == 0 ||
+                edEuros.getText().toString().length() == 0 || edCents.getText().toString().length() == 0) {
+            tvNoKey.setText(R.string.msg_empty);
+            return;
+        }*/
+        /*int len = 4 + 16 + 4 + 4 + 1 + edName.getText().toString().length();
+        int l = edName.getText().toString().length();
+        if (l > 35)
+            name = edName.getText().toString().substring(0, 35);
+        tag = ByteBuffer.allocate(len);
+        tag.putInt(Constants.tagId); //4 - tagID
+        tag.putLong(productUUID.getMostSignificantBits()); //16 - UUID
+        tag.putLong(productUUID.getLeastSignificantBits()); //16 - UUID
+        tag.putInt(Integer.parseInt(edEuros.getText().toString())); //4 - euros
+        tag.putInt(Integer.parseInt(edCents.getText().toString())); //4 - cents
+        tag.put((byte)name.length()); //name
+        tag.put(name.getBytes(StandardCharsets.ISO_8859_1)); //name*/
+
+        //
+
+
+        /*
+
+                - id
+                - price
+                - UUID (transmitted in registration)
+                - possibly ONE VOUCHER ID (selected by the user)
+                - possibility to discount the amount accumulated so far (BOOLEAN)
+                - N - number of products to read
+                - list of N products (max 10 items)
+         */
+
+        byte[] encTag = new byte[0];
+        ByteBuffer tag;
+        int discount_int = 0;
+        if (RegistrationActivity.user.discount)
+            discount_int = 1;
+
+
+        int n = RegistrationActivity.user.shoppingCart.size();
+        //--------------------------------------------- REMOVED VOUCHER FOR TESTING
+        int length = 4 + 16 + 4 + 4 + 4 + 1 + RegistrationActivity.user.shoppingCart.get(0).name.length(); //tagID, UUID, cost, voucher, discount, N, list of N
+        tag = ByteBuffer.allocate(length);
+        tag.putInt(Constants.tagId); //4 - tagID
+        tag.putLong(RegistrationActivity.user.uuid.getMostSignificantBits()); // 8
+        tag.putLong(RegistrationActivity.user.uuid.getLeastSignificantBits()); // 8 - UUID
+        tag.putFloat(RegistrationActivity.user.getTotalCost()); //4 - cost
+        //tag.putLong(RegistrationActivity.user.selectedVoucher.uuid.getMostSignificantBits()); // 8
+        //tag.putLong(RegistrationActivity.user.selectedVoucher.uuid.getLeastSignificantBits()); // 8 - Voucher UUID
+        tag.putInt(discount_int); // discount
+        tag.putInt(n); // size of shoppingList
+        for (int i = 0; i < n; i++) {
+            tag.put((byte) RegistrationActivity.user.shoppingCart.get(i).name.length()); //name.length
+            tag.put(RegistrationActivity.user.shoppingCart.get(i).name.getBytes(StandardCharsets.ISO_8859_1)); //name.getBytes()
+        }
+
+
+        try {
+            Cipher cipher = Cipher.getInstance(Constants.ENC_ALGO);
+            cipher.init(Cipher.ENCRYPT_MODE, RegistrationActivity.user.privateKey);
+            encTag = cipher.doFinal(tag.array());
+        }
+        catch (Exception e) {
+            Log.d("MAIN_MENU", "Error generating Checkout QRCode.");
+        }
+        Intent qrAct = new Intent(this, QRTag.class);
+        qrAct.putExtra("data", encTag);
+        startActivity(qrAct);
+    }
+
+    private byte[] buildMessage() {
+        /*ArrayList<Integer> sels = new ArrayList<>();
+        int nitems = ad.getCount();
+        for (int k = 0; k < nitems; k++)
+            if (ad.getItem(k).selected)
+                sels.add(ad.getItem(k).type);
+        int nr = sels.size();
+        ByteBuffer bb = ByteBuffer.allocate((nr+1)+Constants.KEY_SIZE/8);
+        bb.put((byte)nr);
+        for (int k=0; k<nr; k++)
+            bb.put(sels.get(k).byteValue());
+        byte[] message = bb.array();*/
+        /*int nr = RegistrationActivity.user.shoppingCart.size();
+        ByteBuffer bb = ByteBuffer.allocate((nr+1)+Constants.KEY_SIZE/8);
+        bb.put((byte)nr);
+        for (int k=0; k<nr; k++)
+            bb.put(toStream(RegistrationActivity.user.shoppingCart.get(k)));
+        byte[] message = bb.array();
+        try {
+            KeyStore ks = KeyStore.getInstance(Constants.ANDROID_KEYSTORE);
+            ks.load(null);
+            KeyStore.Entry entry = ks.getEntry("checkout", null);
+            PrivateKey pri = ((KeyStore.PrivateKeyEntry)entry).getPrivateKey();
+            Signature sg = Signature.getInstance(Constants.SIGN_ALGO);
+            sg.initSign(pri);
+            sg.update(message, 0, nr+1);
+            int sz = sg.sign(message, nr+1, Constants.KEY_SIZE/8);
+            Log.d("MAIN_MENU", "Sign size = " + sz + " bytes.");
+        }
+        catch (Exception ex) {
+            Log.d("MAIN_MENU", ex.getMessage());
+        }
+        return message;*/
+        return null;
+    }
+
+    public static byte[] toStream(Product stu) {
+        // Reference for stream of bytes
+        byte[] stream = null;
+        // ObjectOutputStream is used to convert a Java object into OutputStream
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             ObjectOutputStream oos = new ObjectOutputStream(baos);) {
+            oos.writeObject(stu);
+            stream = baos.toByteArray();
+        } catch (IOException e) {
+            // Error in serialization
+            e.printStackTrace();
+        }
+        return stream;
     }
 
     @Override
     public void onSaveInstanceState(Bundle bundle) {
         super.onSaveInstanceState(bundle);
         //bundle.putCharSequence("Message", message.getText());
-        bundle.putParcelableArrayList("shoppingCart", RegistrationActivity.user.shoppingCart);
-        adapter.setProductsInfo(RegistrationActivity.user.shoppingCart);
+        //bundle.putParcelableArrayList("shoppingCart", RegistrationActivity.user.shoppingCart);
+        //adapter.setProductsInfo(RegistrationActivity.user.shoppingCart);
     }
 
     public void onRestoreInstanceState(Bundle bundle) {
         super.onRestoreInstanceState(bundle);
         //ArrayList<Product> getShoppingCart = bundle.getSerializable("ShoppingCart");
-        RegistrationActivity.user.shoppingCart = bundle.getParcelableArrayList("shoppingCart");
-        adapter.setProductsInfo(RegistrationActivity.user.shoppingCart);
+        //RegistrationActivity.user.shoppingCart = bundle.getParcelableArrayList("shoppingCart");
+        //adapter.setProductsInfo(RegistrationActivity.user.shoppingCart);
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        adapter.setProductsInfo(RegistrationActivity.user.shoppingCart);
+        //adapter.setProductsInfo(RegistrationActivity.user.shoppingCart);
     }
 
     public void scan(boolean qrcode) {
@@ -181,12 +344,13 @@ public class MainMenuActivity extends AppCompatActivity {
         //String name, Integer euros, Integer cents, UUID uuid
         //UUID uuidProduct = UUID.fromString(id.toString());
         Product pro = new Product(name, euros, cents, id.toString());
-        Log.d("QRCODE", "Name: " + pro.getName());
-        Log.d("QRCODE", "euros: " + pro.getEuros());
-        Log.d("QRCODE", "cents: " + pro.getCents());
-        Log.d("QRCODE", "UUID: " + pro.getUuid().toString());
+        Log.d("QRCODE", "Name: " + pro.name);
+        Log.d("QRCODE", "euros: " + pro.euros);
+        Log.d("QRCODE", "cents: " + pro.cents);
+        Log.d("QRCODE", "UUID: " + pro.s_uuid);
 
         RegistrationActivity.user.shoppingCart.add(pro);
+        adapter.notifyDataSetChanged();
         //Toast.makeText(getApplicationContext(), name, Toast.LENGTH_SHORT).show();
         //message.setText(name);
     }

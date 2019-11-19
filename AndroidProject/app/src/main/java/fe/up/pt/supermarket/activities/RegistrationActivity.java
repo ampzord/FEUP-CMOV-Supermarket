@@ -31,9 +31,11 @@ import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.cert.X509Certificate;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.UUID;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -181,7 +183,9 @@ public class RegistrationActivity extends AppCompatActivity {
             kgen.initialize(spec);
             KeyPair kp = kgen.generateKeyPair();
             user.privateKey = kp.getPrivate();                                         // private key in a Java class (PrivateKey)
-            user.publicKey = kp.getPublic();                                          // the corresponding public key in a Java class (PublicKey)
+            user.publicKey = kp.getPublic();
+            //X509Certificate cert = user.privateKey.
+            // the corresponding public key in a Java class (PublicKey)
         }
         catch (Exception e) {
             Log.d(TAG_REGISTER, "Error creating key for user: " + username);

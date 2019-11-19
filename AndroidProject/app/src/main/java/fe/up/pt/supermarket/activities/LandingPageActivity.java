@@ -20,8 +20,8 @@ import fe.up.pt.supermarket.utils.MultipleClicksUtils;
 public class LandingPageActivity extends AppCompatActivity {
 
     //public static String URL = "https://localhost:3000/api";
-    //public static String URL = "https://192.168.1.12:3001/api"; //HOME
-    public static String URL = "https://10.227.145.164:3001/api"; //FEUP
+    public static String URL = "https://192.168.1.12:3001/api"; //HOME
+    //public static String URL = "https://10.227.145.164:3001/api"; //FEUP
     //public static String URL = "https://grisly-mummy-10353.herokuapp.com";
 
     @Override

@@ -81,6 +81,7 @@ public class LoginActivity extends AppCompatActivity {
                             Log.d(TAG_LOGIN, response.toString());
                             KeyStoreUtils.getServerKeyFromKeyStore();
                             getUserUUID(username.getText().toString());
+                            RegistrationActivity.user.username = username.getText().toString();
                             sendToMainMenu();
                         }
                     },
@@ -107,7 +108,7 @@ public class LoginActivity extends AppCompatActivity {
     public void getUserUUID(String username) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String s_uuid = preferences.getString(username, "");
-        USER_UUID = UUID.fromString(s_uuid);
+        RegistrationActivity.user.uuid = UUID.fromString(s_uuid);
     }
 
     private void sendToMainMenu() {

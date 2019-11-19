@@ -12,10 +12,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import fe.up.pt.supermarket.R;
 
-public class NFCSendActivity extends AppCompatActivity implements NfcAdapter.OnNdefPushCompleteCallback {
+public class NFCSendActivity extends AppCompatActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     NfcAdapter nfcAdapter;
@@ -25,7 +26,7 @@ public class NFCSendActivity extends AppCompatActivity implements NfcAdapter.OnN
     super.onCreate(savedInstanceState);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    setContentView(R.layout.activity_nfcsend_key);
+    setContentView(R.layout.activity_nfcsend);
 
     // Check for available NFC Adapter
     nfcAdapter = NfcAdapter.getDefaultAdapter(this);
@@ -33,28 +34,22 @@ public class NFCSendActivity extends AppCompatActivity implements NfcAdapter.OnN
       Toast.makeText(getApplicationContext(), "NFC is not available on this device.", Toast.LENGTH_LONG).show();
       finish();
     }
-
     Bundle extras = getIntent().getExtras();
     mimeType = extras.getString("mime");
     message = extras.getByteArray("message");
     NdefMessage msg = new NdefMessage(new NdefRecord[] { createMimeRecord(mimeType, message) });
 
-    // Register a NDEF message to be sent in P2P
-    nfcAdapter.setNdefPushMessage(msg, this);
-    nfcAdapter.setOnNdefPushCompleteCallback(this, this);
-  }
-
-  public void onNdefPushComplete(NfcEvent arg0) {
-    runOnUiThread(new Runnable() {
-      public void run() {
+    nfcAdapter.setNdefPushMessage(msg, this);       // Register a NDEF message to be sent in P2P
+    nfcAdapter.setOnNdefPushCompleteCallback((ev)->{       // when the message is sent ...
+      runOnUiThread(() -> {
         Toast.makeText(getApplicationContext(), "Message sent.", Toast.LENGTH_LONG).show();
         finish();
-      }
-    });
+      });
+    }, this);
   }
 
   public NdefRecord createMimeRecord(String mimeType, byte[] payload) {
-    byte[] mimeBytes = mimeType.getBytes(Charset.forName("ISO-8859-1"));
+    byte[] mimeBytes = mimeType.getBytes(StandardCharsets.ISO_8859_1);
     return new NdefRecord(NdefRecord.TNF_MIME_MEDIA, mimeBytes, new byte[0], payload);
   }
 }

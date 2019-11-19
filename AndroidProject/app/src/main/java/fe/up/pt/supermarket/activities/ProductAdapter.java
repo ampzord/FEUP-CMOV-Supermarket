@@ -111,7 +111,6 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     public class ProductItem extends ListItem {
-
         private Product product;
 
         ProductItem(Product event) {

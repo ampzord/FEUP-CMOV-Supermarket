@@ -3,12 +3,13 @@ package com.example.supermarket.supermarket.terminal;
 import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
-import android.os.Parcelable;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Parcelable;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 /* This Activity is finished when it starts another (manifest with noHistory = true) */
-public class NFCReceiveKeyActivity extends AppCompatActivity {
+public class NfcReceiveActivity extends AppCompatActivity {
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,7 @@ public class NFCReceiveKeyActivity extends AppCompatActivity {
 
   @Override
   public void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
     setIntent(intent);
   }
 
@@ -34,7 +36,8 @@ public class NFCReceiveKeyActivity extends AppCompatActivity {
     byte[] message = msg.getRecords()[0].getPayload();
     Intent main = new Intent(this, MainActivity.class);
     main.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    main.putExtra("key", message);
+    main.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    main.putExtra("cert", message);
     main.putExtra("type", 1);
     startActivity(main);
   }
