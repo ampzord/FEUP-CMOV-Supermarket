@@ -39,6 +39,12 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         //return new ProductViewHolder(lineupLayoutBinding);
     }
 
+    public void clear() {
+        int size = productList.size();
+        productList.clear();
+        notifyItemRangeRemoved(0, size);
+    }
+
     @Override
     public int getItemViewType(int position) {
         return productList.get(position).getType();

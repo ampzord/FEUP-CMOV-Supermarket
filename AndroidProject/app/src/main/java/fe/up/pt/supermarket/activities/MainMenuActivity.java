@@ -38,6 +38,7 @@ public class MainMenuActivity extends AppCompatActivity {
     private ImageButton scanItem;
     private Button goShopping;
     private Button checkout;
+    private Button clearList;
     private TextView message;
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
 
@@ -68,6 +69,7 @@ public class MainMenuActivity extends AppCompatActivity {
         //goShopping = findViewById(R.id.bt_shopping);
         scanItem = findViewById(R.id.bt_scan_item);
         checkout = findViewById(R.id.checkout);
+        clearList = findViewById(R.id.clearList);
 
 
         scanItem.setOnClickListener((v)->scan(true));
@@ -79,6 +81,13 @@ public class MainMenuActivity extends AppCompatActivity {
                 intent.putExtra("message", message);
                 intent.putExtra("mime", "application/nfc.feup.apm.ordermsg");
                 startActivity(intent);*/
+            }
+        });
+        clearList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                adapter.clear();
+                adapter.notifyDataSetChanged();
             }
         });
     }

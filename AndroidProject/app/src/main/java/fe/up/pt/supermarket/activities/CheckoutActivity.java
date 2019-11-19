@@ -20,12 +20,12 @@ public class CheckoutActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.checkout);
+        //setContentView(R.layout.checkout);*/
     }
 
 
     private byte[] buildMessage(ArrayList<Product> ad) {
-        ArrayList<Integer> sels = new ArrayList<>();
+        /*ArrayList<Integer> sels = new ArrayList<>();
         int nitems = ad.getCount();
         for (int k = 0; k < nitems; k++)
             if (ad.getItem(k).selected)
@@ -50,6 +50,7 @@ public class CheckoutActivity extends AppCompatActivity {
         catch (Exception ex) {
             Log.d("TAG_NFC", ex.getMessage());
         }
-        return message;
+        return message;*/
+        return null;
     }
 }

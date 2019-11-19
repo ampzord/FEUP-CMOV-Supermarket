@@ -69,6 +69,8 @@ public class RegistrationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration2);
 
+        user = new User();
+
         register = findViewById(R.id.bt_send_register);
         firstName = findViewById(R.id.edit_first_name);
         lastName = findViewById(R.id.edit_last_name);
@@ -182,6 +184,7 @@ public class RegistrationActivity extends AppCompatActivity {
             user.publicKey = kp.getPublic();                                          // the corresponding public key in a Java class (PublicKey)
         }
         catch (Exception e) {
+            Log.d(TAG_REGISTER, "Error creating key for user: " + username);
             Log.d(TAG_REGISTER, e.getMessage());
         }
     }
