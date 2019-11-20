@@ -1,4 +1,4 @@
-package fe.up.pt.supermarket.activities;
+package fe.up.pt.supermarket.utils;
 
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -26,7 +26,7 @@ public class NFCSendActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    setContentView(R.layout.activity_nfcsend);
+    setContentView(R.layout.activity_processing_v2);
 
     // Check for available NFC Adapter
     nfcAdapter = NfcAdapter.getDefaultAdapter(this);

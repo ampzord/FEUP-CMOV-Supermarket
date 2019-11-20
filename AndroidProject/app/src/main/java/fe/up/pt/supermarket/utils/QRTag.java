@@ -1,4 +1,4 @@
-package fe.up.pt.supermarket.activities;
+package fe.up.pt.supermarket.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;

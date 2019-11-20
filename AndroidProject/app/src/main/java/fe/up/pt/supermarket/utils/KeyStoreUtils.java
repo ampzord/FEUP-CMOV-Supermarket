@@ -36,6 +36,7 @@ import java.util.GregorianCalendar;
 
 import javax.security.auth.x500.X500Principal;
 
+import fe.up.pt.supermarket.activities.LoginActivity;
 import fe.up.pt.supermarket.activities.RegistrationActivity;
 
 import static android.content.ContentValues.TAG;
@@ -65,8 +66,8 @@ public class KeyStoreUtils {
             keyStore.load(null);
             Certificate cert = keyStore.getCertificate(Constants.keyAlias);
             if (cert != null) {
-                RegistrationActivity.SERVER_CERTIFICATE = cert.getPublicKey();
-                RegistrationActivity.hasServerKey = true;
+                LoginActivity.SERVER_CERTIFICATE = cert.getPublicKey();
+                LoginActivity.hasServerKey = true;
             }
         }
         catch(Exception e) {
@@ -83,8 +84,8 @@ public class KeyStoreUtils {
             keyStore.load(null);
             X509Certificate x509 = (X509Certificate) CertificateFactory.getInstance("X509").generateCertificate(new ByteArrayInputStream(cert));
             keyStore.setEntry(Constants.keyAlias, new KeyStore.TrustedCertificateEntry(x509), null);
-            RegistrationActivity.SERVER_CERTIFICATE = x509.getPublicKey();
-            RegistrationActivity.hasServerKey = true;
+            LoginActivity.SERVER_CERTIFICATE = x509.getPublicKey();
+            LoginActivity.hasServerKey = true;
         }
         catch(Exception e) {
             Log.d(KEY_TAG, "Error creating certificate.");

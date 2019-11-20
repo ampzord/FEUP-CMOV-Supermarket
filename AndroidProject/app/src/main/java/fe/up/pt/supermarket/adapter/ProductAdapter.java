@@ -1,4 +1,4 @@
-package fe.up.pt.supermarket.activities;
+package fe.up.pt.supermarket.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;

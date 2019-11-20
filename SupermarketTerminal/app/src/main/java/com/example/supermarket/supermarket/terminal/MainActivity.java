@@ -16,7 +16,19 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.supermarket.supermarket.terminal.model.Product;
+import com.example.supermarket.supermarket.terminal.model.Transaction;
+import com.example.supermarket.supermarket.terminal.utils.HttpsTrustManagerUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -42,8 +54,6 @@ public class MainActivity extends AppCompatActivity {
   static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
   boolean hasKey = false;
   PublicKey pub;
-  private static int i = 0;
-
 
   //---------
   //private TextView tv;
@@ -126,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
       tvTitle.setText(e.getMessage());
     }
     if (hasKey) {
-      Toast.makeText(getApplicationContext(), "A user public key has arrived!", Toast.LENGTH_SHORT).show();
+      //Toast.makeText(getApplicationContext(), "A user public key has arrived!", Toast.LENGTH_SHORT).show();
     }
     /*String text = "Public Key:\nModulus: " + byteArrayToHex(((RSAPublicKey)pub).getModulus().toByteArray()) + "\n" +
             "Exponent: " + byteArrayToHex(((RSAPublicKey)pub).getPublicExponent().toByteArray());
@@ -183,27 +193,45 @@ public class MainActivity extends AppCompatActivity {
     }
 
     ByteBuffer tag = ByteBuffer.wrap(clearTag);
-    int tId = tag.getInt();
-    Log.d("INFO", "tId: " + tId);
+    //int tId = tag.getInt();
+    long most0 = tag.getLong();
+    long less0 = tag.getLong();
+    UUID transactionID = new UUID(most0, less0);
     long most = tag.getLong();
     long less = tag.getLong();
-    UUID id = new UUID(most, less);
-    Log.d("INFO", "uuid: " + id.toString());
+    UUID user_id = new UUID(most, less);
+    Log.d("INFO", "uuid: " + user_id.toString());
     float cost = tag.getFloat();
     //long most2 = tag.getLong();
     //long less2 = tag.getLong();
     //UUID voucher_id = new UUID(most2, less2);
     int discount = tag.getInt();
     int sizeList = tag.getInt();
-    ArrayList<String> productNames = new ArrayList<>();
+    Transaction transaction = new Transaction();
     for (int i = 0; i < sizeList; i++) {
+      //UUID
+      long most_pro = tag.getLong();
+      long less_pro = tag.getLong();
+      UUID product_uuid = new UUID(most_pro, less_pro);
+      //cost of product
+      Float cost_product = tag.getFloat();
+      //name of product
       byte l = tag.get();
       byte[] bName = new byte[l];
       tag.get(bName);
       String name = new String(bName, StandardCharsets.ISO_8859_1);
-      productNames.add(name);
+      Product pro = new Product(name, cost_product, product_uuid.toString());
+      transaction.products.add(pro);
       Log.d("INFO", "name: " + name);
     }
+
+
+    transaction.id = transactionID;
+    transaction.user.uuid = user_id;
+    transaction.totalCost = cost;
+    transaction.discount = discount;
+
+    sendServerInformation(transaction);
 
     Log.d("INFO", "sizeList: " + sizeList);
 
@@ -216,7 +244,63 @@ public class MainActivity extends AppCompatActivity {
     ((TextView) findViewById(R.id.tv_text)).setText(text);
 
     Toast.makeText(getApplicationContext(), name, Toast.LENGTH_SHORT).show();*/
-    tvTitle.setText("lol " + tId);
+  }
+
+  public void sendServerInformation(Transaction transaction) {
+    HttpsTrustManagerUtils.allowAllSSL();
+    RequestQueue queue = Volley.newRequestQueue(this);
+    try {
+      JSONObject jsonBody = new JSONObject();
+      jsonBody.put("id", transaction.id.toString());
+      jsonBody.put("price", Float.toString(transaction.totalCost));
+      jsonBody.put("user_uuid", transaction.user.uuid.toString());
+      jsonBody.put("discount", Integer.toString(transaction.discount));
+
+      JSONArray array = new JSONArray();
+
+      for(int i=0;i<transaction.products.size();i++){
+        JSONObject obj = new JSONObject();
+        try {
+          obj.put("productName",transaction.products.get(i).name);
+          obj.put("productUUID",transaction.products.get(i).s_uuid);
+          obj.put("productCost",transaction.products.get(i).cost);
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
+        array.put(obj);
+      }
+
+      String newURL = Constants.URL + "/transaction";
+      jsonBody.put("Products",array);
+
+      JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, newURL, jsonBody,
+              new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                  Log.d("TRANSACTION", response.toString());
+                  /*KeyStoreUtils.getServerKeyFromKeyStore();
+                  getUserUUID(username.getText().toString());
+                  RegistrationActivity.user.username = username.getText().toString();
+                  sendToMainMenu();*/
+                }
+              },
+              new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError volleyError) {
+                  Log.d("TRANSACTION", volleyError.toString());
+                  if (volleyError.networkResponse != null) {
+                    Log.d("TRANSACTION", "Status Code Error: " + volleyError.networkResponse.statusCode);
+                    Log.d("TRANSACTION", "Server Error Response: " + new String(volleyError.networkResponse.data));
+                    Toast.makeText(getApplicationContext(), new String(volleyError.networkResponse.data), Toast.LENGTH_SHORT).show();
+                  }
+                }
+              });
+
+      queue.add(jsonObjectRequest);
+
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
   }
 
   String byteArrayToHex(byte[] ba) {                              // converter

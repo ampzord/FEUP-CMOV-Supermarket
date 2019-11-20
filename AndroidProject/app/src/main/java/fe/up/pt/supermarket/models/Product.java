@@ -20,6 +20,13 @@ public class Product {
         this.s_uuid = s_uuid;
     }
 
+    public Float getDecimalCost() {
+        float cost;
+        int decimal = cents / 100;
+        cost = euros + decimal;
+        return cost;
+    }
+
 }
 
 

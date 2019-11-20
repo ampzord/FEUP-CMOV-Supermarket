@@ -3,11 +3,10 @@ package fe.up.pt.supermarket.activities;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.security.KeyPairGeneratorSpec;
 import android.util.Log;
 import android.view.View;
@@ -25,13 +24,12 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.cert.X509Certificate;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -39,14 +37,16 @@ import java.util.UUID;
 
 import javax.security.auth.x500.X500Principal;
 
-import fe.up.pt.supermarket.models.User;
 import fe.up.pt.supermarket.utils.Constants;
 import fe.up.pt.supermarket.utils.HttpsTrustManagerUtils;
 import fe.up.pt.supermarket.R;
 import fe.up.pt.supermarket.utils.KeyStoreUtils;
 import fe.up.pt.supermarket.utils.MultipleClicksUtils;
 
-import static fe.up.pt.supermarket.activities.LandingPageActivity.URL;
+import static fe.up.pt.supermarket.activities.LoginActivity.URL;
+import static fe.up.pt.supermarket.activities.LoginActivity.hasServerKey;
+import static fe.up.pt.supermarket.activities.LoginActivity.user;
+
 
 public class RegistrationActivity extends AppCompatActivity {
     private final String TAG_REGISTER = "TAG_REGISTER";
@@ -59,19 +59,10 @@ public class RegistrationActivity extends AppCompatActivity {
     private EditText password_conf;
     private EditText credit_card;
 
-    public static boolean hasServerKey = false;
-    //public static boolean hasUserKey = false;
-
-    public static PublicKey SERVER_CERTIFICATE;
-
-    public static User user;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration2);
-
-        user = new User();
 
         register = findViewById(R.id.bt_send_register);
         firstName = findViewById(R.id.edit_first_name);
@@ -125,11 +116,17 @@ public class RegistrationActivity extends AppCompatActivity {
                                 String server_msg_response = response.getString("message");
                                 Toast.makeText(getApplicationContext(), server_msg_response, Toast.LENGTH_SHORT).show();
                                 JSONObject getUser = response.getJSONObject("user");
+                                Object username = getUser.get("username");
+                                Object uuid = getUser.get("uuid");
+                                String s_username = username.toString();
+                                String s_uuid = uuid.toString();
                                 KeyStoreUtils.getServerKeyFromKeyStore();
                                 if (!hasServerKey) {
                                     KeyStoreUtils.getCertificateFromServerMessage(response);
                                 }
-                                saveUserUUID(getUser);
+                                //saveUserUUID(getUser);
+                                writeToFileUUID(getApplicationContext(),s_username,s_uuid);
+                                user.uuid = UUID.fromString(s_uuid);
                                 sendToLoginPage();
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -153,17 +150,6 @@ public class RegistrationActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-    public void saveUserUUID(JSONObject str) throws JSONException {
-        Object username = str.get("username");
-        Object uuid = str.get("uuid");
-        //Log.d(TAG_REGISTER, "Username: " + username.toString());
-        //Log.d(TAG_REGISTER, "UUID: " + uuid.toString());
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(username.toString(), uuid.toString());
-        editor.apply();
     }
 
     private void generateAndStoreKeys(String username){
@@ -207,6 +193,17 @@ public class RegistrationActivity extends AppCompatActivity {
             hasUserKey = false;
         }
         return hasUserKey;
+    }
+
+    private void writeToFileUUID(Context context, String filename, String data) {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
+            outputStreamWriter.write(data);
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            Log.d("Exception", "File write failed: " + e.toString());
+        }
     }
 
     private void sendToLoginPage() {

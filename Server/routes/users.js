@@ -136,6 +136,11 @@ function comparePasswords(passwordAttempt, hash) {
 }
 
 
+router.post('/transaction', function(req, res, next) {
+  console.log(req.body);
+});
+
+
 /* GET all users listing. */
 router.get('/users', function(req, res, next) {
   User.findAll().then(users => res.json(users))

@@ -17,7 +17,6 @@ public class User {
     public boolean discount;
     public Voucher selectedVoucher;
 
-
     public User() {
         shoppingCart = new ArrayList<>();
         vouchers = new ArrayList<>();
@@ -33,4 +32,10 @@ public class User {
         return total;
     }
 
+    public Float getProductCost(int i) {
+        float cost = 0;
+        int decimal = shoppingCart.get(i).cents / 100;
+        cost = shoppingCart.get(i).euros + decimal;
+        return cost;
+    }
 }

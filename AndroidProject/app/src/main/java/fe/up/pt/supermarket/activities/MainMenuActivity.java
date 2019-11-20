@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,25 +20,31 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.ReadOnlyBufferException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.UUID;
 
 import javax.crypto.Cipher;
 
+import fe.up.pt.supermarket.adapter.ProductAdapter;
 import fe.up.pt.supermarket.models.Product;
 import fe.up.pt.supermarket.R;
 import fe.up.pt.supermarket.utils.Constants;
+import fe.up.pt.supermarket.utils.MultipleClicksUtils;
+import fe.up.pt.supermarket.utils.NFCSendActivity;
+import fe.up.pt.supermarket.utils.QRTag;
 
 public class MainMenuActivity extends AppCompatActivity {
     private ImageButton scanItem;
     private Button goShopping;
-    private Button checkout;
+    private Button checkout_button;
     private Button clearList;
     private Button sendKey;
-    private Button tryNFC;
     private TextView message;
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
     final Context context = this;
@@ -65,20 +72,21 @@ public class MainMenuActivity extends AppCompatActivity {
 
         adapter = new ProductAdapter(this);
         recyclerView.setAdapter(adapter);
-        adapter.setProductsInfo(RegistrationActivity.user.shoppingCart);
+        adapter.setProductsInfo(LoginActivity.user.shoppingCart);
 
         //goShopping = findViewById(R.id.bt_shopping);
         sendKey = findViewById(R.id.sendKey);
         scanItem = findViewById(R.id.bt_scan_item);
-        checkout = findViewById(R.id.checkout);
+        checkout_button = findViewById(R.id.checkout);
         clearList = findViewById(R.id.clearList);
-        tryNFC = findViewById(R.id.tryNFC);
 
 
         scanItem.setOnClickListener((v)->scan(true));
-        checkout.setOnClickListener(new View.OnClickListener() {
+        checkout_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (MultipleClicksUtils.prevent())
+                    return;
                 generateCheckoutTag();
             }
         });
@@ -95,16 +103,7 @@ public class MainMenuActivity extends AppCompatActivity {
                 sendUserPublicKeyToTerminal();
             }
         });
-        tryNFC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                byte[] message = buildMessage();
-                Intent intent = new Intent(context, NFCSendActivity.class);
-                intent.putExtra("message", message);
-                intent.putExtra("mime", "application/nfc.fe.up.pt.supermarket");
-                startActivity(intent);
-            }
-        });
+
     }
 
 
@@ -114,7 +113,7 @@ public class MainMenuActivity extends AppCompatActivity {
         try {
             KeyStore ks = KeyStore.getInstance(Constants.ANDROID_KEYSTORE);
             ks.load(null);
-            KeyStore.Entry entry = ks.getEntry(RegistrationActivity.user.username, null);
+            KeyStore.Entry entry = ks.getEntry(LoginActivity.user.username, null);
             if (entry != null) {
                 cert = (X509Certificate) ((KeyStore.PrivateKeyEntry) entry).getCertificate();
                 //tvKey.setText(cert.toString());
@@ -169,91 +168,91 @@ public class MainMenuActivity extends AppCompatActivity {
         byte[] encTag = new byte[0];
         ByteBuffer tag;
         int discount_int = 0;
-        if (RegistrationActivity.user.discount)
+        if (LoginActivity.user.discount)
             discount_int = 1;
 
-
-        int n = RegistrationActivity.user.shoppingCart.size();
+        UUID qrCodeUUID = UUID.randomUUID();
+        int n = LoginActivity.user.shoppingCart.size();
         //--------------------------------------------- REMOVED VOUCHER FOR TESTING
-        int length = 4 + 16 + 4 + 4 + 4 + 1 + RegistrationActivity.user.shoppingCart.get(0).name.length(); //tagID, UUID, cost, voucher, discount, N, list of N
-        tag = ByteBuffer.allocate(length);
-        tag.putInt(Constants.tagId); //4 - tagID
-        tag.putLong(RegistrationActivity.user.uuid.getMostSignificantBits()); // 8
-        tag.putLong(RegistrationActivity.user.uuid.getLeastSignificantBits()); // 8 - UUID
-        tag.putFloat(RegistrationActivity.user.getTotalCost()); //4 - cost
-        //tag.putLong(RegistrationActivity.user.selectedVoucher.uuid.getMostSignificantBits()); // 8
-        //tag.putLong(RegistrationActivity.user.selectedVoucher.uuid.getLeastSignificantBits()); // 8 - Voucher UUID
-        tag.putInt(discount_int); // discount
-        tag.putInt(n); // size of shoppingList
+        int length = 16 + 16 + 4 + 4 + 4; //tagID, qrcodeUUID, userUUID, cost, (voucher), discount, N
         for (int i = 0; i < n; i++) {
-            tag.put((byte) RegistrationActivity.user.shoppingCart.get(i).name.length()); //name.length
-            tag.put(RegistrationActivity.user.shoppingCart.get(i).name.getBytes(StandardCharsets.ISO_8859_1)); //name.getBytes()
+            //length += 16 + 4 + 1 + LoginActivity.user.shoppingCart.get(i).name.length(); //cost float
+            length += 4 + 1 + LoginActivity.user.shoppingCart.get(i).name.length(); //cost float
+
         }
-
-
+        for (int i = 0; i < n; i++) {
+            //length += 16 + 4 + 1 + LoginActivity.user.shoppingCart.get(i).name.length(); //cost float
+            //length += 16;
+            //length += 4 + 1 + LoginActivity.user.shoppingCart.get(i).name.length(); //cost float
+            length += 4 + 1 + LoginActivity.user.shoppingCart.get(i).name.length(); //cost float
+        }
+        for (int i = 0; i < n; i++) {
+        }
         try {
+            tag = ByteBuffer.allocate(length);
+            //tag.putInt(Constants.tagId); //4 - tagID
+            tag.putLong(qrCodeUUID.getMostSignificantBits()); // 8
+            tag.putLong(qrCodeUUID.getLeastSignificantBits()); // 8 - TRANSACTION UUID
+            tag.putLong(LoginActivity.user.uuid.getMostSignificantBits()); // 8
+            tag.putLong(LoginActivity.user.uuid.getLeastSignificantBits()); // 8 - User UUID
+            tag.putFloat(LoginActivity.user.getTotalCost()); //4 - cost
+
+        /*tag.putLong(LoginActivity.user.selectedVoucher.uuid.getMostSignificantBits()); // 8
+        tag.putLong(LoginActivity.user.selectedVoucher.uuid.getLeastSignificantBits()); // 8 - Voucher UUID*/
+
+            tag.putInt(discount_int); //4 discount
+            tag.putInt(n); //4 size of shoppingList
+            for (int i = 0; i < n; i++) {
+            /*UUID uuid_pro = UUID.fromString(LoginActivity.user.shoppingCart.get(i).s_uuid);
+            tag.putLong(uuid_pro.getMostSignificantBits()); // 8
+            tag.putLong(uuid_pro.getLeastSignificantBits()); // 8 - UUID of product*/
+
+                tag.putFloat(LoginActivity.user.shoppingCart.get(i).getDecimalCost()); //4 - cost 20,75
+                tag.put((byte) LoginActivity.user.shoppingCart.get(i).name.length()); //1 - name.length
+                tag.put(LoginActivity.user.shoppingCart.get(i).name.getBytes(StandardCharsets.ISO_8859_1)); //name.getBytes()
+
+            }
+
+            /*tag.rewind();
+
+            // print the ByteBuffer
+            Log.d("MAIN_MENU", "Original ByteBuffer:  "
+                    + Arrays.toString(tag.array()));*/
+
+
+            //Log.d("MAIN_MENU", "UserPrivateKey: " + LoginActivity.user.privateKey.toString());
             Cipher cipher = Cipher.getInstance(Constants.ENC_ALGO);
-            cipher.init(Cipher.ENCRYPT_MODE, RegistrationActivity.user.privateKey);
+            cipher.init(Cipher.ENCRYPT_MODE, LoginActivity.user.privateKey);
             encTag = cipher.doFinal(tag.array());
         }
-        catch (Exception e) {
-            Log.d("MAIN_MENU", "Error generating Checkout QRCode.");
+        catch (IllegalArgumentException e) {
+            Log.d("MAIN_MENU", "IllegalArgumentException catched");
         }
+
+        catch (ReadOnlyBufferException e) {
+            Log.d("MAIN_MENU", "ReadOnlyBufferException catched");
+        }
+        catch (Exception e) {
+            Toast.makeText(getApplicationContext(),"Error Generating Checkout QRCode.", Toast.LENGTH_SHORT).show();
+            Log.d("MAIN_MENU", "Error Generating Checkout QRCode.");
+        }
+
         Intent qrAct = new Intent(this, QRTag.class);
         qrAct.putExtra("data", encTag);
         startActivity(qrAct);
     }
 
-    private byte[] buildMessage() {
-        /*ArrayList<Integer> sels = new ArrayList<>();
-        int nitems = ad.getCount();
-        for (int k = 0; k < nitems; k++)
-            if (ad.getItem(k).selected)
-                sels.add(ad.getItem(k).type);
-        int nr = sels.size();
-        ByteBuffer bb = ByteBuffer.allocate((nr+1)+Constants.KEY_SIZE/8);
-        bb.put((byte)nr);
-        for (int k=0; k<nr; k++)
-            bb.put(sels.get(k).byteValue());
-        byte[] message = bb.array();*/
-        /*int nr = RegistrationActivity.user.shoppingCart.size();
-        ByteBuffer bb = ByteBuffer.allocate((nr+1)+Constants.KEY_SIZE/8);
-        bb.put((byte)nr);
-        for (int k=0; k<nr; k++)
-            bb.put(toStream(RegistrationActivity.user.shoppingCart.get(k)));
-        byte[] message = bb.array();
-        try {
-            KeyStore ks = KeyStore.getInstance(Constants.ANDROID_KEYSTORE);
-            ks.load(null);
-            KeyStore.Entry entry = ks.getEntry("checkout", null);
-            PrivateKey pri = ((KeyStore.PrivateKeyEntry)entry).getPrivateKey();
-            Signature sg = Signature.getInstance(Constants.SIGN_ALGO);
-            sg.initSign(pri);
-            sg.update(message, 0, nr+1);
-            int sz = sg.sign(message, nr+1, Constants.KEY_SIZE/8);
-            Log.d("MAIN_MENU", "Sign size = " + sz + " bytes.");
-        }
-        catch (Exception ex) {
-            Log.d("MAIN_MENU", ex.getMessage());
-        }
-        return message;*/
-        return null;
-    }
+    /*
 
-    public static byte[] toStream(Product stu) {
-        // Reference for stream of bytes
-        byte[] stream = null;
-        // ObjectOutputStream is used to convert a Java object into OutputStream
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ObjectOutputStream oos = new ObjectOutputStream(baos);) {
-            oos.writeObject(stu);
-            stream = baos.toByteArray();
-        } catch (IOException e) {
-            // Error in serialization
-            e.printStackTrace();
-        }
-        return stream;
-    }
+        @Override
+    public void onBackPressed() {
+        if(homepageBinding.fab.isExpanded())
+            homepageBinding.fab.setExpanded(false);
+        else if(filterBottomSheetBehaviour.getState() == BottomSheetBehavior.STATE_EXPANDED)
+            filterBottomSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
+        else
+            super.onBackPressed();
+     */
 
     @Override
     public void onSaveInstanceState(Bundle bundle) {
@@ -273,7 +272,8 @@ public class MainMenuActivity extends AppCompatActivity {
     @Override
     public void onResume(){
         super.onResume();
-        //adapter.setProductsInfo(RegistrationActivity.user.shoppingCart);
+        adapter.setProductsInfo(LoginActivity.user.shoppingCart);
+        adapter.notifyDataSetChanged();
     }
 
     public void scan(boolean qrcode) {
@@ -316,7 +316,7 @@ public class MainMenuActivity extends AppCompatActivity {
 
         try {
             Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding");
-            cipher.init(Cipher.DECRYPT_MODE, RegistrationActivity.SERVER_CERTIFICATE);
+            cipher.init(Cipher.DECRYPT_MODE, LoginActivity.SERVER_CERTIFICATE);
             clearTag = cipher.doFinal(encTag);
         }
         catch (Exception e) {
@@ -349,7 +349,7 @@ public class MainMenuActivity extends AppCompatActivity {
         Log.d("QRCODE", "cents: " + pro.cents);
         Log.d("QRCODE", "UUID: " + pro.s_uuid);
 
-        RegistrationActivity.user.shoppingCart.add(pro);
+        LoginActivity.user.shoppingCart.add(pro);
         adapter.notifyDataSetChanged();
         //Toast.makeText(getApplicationContext(), name, Toast.LENGTH_SHORT).show();
         //message.setText(name);
