@@ -50,14 +50,16 @@ router.post('/register', registrationValidationRules, function(req, res, next) {
   if (errors.isEmpty()) {
     var salt = bcrypt.genSaltSync(saltRounds);
     var hash = bcrypt.hashSync(req.body.password, salt);
-
     // Create a new user
     User.create({
       fName: req.body.fName,
       lName: req.body.lName,
       username: req.body.username,
       password: hash,
-      credit_card: req.body.credit_card,
+      credit_card_number: req.body.credit_card_number,
+      credit_card_name: req.body.credit_card_name,
+      credit_card_exp_date: req.body.credit_card_exp_date,
+      credit_card_cvc: req.body.credit_card_cvc,
       public_key: req.body.public_key,
       uuid: uuidv4(),
     }).then(user => {

@@ -220,8 +220,10 @@ public class MainActivity extends AppCompatActivity {
       byte[] bName = new byte[l];
       tag.get(bName);
       String name = new String(bName, StandardCharsets.ISO_8859_1);
+
       Product pro = new Product(name, cost_product, product_uuid.toString());
       transaction.products.add(pro);
+
       Log.d("INFO", "name: " + name);
     }
 

@@ -213,11 +213,11 @@ public class MainMenuActivity extends AppCompatActivity {
 
             }
 
-            /*tag.rewind();
+            tag.rewind();
 
             // print the ByteBuffer
             Log.d("MAIN_MENU", "Original ByteBuffer:  "
-                    + Arrays.toString(tag.array()));*/
+                    + Arrays.toString(tag.array()));
 
 
             //Log.d("MAIN_MENU", "UserPrivateKey: " + LoginActivity.user.privateKey.toString());

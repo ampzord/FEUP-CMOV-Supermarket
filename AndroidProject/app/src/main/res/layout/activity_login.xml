@@ -36,46 +36,49 @@
 
 
 
+
+
     ]]>
 
     <TextView
         android:id="@+id/textView6"
-        android:layout_width="336dp"
-        android:layout_height="80dp"
+        android:layout_width="322dp"
+        android:layout_height="56dp"
         android:fontFamily="@font/archivo_black"
         android:text="Scan’o’Mart"
         android:textAlignment="center"
         android:textColor="@android:color/white"
-        android:textSize="48sp"
+        android:textSize="44sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.506"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.059" />
+        app:layout_constraintVertical_bias="0.041" />
 
     <TextView
         android:id="@+id/textView7"
-        android:layout_width="336dp"
-        android:layout_height="80dp"
+        android:layout_width="324dp"
+        android:layout_height="45dp"
         android:fontFamily="@font/archivo_black"
         android:text="Your new shopping home"
+        android:textAlignment="center"
         android:textColor="@android:color/white"
-        android:textSize="24sp"
+        android:textSize="22sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.506"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.144" />
+        app:layout_constraintVertical_bias="0.13" />
 
     <ImageView
         android:id="@+id/imageView4"
         android:layout_width="317dp"
         android:layout_height="13dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="30dp"
-        app:layout_constraintBottom_toTopOf="@+id/login"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bt_send_login"
@@ -83,12 +86,11 @@
 
     <EditText
         android:id="@+id/login_username"
-        android:layout_width="313dp"
-        android:layout_height="63dp"
+        android:layout_width="275dp"
+        android:layout_height="58dp"
         android:ems="10"
         android:hint="@string/hint_username"
         android:inputType="textPersonName"
-        android:text="amp"
         android:textColor="@android:color/white"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/login_password"
@@ -99,8 +101,8 @@
 
     <EditText
         android:id="@+id/login_password"
-        android:layout_width="313dp"
-        android:layout_height="64dp"
+        android:layout_width="275dp"
+        android:layout_height="58dp"
         android:layout_marginBottom="32dp"
         android:contentDescription="@string/hint_password"
         android:ems="10"
@@ -116,13 +118,13 @@
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/login_password"
+        android:layout_width="140dp"
+        android:layout_height="120dp"
+        app:layout_constraintBottom_toTopOf="@+id/login_username"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView6"
+        app:layout_constraintTop_toBottomOf="@+id/textView7"
         app:srcCompat="@drawable/logo" />
 
     <com.google.android.material.button.MaterialButton
@@ -142,19 +144,20 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.851" />
+        app:layout_constraintVertical_bias="0.885" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_register"
-        android:layout_width="172dp"
-        android:layout_height="65dp"
-        android:layout_marginBottom="36dp"
+        android:layout_width="186dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="35dp"
         android:layout_weight="1"
         android:backgroundTint="#2F528F"
         android:fontFamily="@font/archivo_black"
         android:insetTop="0dp"
         android:insetBottom="0dp"
-        android:text="Register Instead"
+        android:text="Create Account"
         android:textAlignment="center"
         android:textAllCaps="false"
         android:textColor="@android:color/white"
@@ -162,6 +165,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView4" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

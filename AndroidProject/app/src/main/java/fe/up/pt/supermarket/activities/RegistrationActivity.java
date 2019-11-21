@@ -57,12 +57,15 @@ public class RegistrationActivity extends AppCompatActivity {
     private EditText username;
     private EditText password;
     private EditText password_conf;
-    private EditText credit_card;
+    private EditText credit_card_number;
+    private EditText credit_card_name;
+    private EditText credit_card_cvc;
+    private EditText credit_card_exp_date;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registration2);
+        setContentView(R.layout.activity_registration);
 
         register = findViewById(R.id.bt_send_register);
         firstName = findViewById(R.id.edit_first_name);
@@ -70,7 +73,10 @@ public class RegistrationActivity extends AppCompatActivity {
         username = findViewById(R.id.edit_username);
         password = findViewById(R.id.edit_password);
         password_conf = findViewById(R.id.edit_password_conf);
-        credit_card = findViewById(R.id.credit_card);
+        credit_card_number = findViewById(R.id.edit_creditcard_number);
+        credit_card_name = findViewById(R.id.edit_card_name);
+        credit_card_cvc = findViewById(R.id.edit_credit_card_cvc);
+        credit_card_exp_date = findViewById(R.id.edit_expiration_date);
 
         register.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
@@ -90,7 +96,10 @@ public class RegistrationActivity extends AppCompatActivity {
             jsonBody.put("username", username.getText().toString());
             jsonBody.put("password", password.getText().toString());
             jsonBody.put("password_conf", password_conf.getText().toString());
-            jsonBody.put("credit_card", credit_card.getText().toString());
+            jsonBody.put("credit_card_number", credit_card_number.getText().toString());
+            jsonBody.put("credit_card_name", credit_card_name.getText().toString());
+            jsonBody.put("credit_card_exp_date", credit_card_exp_date.getText().toString());
+            jsonBody.put("credit_card_cvc", credit_card_cvc.getText().toString());
 
             String newURL = URL + "/register";
 
@@ -124,7 +133,6 @@ public class RegistrationActivity extends AppCompatActivity {
                                 if (!hasServerKey) {
                                     KeyStoreUtils.getCertificateFromServerMessage(response);
                                 }
-                                //saveUserUUID(getUser);
                                 writeToFileUUID(getApplicationContext(),s_username,s_uuid);
                                 user.uuid = UUID.fromString(s_uuid);
                                 sendToLoginPage();
