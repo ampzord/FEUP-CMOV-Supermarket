@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         //tvTitle.setText("User public key arrived!");
       }
     } catch (Exception e) {
-      //tvTitle.setText(e.getMessage());
+      tvTitle.setText(e.getMessage());
     }
     /*if (hasKey) {
       String text = "Public Key:\nModulus: " + byteArrayToHex(((RSAPublicKey)pub).getModulus().toByteArray()) + "\n" +
@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
       clearTag = cipher.doFinal(encTag);
     } catch (Exception e) {
       Log.d("INFO", "Error decrypting QR code of checkout.");
-      //tvTitle.setText(e.getMessage());
+      tvTitle.setText(e.getMessage());
       return;
     }
 
@@ -286,15 +286,11 @@ public class MainActivity extends AppCompatActivity {
               new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-
-                  try {
-                    Log.d("TRANSACTION", response.toString());
-                    String server_msg_response = null;
-                    server_msg_response = response.getString("message");
-                    Toast.makeText(getApplicationContext(), server_msg_response, Toast.LENGTH_SHORT).show();
-                  } catch (JSONException e) {
-                    e.printStackTrace();
-                  }
+                  Log.d("TRANSACTION", response.toString());
+                  /*KeyStoreUtils.getServerKeyFromKeyStore();
+                  getUserUUID(username.getText().toString());
+                  RegistrationActivity.user.username = username.getText().toString();
+                  sendToMainMenu();*/
                 }
               },
               new Response.ErrorListener() {
@@ -325,4 +321,3 @@ public class MainActivity extends AppCompatActivity {
 
 
 }
-
