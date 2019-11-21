@@ -4,6 +4,7 @@ const router = express.Router();
 const { check, validationResult } = require('express-validator')
 const { User } = require('../database')
 const { Transaction } = require('../database')
+const { Voucher } = require('../database')
 const uuidv4 = require('uuid/v4');
 const cryp = require('../crypto_utils');
 const forge = require('node-forge');
@@ -68,6 +69,8 @@ router.post('/register', registrationValidationRules, function(req, res, next) {
       credit_card_cvc: req.body.credit_card_cvc,
       public_key: req.body.public_key,
       uuid: uuidv4(),
+      totalSpent: 0,
+      totalSaved: 0,
     }).then(user => {
       //delete user.password;
       //delete user.password_conf;
@@ -150,35 +153,136 @@ router.post('/transaction', function(req, res, next) {
   // when the server receives a voucher in a payment he should
   // check if it belongs to the right user AND was not used.
 
+  var user_;
+  var voucher_;
+
+  var hasVoucher;
+  var finalPrice;
+  var newTotalSaved;
+
+  if (req.body.voucher_uuid != null) {
+    hasVoucher = true;
+  }
+
+  Voucher.findOne({where: {uuid: req.body.voucher_uuid}}).then(voucher => {
+    if (voucher.length === 0) {
+      res.status(500).json('This voucher doesn\'t exist.');
+    }
+
+    if (voucher.used != false) {
+      res.status(500).json('This voucher has already been used.');
+    }
+
+    if (voucher.user_uuid != req.body.user_uuid) {
+      res.status(500).json('This voucher doesn\'t belong to this user.');
+    }
+
+    voucher_ = voucher;
+  });
+
+  User.findOne({
+    where: {uuid: req.body.user_uuid}
+  }).then( (user) => {
+              user_ = user;
+          });
+
+
+  if (req.body.discount == true && hasVoucher) {
+
+    var discount_number = (voucher_.discount_number * req.body.price) / 100;
+    finalPrice = req.body.price - discount_number;
+
+    if (user_.totalSaved > finalPrice) {
+      newTotalSaved = user_.totalSaved - finalPrice;
+      finalPrice = 0;
+    }
+    else {
+      finalPrice = finalPrice - user_.totalSaved;
+      newTotalSaved = 0;
+    }
+
+  } else if (req.body.discount == true && !hasVoucher) {
+    if (user_.totalSaved > finalPrice) {
+      newTotalSaved = user_.totalSaved - finalPrice;
+      finalPrice = 0;
+    }
+    else {
+      finalPrice = finalPrice - user_.totalSaved;
+      newTotalSaved = 0;
+    }
+  } //false false
+  else {
+    finalPrice = req.body.price;
+  }
+
+  var newTotalSpent_ = totalSpent+finalPrice;
+
+  //update User
+  User.find({ where: { uuid: req.body.user_uuid } })
+      .on('success', function (user) {
+        // Check if record exists in db
+        if (user) {
+          user.update({
+            totalSaved: ,
+            totalSpent: newTotalSpent_,
+          })
+              .success(function () {})
+        }
+      })
+
+  //generateVoucher
+  newVoucherGenerator(finalPrice, req.body.user_uuid);
 
   //parse transaction
   Transaction.create({
-    uuid: req.body.fName,
-    user_uuid: req.body.lName,
-    price: req.body.username,
-    products_size: hash,
-    credit_card_number: req.body.credit_card_number,
-    credit_card_name: req.body.credit_card_name,
-  }).then(user => {
+    uuid: req.body.uuid,
+    user_uuid: req.body.user_uuid,
+    voucher_uuid: req.body.voucher_uuid,
+    price: req.body.price,
+    discount: req.body.discount,
+    products_size: req.body.products_size,
+  }).then(transaction => {
 
     res.status(200).json({
       ok: true,
-      user: user,
-      message: 'User created successfully.',
-      server_public_key: cryp.server_certificate,
+      message: 'Transaction successful.',
     })
   }).catch(err => {
     console.log(err.errors[0].message);
-    res.status(500).json('Username already exists.');
+    res.status(500).json('Error');
   });
 
-  //generate voucher depending on cost
-
 });
+
+function newVoucherGenerator(price, uuid) {
+  var discount;
+
+  var result = price / 100;
+
+  if (result < 1) {
+    discount = 15;
+  } else if (result < 2) {
+    discount = 30;
+  }
+  else if (result < 3) {
+    discount = 45;
+  }
+  else if (result < 4) {
+    discount = 60;
+  }
+
+  Voucher.create({
+    uuid: uuidv4(),
+    discount_number: discount,
+    used: false,
+    user_uuid: uuid,
+  });
+}
 
 /** All transactions of a user of a given UUID */
 router.get('/transactions/:uuid', function(req, res, next) {
   console.log(req.body);
+
   Transaction.findAll({
     where: {
       user_uuid: req.params.uuid

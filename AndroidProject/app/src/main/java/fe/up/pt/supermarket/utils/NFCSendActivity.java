@@ -56,10 +56,11 @@ public class NFCSendActivity extends AppCompatActivity {
     nfcAdapter.setNdefPushMessage(msg, this);       // Register a NDEF message to be sent in P2P
     nfcAdapter.setOnNdefPushCompleteCallback((ev)->{       // when the message is sent ...
       runOnUiThread(() -> {
-        Toast.makeText(getApplicationContext(), "Message sent.", Toast.LENGTH_LONG).show();
-        generateCheckoutTag();
-        user.shoppingCart = new ArrayList<>();
-        MainMenuActivity.adapter.clear();
+        //Toast.makeText(getApplicationContext(), "Message sent.", Toast.LENGTH_LONG).show();
+          Toast.makeText(this, "helper: " + user.selectedVoucherHelper, Toast.LENGTH_LONG).show();
+          generateCheckoutTag();
+        /*user.shoppingCart = new ArrayList<>();
+        MainMenuActivity.adapter.clear();*/
         finish();
       });
     }, this);
@@ -71,6 +72,7 @@ public class NFCSendActivity extends AppCompatActivity {
   }
 
   void generateCheckoutTag() {
+      Toast.makeText(this, "helper: " + user.selectedVoucherHelper, Toast.LENGTH_LONG).show();
 
     byte[] encTag = new byte[0];
     ByteBuffer tag;
@@ -81,26 +83,50 @@ public class NFCSendActivity extends AppCompatActivity {
     UUID qrCodeUUID = UUID.randomUUID();
     int n = LoginActivity.user.shoppingCart.size();
     int length;
-    if (user.selectedVoucher == null) {
-        length = 16 + 16 + 8 + 4 + 4;
-    }
-    else {
-        length = 16 + 16 + 8 + 16 + 4 + 4;
-    }
+    //if (user.selectedVoucherHelper) {
+      //  length = 16 + 16 + 8 + 16 + 4 + 4 + 4;
+    //}
+    //else {
+        length = 16 + 16 + 8 + 4 + 4 + 4;
+    //}
+    int voucher_int = 0;
+    if (user.selectedVoucherHelper)
+        voucher_int = 1;
+
+
+    UUID newUUIDVoucher;
+      if (user.selectedVoucherHelper) {
+          newUUIDVoucher = user.selectedVoucher.uuid;
+                  /*tag.putLong(LoginActivity.user.selectedVoucher.uuid.getMostSignificantBits()); // 8
+          tag.putLong(LoginActivity.user.selectedVoucher.uuid.getLeastSignificantBits()); // 8 - Voucher UUID*/
+      } else {
+          newUUIDVoucher = qrCodeUUID;
+          /*tag.putLong(LoginActivity.user.uuid.getMostSignificantBits()); // 8
+          tag.putLong(LoginActivity.user.uuid.getLeastSignificantBits()); // 8 - User UUID*/
+      }
+
 
     try {
       tag = ByteBuffer.allocate(length);
-      tag.putLong(qrCodeUUID.getMostSignificantBits()); // 8
-      tag.putLong(qrCodeUUID.getLeastSignificantBits()); // 8 - TRANSACTION UUID
+      /*tag.putLong(qrCodeUUID.getMostSignificantBits()); // 8
+      tag.putLong(qrCodeUUID.getLeastSignificantBits()); // 8 - TRANSACTION UUID*/
       tag.putLong(LoginActivity.user.uuid.getMostSignificantBits()); // 8
       tag.putLong(LoginActivity.user.uuid.getLeastSignificantBits()); // 8 - User UUID
+        tag.putLong(newUUIDVoucher.getMostSignificantBits()); // 8
+        tag.putLong(newUUIDVoucher.getLeastSignificantBits()); // 8 - Voucher UUID
       tag.putDouble(LoginActivity.user.getTotalCost()); //8 - cost
-        if (user.selectedVoucher != null) {
+        /*if (user.selectedVoucherHelper) {
             tag.putLong(LoginActivity.user.selectedVoucher.uuid.getMostSignificantBits()); // 8
             tag.putLong(LoginActivity.user.selectedVoucher.uuid.getLeastSignificantBits()); // 8 - Voucher UUID
         }
+        else {
+            tag.putLong(LoginActivity.user.uuid.getMostSignificantBits()); // 8
+            tag.putLong(LoginActivity.user.uuid.getLeastSignificantBits()); // 8 - User UUID
+        }*/
       tag.putInt(discount_int); //4 discount
+        tag.putInt(voucher_int); // 4 use
       tag.putInt(n); //4 size of shoppingList
+
 
       /*tag.rewind();
 

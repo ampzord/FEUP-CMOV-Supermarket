@@ -16,11 +16,13 @@ public class User {
     public String username;
     public boolean discount;
     public Voucher selectedVoucher;
+    public boolean selectedVoucherHelper;
 
     public User() {
         shoppingCart = new ArrayList<>();
         vouchers = new ArrayList<>();
         selectedVoucher = new Voucher();
+        selectedVoucherHelper = false;
     }
 
     public double getTotalCost() {

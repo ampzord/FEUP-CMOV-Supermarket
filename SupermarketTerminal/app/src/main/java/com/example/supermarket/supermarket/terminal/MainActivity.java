@@ -194,18 +194,20 @@ public class MainActivity extends AppCompatActivity {
 
     ByteBuffer tag = ByteBuffer.wrap(clearTag);
     //int tId = tag.getInt();
-    long most0 = tag.getLong();
-    long less0 = tag.getLong();
-    UUID transactionID = new UUID(most0, less0);
     long most = tag.getLong();
     long less = tag.getLong();
     UUID user_id = new UUID(most, less);
-    Log.d("INFO", "uuid: " + user_id.toString());
-    float cost = tag.getFloat();
+
+    long most0 = tag.getLong();
+    long less0 = tag.getLong();
+    UUID voucherUUID = new UUID(most0, less0);
+
+    double cost = tag.getDouble();
     //long most2 = tag.getLong();
     //long less2 = tag.getLong();
     //UUID voucher_id = new UUID(most2, less2);
     int discount = tag.getInt();
+    int hasVoucherInt = tag.getInt();
     int sizeList = tag.getInt();
     Transaction transaction = new Transaction();
     /*for (int i = 0; i < sizeList; i++) {
@@ -228,10 +230,11 @@ public class MainActivity extends AppCompatActivity {
     }*/
 
 
-    transaction.id = transactionID;
     transaction.user.uuid = user_id;
+    transaction.voucher.uuid = voucherUUID;
     transaction.totalCost = cost;
     transaction.discount = discount;
+    transaction.hasVoucher = hasVoucherInt;
     transaction.productsSize = sizeList;
 
     sendServerInformation(transaction);
@@ -253,13 +256,16 @@ public class MainActivity extends AppCompatActivity {
     RequestQueue queue = Volley.newRequestQueue(this);
     try {
       JSONObject jsonBody = new JSONObject();
-      jsonBody.put("id", transaction.id.toString());
-      jsonBody.put("price", Float.toString(transaction.totalCost));
+      jsonBody.put("uuid", transaction.id.toString());
+      jsonBody.put("price", Double.toString(transaction.totalCost));
       jsonBody.put("user_uuid", transaction.user.uuid.toString());
       jsonBody.put("discount", Integer.toString(transaction.discount));
       jsonBody.put("products_size", Integer.toString(transaction.productsSize));
+      if (transaction.hasVoucher == 1) {
+        jsonBody.put("voucher_uuid", transaction.voucher.uuid.toString());
+      }
 
-      JSONArray array = new JSONArray();
+      //JSONArray array = new JSONArray();
 
       /*for(int i=0;i<transaction.products.size();i++){
         JSONObject obj = new JSONObject();

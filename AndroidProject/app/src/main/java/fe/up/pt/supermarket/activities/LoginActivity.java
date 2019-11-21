@@ -35,6 +35,7 @@ import java.util.UUID;
 
 import fe.up.pt.supermarket.R;
 import fe.up.pt.supermarket.models.User;
+import fe.up.pt.supermarket.models.Voucher;
 import fe.up.pt.supermarket.utils.Constants;
 import fe.up.pt.supermarket.utils.HttpsTrustManagerUtils;
 import fe.up.pt.supermarket.utils.KeyStoreUtils;
@@ -122,6 +123,8 @@ public class LoginActivity extends AppCompatActivity {
                                 getUserKeys(username.getText().toString());
                             }
                             //TODO PROFILE
+                            user.vouchers.add(new Voucher(UUID.randomUUID(), 15));
+                            user.vouchers.add(new Voucher(UUID.randomUUID(), 30));
 
                             user.uuid = UUID.fromString(readFromFileUUID(getApplicationContext(), username.getText().toString()));
                             user.username = username.getText().toString();

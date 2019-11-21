@@ -4,5 +4,6 @@ module.exports = (sequelize, type) => {
         uuid: { type: type.STRING, allowNull: false, unique: true  },
         discount_number: { type: type.INTEGER, allowNull: false },
         used: { type: type.BOOLEAN, allowNull: false },
+        user_uuid: { type: type.STRING, allowNull: false },
     })
 }

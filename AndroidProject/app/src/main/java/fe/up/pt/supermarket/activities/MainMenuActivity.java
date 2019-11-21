@@ -104,8 +104,7 @@ public class MainMenuActivity extends AppCompatActivity {
             clearList.setVisibility(View.GONE);
 
         //LoginActivity.user.vouchers.add(new Voucher(UUID.randomUUID(), 15));
-        user.vouchers.add(new Voucher(UUID.randomUUID(), 15));
-        user.vouchers.add(new Voucher(UUID.randomUUID(), 30));
+
 
         vouchersList = new ArrayList<>();
         vouchersList.add("No Voucher");
@@ -179,17 +178,23 @@ public class MainMenuActivity extends AppCompatActivity {
         voucherSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (position != 0) {
-                    user.selectedVoucher = user.vouchers.get(position);
-                }
-                if (position == 0) {
-                    user.selectedVoucher = null;
+                switch(parentView.getId()) {
+                    case R.id.coupon_spinner:
+                        if (position != 0) {
+                            user.selectedVoucher = user.vouchers.get(position - 1);
+                            user.selectedVoucherHelper = true;
+                        }
+                        if (position == 0) {
+                            user.selectedVoucher = null;
+                            user.selectedVoucherHelper = false;
+                        }
+                        break;
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
-                Toast.makeText(MainMenuActivity.this, "nada", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainMenuActivity.this, "nada", Toast.LENGTH_LONG).show();
             }
 
         });
