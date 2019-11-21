@@ -91,7 +91,7 @@
         android:ems="10"
         android:hint="username"
         android:inputType="textPersonName"
-        android:text="cic"
+        android:text="sup"
         android:textColor="@android:color/white"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/login_password"
@@ -109,12 +109,12 @@
         android:ems="10"
         android:hint="@string/hint_password"
         android:inputType="textPassword"
+        android:text="123"
         android:textColor="@android:color/white"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/bt_send_login"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:text="@string/hint_password" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/imageView2"

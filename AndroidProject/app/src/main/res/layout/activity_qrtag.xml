@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical"
-  android:gravity="center"
-  android:fitsSystemWindows="true"
-  >
-
-  <TextView
-    android:id="@+id/tv_qrtitle"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@drawable/generic1"
+    android:fitsSystemWindows="true"
     android:gravity="center"
-    android:text="@string/tv_qrtitle" />
+    android:orientation="vertical">
 
-  <ImageView
-    android:id="@+id/img_qr_code"
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_gravity="center_horizontal"
-    android:layout_margin="10dp"
-    android:layout_weight="1"/>
+    <TextView
+        android:id="@+id/tv_qrtitle"
+        android:layout_width="202dp"
+        android:layout_height="88dp"
+        android:fontFamily="@font/archivo_black"
+        android:gravity="center"
+        android:text="@string/tv_qrtitle"
+        android:textColor="@android:color/white"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="0dp" />
 
-</LinearLayout>
+    <ImageView
+        android:id="@+id/img_qr_code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

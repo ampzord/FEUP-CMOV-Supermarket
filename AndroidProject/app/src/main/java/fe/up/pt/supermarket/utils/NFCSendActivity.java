@@ -56,8 +56,8 @@ public class NFCSendActivity extends AppCompatActivity {
     nfcAdapter.setNdefPushMessage(msg, this);       // Register a NDEF message to be sent in P2P
     nfcAdapter.setOnNdefPushCompleteCallback((ev)->{       // when the message is sent ...
       runOnUiThread(() -> {
-        //Toast.makeText(getApplicationContext(), "Message sent.", Toast.LENGTH_LONG).show();
-          Toast.makeText(this, "helper: " + user.selectedVoucherHelper, Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Message sent.", Toast.LENGTH_LONG).show();
+          //Toast.makeText(this, "helper: " + user.selectedVoucherHelper, Toast.LENGTH_LONG).show();
           generateCheckoutTag();
         /*user.shoppingCart = new ArrayList<>();
         MainMenuActivity.adapter.clear();*/
@@ -72,8 +72,6 @@ public class NFCSendActivity extends AppCompatActivity {
   }
 
   void generateCheckoutTag() {
-      Toast.makeText(this, "helper: " + user.selectedVoucherHelper, Toast.LENGTH_LONG).show();
-
     byte[] encTag = new byte[0];
     ByteBuffer tag;
     int discount_int = 0;

@@ -86,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
                             return;
                         try {
                             KeyStoreUtils.getAllKeyStoreKeys();
-                            //KeyStoreUtils.deleteKey("amp");
+                            //KeyStoreUtils.deleteKey("ServerKey");
                         } catch (CertificateException e) {
                             e.printStackTrace();
                         } catch (NoSuchAlgorithmException e) {

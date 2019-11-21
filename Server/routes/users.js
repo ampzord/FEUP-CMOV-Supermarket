@@ -146,92 +146,79 @@ function comparePasswords(passwordAttempt, hash) {
   })
 }
 
-
+/* Perform a transaction */
 router.post('/transaction', function(req, res, next) {
   console.log(req.body);
 
   // when the server receives a voucher in a payment he should
   // check if it belongs to the right user AND was not used.
 
-  var user_;
   var voucher_;
-
   var hasVoucher;
   var finalPrice;
   var newTotalSaved;
 
   if (req.body.voucher_uuid != null) {
     hasVoucher = true;
+
+    Voucher.findAll({where: {uuid: req.body.voucher_uuid}}).then(voucher => {
+      if (voucher.length === 0) {
+        res.status(500).json('This voucher doesn\'t exist.');
+      }
+
+      if (voucher.used != false) {
+        res.status(500).json('This voucher has already been used.');
+      }
+
+      if (voucher.user_uuid != req.body.user_uuid) {
+        res.status(500).json('This voucher doesn\'t belong to this user.');
+      }
+
+      voucher_ = voucher;
+
+      voucher.update({
+        used: true,
+      })
+    });
   }
+  //var uuid_gen_voucher = Uuid.fromString(req.body.voucher_uuid);
 
-  Voucher.findOne({where: {uuid: req.body.voucher_uuid}}).then(voucher => {
-    if (voucher.length === 0) {
-      res.status(500).json('This voucher doesn\'t exist.');
-    }
-
-    if (voucher.used != false) {
-      res.status(500).json('This voucher has already been used.');
-    }
-
-    if (voucher.user_uuid != req.body.user_uuid) {
-      res.status(500).json('This voucher doesn\'t belong to this user.');
-    }
-
-    voucher_ = voucher;
-  });
-
-  User.findOne({
+  //var uuid_gen_user = Uuid.fromString(req.body.user_uuid);
+  User.findAll({
     where: {uuid: req.body.user_uuid}
   }).then( (user) => {
-              user_ = user;
-          });
 
+    console.log(user);
 
-  if (req.body.discount == true && hasVoucher) {
-
-    var discount_number = (voucher_.discount_number * req.body.price) / 100;
-    finalPrice = req.body.price - discount_number;
-
-    if (user_.totalSaved > finalPrice) {
-      newTotalSaved = user_.totalSaved - finalPrice;
-      finalPrice = 0;
-    }
-    else {
-      finalPrice = finalPrice - user_.totalSaved;
-      newTotalSaved = 0;
+    if (req.body.discount) {
+      if (user.totalSaved > finalPrice) {
+        newTotalSaved = user.totalSaved - finalPrice;
+        finalPrice = 0;
+      }
+      else {
+        finalPrice = finalPrice - user.totalSaved;
+        newTotalSaved = 0;
+      }
     }
 
-  } else if (req.body.discount == true && !hasVoucher) {
-    if (user_.totalSaved > finalPrice) {
-      newTotalSaved = user_.totalSaved - finalPrice;
-      finalPrice = 0;
+    if (hasVoucher) {
+      var discount_numberToAdd = (voucher_.discount_number * finalPrice) / 100;
     }
-    else {
-      finalPrice = finalPrice - user_.totalSaved;
-      newTotalSaved = 0;
-    }
-  } //false false
-  else {
-    finalPrice = req.body.price;
-  }
 
-  var newTotalSpent_ = totalSpent+finalPrice;
+    var newTotalSaved_ = user.totalSaved + discount_numberToAdd;
+    var newTotalSpent_ = user.totalSpent + finalPrice;
 
-  //update User
-  User.find({ where: { uuid: req.body.user_uuid } })
-      .on('success', function (user) {
-        // Check if record exists in db
-        if (user) {
-          user.update({
-            totalSaved: ,
-            totalSpent: newTotalSpent_,
-          })
-              .success(function () {})
-        }
-      })
+    /*user.update({
+      totalSaved: newTotalSaved_,
+      totalSpent: newTotalSpent_,
+    })*/
+
+  });
 
   //generateVoucher
   newVoucherGenerator(finalPrice, req.body.user_uuid);
+
+  //var uuid_gen_transaction = Uuid.fromString(req.body.uuid);
 
   //parse transaction
   Transaction.create({
@@ -245,12 +232,13 @@ router.post('/transaction', function(req, res, next) {
 
     res.status(200).json({
       ok: true,
-      message: 'Transaction successful.',
+      message: 'OPEN TERMINAL DOORS',
     })
   }).catch(err => {
     console.log(err.errors[0].message);
-    res.status(500).json('Error');
+    res.status(500).json('Error generating transaction');
   });
+
 
 });
 
@@ -288,6 +276,18 @@ router.get('/transactions/:uuid', function(req, res, next) {
       user_uuid: req.params.uuid
     }
   }).then(transactions => res.json(transactions));
+});
+
+/** All vouchers of a user of a given UUID */
+router.get('/vouchers/:uuid', function(req, res, next) {
+  console.log(req.body);
+
+  Voucher.findAll({
+    where: {
+      user_uuid: req.params.uuid,
+      used: false
+    }
+  }).then(vouchers => res.json(vouchers));
 });
 
 
