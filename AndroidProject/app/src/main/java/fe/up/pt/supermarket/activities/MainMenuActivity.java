@@ -7,8 +7,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +31,9 @@ import java.nio.ReadOnlyBufferException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import javax.crypto.Cipher;
@@ -34,37 +41,38 @@ import javax.crypto.Cipher;
 import fe.up.pt.supermarket.adapter.ProductAdapter;
 import fe.up.pt.supermarket.models.Product;
 import fe.up.pt.supermarket.R;
+import fe.up.pt.supermarket.models.Voucher;
 import fe.up.pt.supermarket.utils.Constants;
 import fe.up.pt.supermarket.utils.MultipleClicksUtils;
 import fe.up.pt.supermarket.utils.NFCSendActivity;
 import fe.up.pt.supermarket.utils.QRTag;
 
+import static fe.up.pt.supermarket.activities.LoginActivity.user;
+
 public class MainMenuActivity extends AppCompatActivity {
     private ImageButton scanItem;
-    private Button goShopping;
-    private Button checkout_button;
-    private Button clearList;
-    private Button sendKey;
-    private TextView message;
+    private ImageButton profile;
+    private ImageButton checkout_button;
+    private ImageButton coupons;
+    private ImageButton logout;
+    private Switch discountSwitch;
+    public Button clearList;
+    public ArrayAdapter<String> spinnerArrayAdapter;
+
+    private Spinner voucherSpinner;
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
-    final Context context = this;
 
-    //public static User user;
-
-    ProductAdapter adapter;
+    public static ProductAdapter adapter;
     RecyclerView recyclerView;
+
+    public List<String> vouchersList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_menu);
+        setContentView(R.layout.activity_menu);
 
-        /*if(savedInstanceState == null) {
-            RegistrationActivity.user.shoppingCart = new ArrayList<>();
-        }
-        else {
-            RegistrationActivity.user.shoppingCart = savedInstanceState.getParcelableArrayList("shoppingCart");
-        }*/
+
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -72,22 +80,84 @@ public class MainMenuActivity extends AppCompatActivity {
 
         adapter = new ProductAdapter(this);
         recyclerView.setAdapter(adapter);
-        adapter.setProductsInfo(LoginActivity.user.shoppingCart);
+        adapter.setProductsInfo(user.shoppingCart);
 
-        //goShopping = findViewById(R.id.bt_shopping);
-        sendKey = findViewById(R.id.sendKey);
+        discountSwitch = this.findViewById(R.id.coupon_switch);
+        voucherSpinner = this.findViewById(R.id.coupon_spinner);
+        profile = findViewById(R.id.profile_button);
+        //sendKey = findViewById(R.id.sendKey);
         scanItem = findViewById(R.id.bt_scan_item);
-        checkout_button = findViewById(R.id.checkout);
+        checkout_button = findViewById(R.id.checkout_button);
         clearList = findViewById(R.id.clearList);
 
+        discountSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    user.discount = true;
+                } else {
+                    user.discount = false;
+                }
+            }
+        });
 
-        scanItem.setOnClickListener((v)->scan(true));
+        if (user.shoppingCart.size() == 0)
+            clearList.setVisibility(View.GONE);
+
+        //LoginActivity.user.vouchers.add(new Voucher(UUID.randomUUID(), 15));
+        user.vouchers.add(new Voucher(UUID.randomUUID(), 15));
+        user.vouchers.add(new Voucher(UUID.randomUUID(), 30));
+
+        vouchersList = new ArrayList<>();
+        vouchersList.add("No Voucher");
+        for (int i = 0; i < user.vouchers.size(); i++) {
+            if (user.vouchers.get(i).used == true)
+                break;
+            vouchersList.add(user.vouchers.get(i).toString());
+        }
+        spinnerArrayAdapter = new ArrayAdapter<String>(
+                this,R.layout.voucher_spinner_item,vouchersList);
+
+        spinnerArrayAdapter.setDropDownViewResource(R.layout.voucher_spinner_item);
+        voucherSpinner.setAdapter(spinnerArrayAdapter);
+
+
+        profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (MultipleClicksUtils.prevent())
+                    return;
+                sendToProfilePage();
+            }
+        });
+
+
+
+        scanItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (MultipleClicksUtils.prevent())
+                    return;
+                if (user.shoppingCart.size() == 10) {
+                    Toast.makeText(MainMenuActivity.this, "Max is 10 items.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                scan(true);
+                if (user.shoppingCart.size() != 0)
+                    clearList.setVisibility(View.VISIBLE);
+            }
+        });
         checkout_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (MultipleClicksUtils.prevent())
                     return;
-                generateCheckoutTag();
+                if (user.shoppingCart.size() == 0) {
+                    Toast.makeText(MainMenuActivity.this, "Need at least 1 item", Toast.LENGTH_SHORT).show();
+
+                    return;
+                }
+
+                sendUserPublicKeyToTerminal();
             }
         });
         clearList.setOnClickListener(new View.OnClickListener() {
@@ -95,17 +165,37 @@ public class MainMenuActivity extends AppCompatActivity {
             public void onClick(View view) {
                 adapter.clear();
                 adapter.notifyDataSetChanged();
+                clearList.setVisibility(View.GONE);
             }
         });
-        sendKey.setOnClickListener(new View.OnClickListener() {
+
+
+        /*sendKey.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 sendUserPublicKeyToTerminal();
             }
+        });*/
+        voucherSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                if (position != 0) {
+                    user.selectedVoucher = user.vouchers.get(position);
+                }
+                if (position == 0) {
+                    user.selectedVoucher = null;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                Toast.makeText(MainMenuActivity.this, "nada", Toast.LENGTH_SHORT).show();
+            }
+
         });
 
-    }
 
+    }
 
     void sendUserPublicKeyToTerminal() {
         X509Certificate cert;
@@ -113,7 +203,7 @@ public class MainMenuActivity extends AppCompatActivity {
         try {
             KeyStore ks = KeyStore.getInstance(Constants.ANDROID_KEYSTORE);
             ks.load(null);
-            KeyStore.Entry entry = ks.getEntry(LoginActivity.user.username, null);
+            KeyStore.Entry entry = ks.getEntry(user.username, null);
             if (entry != null) {
                 cert = (X509Certificate) ((KeyStore.PrivateKeyEntry) entry).getCertificate();
                 //tvKey.setText(cert.toString());
@@ -128,7 +218,6 @@ public class MainMenuActivity extends AppCompatActivity {
             Log.d("MAIN_MENU", "Error loading user public key to send to Terminal.");
         }
     }
-
 
     void generateCheckoutTag() {
         //String name = edName.getText().toString();
@@ -168,50 +257,42 @@ public class MainMenuActivity extends AppCompatActivity {
         byte[] encTag = new byte[0];
         ByteBuffer tag;
         int discount_int = 0;
-        if (LoginActivity.user.discount)
+        if (user.discount)
             discount_int = 1;
 
         UUID qrCodeUUID = UUID.randomUUID();
-        int n = LoginActivity.user.shoppingCart.size();
+        int n = user.shoppingCart.size();
         //--------------------------------------------- REMOVED VOUCHER FOR TESTING
+        //int length = 16 + 16 + 4 + 4 + 4; //tagID, qrcodeUUID, userUUID, cost, (voucher), discount, N
         int length = 16 + 16 + 4 + 4 + 4; //tagID, qrcodeUUID, userUUID, cost, (voucher), discount, N
-        for (int i = 0; i < n; i++) {
-            //length += 16 + 4 + 1 + LoginActivity.user.shoppingCart.get(i).name.length(); //cost float
-            length += 4 + 1 + LoginActivity.user.shoppingCart.get(i).name.length(); //cost float
 
-        }
-        for (int i = 0; i < n; i++) {
+        /*for (int i = 0; i < n; i++) {
             //length += 16 + 4 + 1 + LoginActivity.user.shoppingCart.get(i).name.length(); //cost float
-            //length += 16;
-            //length += 4 + 1 + LoginActivity.user.shoppingCart.get(i).name.length(); //cost float
-            length += 4 + 1 + LoginActivity.user.shoppingCart.get(i).name.length(); //cost float
-        }
-        for (int i = 0; i < n; i++) {
-        }
+        }*/
         try {
             tag = ByteBuffer.allocate(length);
             //tag.putInt(Constants.tagId); //4 - tagID
             tag.putLong(qrCodeUUID.getMostSignificantBits()); // 8
             tag.putLong(qrCodeUUID.getLeastSignificantBits()); // 8 - TRANSACTION UUID
-            tag.putLong(LoginActivity.user.uuid.getMostSignificantBits()); // 8
-            tag.putLong(LoginActivity.user.uuid.getLeastSignificantBits()); // 8 - User UUID
-            tag.putFloat(LoginActivity.user.getTotalCost()); //4 - cost
+            tag.putLong(user.uuid.getMostSignificantBits()); // 8
+            tag.putLong(user.uuid.getLeastSignificantBits()); // 8 - User UUID
+            tag.putDouble(user.getTotalCost()); //4 - cost
 
         /*tag.putLong(LoginActivity.user.selectedVoucher.uuid.getMostSignificantBits()); // 8
         tag.putLong(LoginActivity.user.selectedVoucher.uuid.getLeastSignificantBits()); // 8 - Voucher UUID*/
 
             tag.putInt(discount_int); //4 discount
             tag.putInt(n); //4 size of shoppingList
-            for (int i = 0; i < n; i++) {
-            /*UUID uuid_pro = UUID.fromString(LoginActivity.user.shoppingCart.get(i).s_uuid);
-            tag.putLong(uuid_pro.getMostSignificantBits()); // 8
-            tag.putLong(uuid_pro.getLeastSignificantBits()); // 8 - UUID of product*/
+            //for (int i = 0; i < n; i++) {
+                /*UUID uuid_pro = UUID.fromString(LoginActivity.user.shoppingCart.get(i).s_uuid);
+                tag.putLong(uuid_pro.getMostSignificantBits()); // 8
+                tag.putLong(uuid_pro.getLeastSignificantBits()); // 8 - UUID of product*/
 
-                tag.putFloat(LoginActivity.user.shoppingCart.get(i).getDecimalCost()); //4 - cost 20,75
+                /*tag.putFloat(LoginActivity.user.shoppingCart.get(i).getDecimalCost()); //4 - cost 20,75
                 tag.put((byte) LoginActivity.user.shoppingCart.get(i).name.length()); //1 - name.length
-                tag.put(LoginActivity.user.shoppingCart.get(i).name.getBytes(StandardCharsets.ISO_8859_1)); //name.getBytes()
+                tag.put(LoginActivity.user.shoppingCart.get(i).name.getBytes(StandardCharsets.ISO_8859_1)); //name.getBytes()*/
+            //}
 
-            }
 
             tag.rewind();
 
@@ -222,7 +303,7 @@ public class MainMenuActivity extends AppCompatActivity {
 
             //Log.d("MAIN_MENU", "UserPrivateKey: " + LoginActivity.user.privateKey.toString());
             Cipher cipher = Cipher.getInstance(Constants.ENC_ALGO);
-            cipher.init(Cipher.ENCRYPT_MODE, LoginActivity.user.privateKey);
+            cipher.init(Cipher.ENCRYPT_MODE, user.privateKey);
             encTag = cipher.doFinal(tag.array());
         }
         catch (IllegalArgumentException e) {
@@ -272,8 +353,12 @@ public class MainMenuActivity extends AppCompatActivity {
     @Override
     public void onResume(){
         super.onResume();
-        adapter.setProductsInfo(LoginActivity.user.shoppingCart);
+        adapter.setProductsInfo(user.shoppingCart);
+        if (user.shoppingCart.size() == 0)
+            clearList.setVisibility(View.GONE);
         adapter.notifyDataSetChanged();
+        spinnerArrayAdapter.notifyDataSetChanged();
+
     }
 
     public void scan(boolean qrcode) {
@@ -349,7 +434,7 @@ public class MainMenuActivity extends AppCompatActivity {
         Log.d("QRCODE", "cents: " + pro.cents);
         Log.d("QRCODE", "UUID: " + pro.s_uuid);
 
-        LoginActivity.user.shoppingCart.add(pro);
+        user.shoppingCart.add(pro);
         adapter.notifyDataSetChanged();
         //Toast.makeText(getApplicationContext(), name, Toast.LENGTH_SHORT).show();
         //message.setText(name);
@@ -360,6 +445,11 @@ public class MainMenuActivity extends AppCompatActivity {
         for(byte b: ba)
             sb.append(String.format("%02x", b));
         return sb.toString();
+    }
+
+    private void sendToProfilePage() {
+        Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+        startActivity(intent);
     }
 
 }

@@ -11,5 +11,6 @@ module.exports = (sequelize, type) => {
     credit_card_name: { type: type.STRING, allowNull: false },
     credit_card_exp_date: { type: type.STRING, allowNull: false },
     credit_card_cvc: { type: type.STRING, allowNull: false },
+    totalSpent: { type: type.DOUBLE, allowNull: false },
   })
 }

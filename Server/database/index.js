@@ -1,5 +1,7 @@
 const Sequelize = require('sequelize')
 const UserModel = require('./models/user')
+const TransactionModel = require('./models/user')
+const VoucherModel = require('./models/user')
 
 const sequelize = new Sequelize('acme', 'admin', 'sqladmin', {
   host: 'localhost',
@@ -17,6 +19,8 @@ const sequelize = new Sequelize('acme', 'admin', 'sqladmin', {
 })
 
 const User = UserModel(sequelize, Sequelize)
+const Transaction = TransactionModel(sequelize, Sequelize)
+const Voucher = VoucherModel(sequelize, Sequelize)
 
 sequelize
   .authenticate()
@@ -39,5 +43,7 @@ sequelize
 
 module.exports = {
   User,
-  sequelize
+  Transaction,
+  Voucher,
+  sequelize,
 }

@@ -10,6 +10,7 @@ public class Transaction {
     public UUID id;
     public float totalCost;
     public int discount;
+    public int productsSize;
     //voucher yes or no 16bits
 
     public Transaction() {

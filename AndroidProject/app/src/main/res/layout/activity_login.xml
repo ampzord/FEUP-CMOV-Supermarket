@@ -91,6 +91,7 @@
         android:ems="10"
         android:hint="@string/hint_username"
         android:inputType="textPersonName"
+        android:text="fgh"
         android:textColor="@android:color/white"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/login_password"

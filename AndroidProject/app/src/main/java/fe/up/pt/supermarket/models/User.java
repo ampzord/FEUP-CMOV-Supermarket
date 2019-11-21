@@ -23,19 +23,22 @@ public class User {
         selectedVoucher = new Voucher();
     }
 
-    public Float getTotalCost() {
-        float total = 0;
+    public double getTotalCost() {
+        double total = 0;
         for (int i = 0; i < shoppingCart.size(); i++) {
-            int decimal = shoppingCart.get(i).cents / 100;
-            total += shoppingCart.get(i).euros + decimal;
+            double decimal = shoppingCart.get(i).cents / 100;
+            double decimal2 = Math.round(decimal * 100.0) / 100.0;
+            total += shoppingCart.get(i).euros + decimal2;
+            total = Math.round(total * 100.0) / 100.0;
         }
         return total;
     }
 
-    public Float getProductCost(int i) {
-        float cost = 0;
-        int decimal = shoppingCart.get(i).cents / 100;
+    public double getProductCost(int i) {
+        double cost = 0;
+        double decimal = shoppingCart.get(i).cents / 100.0;
         cost = shoppingCart.get(i).euros + decimal;
-        return cost;
+        double cost2 = Math.round(cost * 100.0) / 100.0;
+        return cost2;
     }
 }

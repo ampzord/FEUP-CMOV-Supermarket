@@ -13,7 +13,7 @@
         android:id="@+id/bt_send_register"
         android:layout_width="148dp"
         android:layout_height="51dp"
-        android:layout_marginBottom="88dp"
+        android:layout_marginBottom="8dp"
         android:layout_weight="1"
         android:backgroundTint="#2F528F"
         android:fontFamily="@font/archivo_black"
@@ -25,13 +25,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edit_credit_card_cvc"/>
+        app:layout_constraintTop_toBottomOf="@+id/edit_credit_card_cvc"
+        app:layout_constraintVertical_bias="0.526" />
 
     <EditText
         android:id="@+id/edit_first_name"
         android:layout_width="276dp"
         android:layout_height="59dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="@string/text_first_name"
         android:inputType="textPersonName"
@@ -51,6 +52,7 @@
         android:ems="10"
         android:hint="Password"
         android:inputType="textPassword"
+        android:text="123"
         android:textColor="@android:color/white"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -68,6 +70,7 @@
         android:ems="10"
         android:hint="Password Confirmation"
         android:inputType="textPassword"
+        android:text="123"
         android:textColor="@android:color/white"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"

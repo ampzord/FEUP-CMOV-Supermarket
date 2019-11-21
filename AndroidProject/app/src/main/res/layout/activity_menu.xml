@@ -10,64 +10,48 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
-        android:layout_width="346dp"
-        android:layout_height="229dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="168dp"
+        android:layout_width="313dp"
+        android:layout_height="97dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="120dp"
+        android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/bt_scan_item"
-        android:layout_width="120dp"
-        android:layout_height="115dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="83dp"
+        android:layout_height="89dp"
+        android:layout_marginTop="8dp"
         android:scaleType="center"
+        app:layout_constraintBottom_toTopOf="@+id/recyclerView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/qrbutton" />
 
-    <TextView
-        android:id="@+id/textView14"
-        android:layout_width="91dp"
-        android:layout_height="29dp"
-        android:fontFamily="@font/archivo_black"
-        android:text="Scanner"
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.515"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bt_scan_item" />
-
     <ImageButton
         android:id="@+id/coupons_button"
         android:layout_width="115dp"
         android:layout_height="115dp"
-        android:layout_marginBottom="52dp"
+        android:layout_marginBottom="84dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/profile_button"
-        app:layout_constraintHorizontal_bias="0.411"
         app:layout_constraintStart_toEndOf="@+id/checkout_button"
-        app:layout_constraintTop_toBottomOf="@+id/clear"
         app:srcCompat="@drawable/pic_coupon" />
 
     <Button
-        android:id="@+id/clear"
+        android:id="@+id/clearList"
         android:layout_width="80dp"
         android:layout_height="40dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="8dp"
         android:background="#2F528F"
         android:fontFamily="@font/archivo_black"
         android:text="Clear"
         android:textColor="@android:color/white"
-        app:layout_constraintBottom_toTopOf="@+id/checkout_button"
-        app:layout_constraintEnd_toStartOf="@+id/sendNFC"
-        app:layout_constraintHorizontal_bias="0.355"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/recyclerView" />
 
@@ -81,8 +65,9 @@
         android:textAlignment="center"
         android:textColor="@android:color/white"
         android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.112"
+        app:layout_constraintHorizontal_bias="0.069"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/checkout_button" />
 
@@ -95,6 +80,7 @@
         android:textAlignment="center"
         android:textColor="@android:color/white"
         android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.918"
         app:layout_constraintStart_toStartOf="parent"
@@ -104,11 +90,11 @@
         android:id="@+id/checkout_button"
         android:layout_width="115dp"
         android:layout_height="115dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginBottom="84dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/textView15"
-        app:layout_constraintHorizontal_bias="0.551"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/clear"
         app:srcCompat="@drawable/pic_checkout" />
 
     <TextView
@@ -120,8 +106,8 @@
         android:textAlignment="center"
         android:textColor="@android:color/white"
         android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.531"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/coupons_button" />
 
@@ -130,31 +116,41 @@
         android:layout_width="115dp"
         android:layout_height="115dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="88dp"
+        android:layout_marginBottom="84dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/pic_user" />
 
-    <ImageButton
-        android:id="@+id/logout_button"
-        android:layout_width="60dp"
-        android:layout_height="64dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/pic_logout" />
-
-    <Button
-        android:id="@+id/sendNFC"
-        android:layout_width="80dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="68dp"
-        android:background="#2F528F"
-        android:text="sendNFC"
+    <Switch
+        android:id="@+id/coupon_switch"
+        android:layout_width="111dp"
+        android:layout_height="31dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="72dp"
+        android:backgroundTint="#2F528F"
+        android:buttonTint="#2F528F"
+        android:foregroundTint="#2F528F"
+        android:text="Discount"
+        android:textAlignment="center"
         android:textColor="@android:color/white"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/clearList"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerView" />
+
+    <Spinner
+        android:id="@+id/coupon_spinner"
+        android:layout_width="165dp"
+        android:layout_height="41dp"
+        android:layout_marginTop="50dp"
+        android:background="#2F528F"
+        android:dropDownSelector="@android:color/white"
         app:layout_constraintBottom_toTopOf="@+id/coupons_button"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.518"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/recyclerView"
-        app:layout_constraintVertical_bias="0.362" />
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
