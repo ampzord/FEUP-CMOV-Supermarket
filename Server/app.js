@@ -12,6 +12,7 @@ const { writeFileSync, fs } = require('fs');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var transactionsRouter = require('./routes/transactions');
 
 var app = express();
 
@@ -32,7 +33,8 @@ app.use('/', indexRouter);
 
 //Server and user communication
 app.use('/api', usersRouter); //register
+app.use('/api', transactionsRouter); //register
 
-//Server and Terminal communication
+
 
 module.exports = app;
