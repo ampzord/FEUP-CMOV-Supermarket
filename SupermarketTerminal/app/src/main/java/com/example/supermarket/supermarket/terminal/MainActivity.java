@@ -276,7 +276,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
           e.printStackTrace();
         }
-        array.put(obj);
+        array.put(obj);  
       }*/
 
       String newURL = Constants.URL + "/transaction";
@@ -286,11 +286,14 @@ public class MainActivity extends AppCompatActivity {
               new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-                  Log.d("TRANSACTION", response.toString());
-                  /*KeyStoreUtils.getServerKeyFromKeyStore();
-                  getUserUUID(username.getText().toString());
-                  RegistrationActivity.user.username = username.getText().toString();
-                  sendToMainMenu();*/
+                  try {
+                    Log.d("TRANSACTION", response.toString());
+                    String server_msg_response = null;
+                    server_msg_response = response.getString("message");
+                    Toast.makeText(getApplicationContext(), server_msg_response, Toast.LENGTH_SHORT).show();
+                  } catch (JSONException e) {
+                    e.printStackTrace();
+                  }
                 }
               },
               new Response.ErrorListener() {

@@ -22,9 +22,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ReadOnlyBufferException;
@@ -43,10 +54,13 @@ import fe.up.pt.supermarket.models.Product;
 import fe.up.pt.supermarket.R;
 import fe.up.pt.supermarket.models.Voucher;
 import fe.up.pt.supermarket.utils.Constants;
+import fe.up.pt.supermarket.utils.HttpsTrustManagerUtils;
+import fe.up.pt.supermarket.utils.KeyStoreUtils;
 import fe.up.pt.supermarket.utils.MultipleClicksUtils;
 import fe.up.pt.supermarket.utils.NFCSendActivity;
 import fe.up.pt.supermarket.utils.QRTag;
 
+import static fe.up.pt.supermarket.activities.LoginActivity.URL;
 import static fe.up.pt.supermarket.activities.LoginActivity.user;
 
 public class MainMenuActivity extends AppCompatActivity {
@@ -457,4 +471,59 @@ public class MainMenuActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void updateVouchers() {
+        HttpsTrustManagerUtils.allowAllSSL();
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        String newURL = URL + "/vouchers/" + user.uuid;
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(
+                Request.Method.GET,
+                newURL,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        //save vouchers, on LOGIN load vouchers.
+
+                        try {
+                            JSONObject obj = response;
+                            String name = obj.getString("username");
+                            Toast.makeText(getApplicationContext(), name,Toast.LENGTH_LONG).show();
+
+
+                            /*String vouchersToText = "";
+
+                            writeToFileVouchers(getApplicationContext(), user.uuid + "_vouchers", vouchersToText);*/
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("REST Error Response", error.toString());
+                    }
+                }
+
+
+        );
+
+        queue.add(objectRequest);
+    }
+
+
+    private void writeToFileVouchers(Context context, String filename, String data) {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
+            outputStreamWriter.write(data);
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            Log.d("Exception", "File write failed: " + e.toString());
+        }
+    }
 }
