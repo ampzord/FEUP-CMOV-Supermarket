@@ -43,6 +43,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         int size = productList.size();
         productList.clear();
         notifyItemRangeRemoved(0, size);
+        notifyDataSetChanged();
     }
 
     @Override

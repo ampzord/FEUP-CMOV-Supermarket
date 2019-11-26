@@ -1,5 +1,7 @@
 package fe.up.pt.supermarket.models;
 
+import android.util.Log;
+
 import java.lang.reflect.Array;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -26,14 +28,25 @@ public class User {
     }
 
     public double getTotalCost() {
-        double total = 0;
+        /*double total = 0;
         for (int i = 0; i < shoppingCart.size(); i++) {
             double decimal = shoppingCart.get(i).cents / 100;
             double decimal2 = Math.round(decimal * 100.0) / 100.0;
             total += shoppingCart.get(i).euros + decimal2;
             total = Math.round(total * 100.0) / 100.0;
         }
-        return total;
+        return total;*/
+
+        double result = 0;
+        for (int i = 0; i < shoppingCart.size(); i++) {
+            Log.d("TAG_CALCULATIONS", "euros: " + shoppingCart.get(i).euros);
+            Log.d("TAG_CALCULATIONS", "cents: " + shoppingCart.get(i).cents);
+            double decimal_percentage = Math.round(shoppingCart.get(i).cents * 1) / 100.0;
+            Log.d("TAG_CALCULATIONS", "decimal_percentage:" + decimal_percentage);
+            result += shoppingCart.get(i).euros + decimal_percentage;
+        }
+        Log.d("TAG_CALCULATIONS", "TOTAL:" + result);
+        return result;
     }
 
     public double getProductCost(int i) {

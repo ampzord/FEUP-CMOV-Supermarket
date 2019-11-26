@@ -15,11 +15,11 @@ router.post('/transaction', function(req, res, next) {
 
     console.log(req.body);
 
-    const price_number = req.body.price * 1;
+    const price_number = +req.body.price * 1;
 
     let hasVoucher = false;
     let newFinalPrice = req.body.price;
-    let newTotalSaved;
+    let newTotalSaved = 0;
     let voucherDiscountCode;
 
     if (req.body.voucher_uuid) {
@@ -28,7 +28,7 @@ router.post('/transaction', function(req, res, next) {
             where : { uuid : req.body.voucher_uuid }
         }).then( (voucher) => {
             if (voucher) {
-               console.log(voucher.dataValues);
+               //console.log(voucher.dataValues);
 
                if (voucher.user_uuid != req.body.user_uuid) {
                    console.log("This voucher doesn't belong to this user.");
@@ -45,8 +45,9 @@ router.post('/transaction', function(req, res, next) {
                 voucher.update({
                     used : true,
                 });
-                console.log("After updating voucher.");
-                console.log(voucher.dataValues);
+
+                //console.log("After updating voucher.");
+                //console.log(voucher.dataValues);
             }
         })
     }
@@ -55,7 +56,7 @@ router.post('/transaction', function(req, res, next) {
         where : { uuid : req.body.user_uuid }
     }).then( user => {
         if (user) {
-            console.log(user.dataValues);
+            //console.log(user.dataValues);
 
             let newTotalSpent_;
             let newTotalSaved_;
@@ -63,21 +64,21 @@ router.post('/transaction', function(req, res, next) {
 
             if (req.body.discount == 1) {
                 if (user.totalSaved > price_number) {
-                    newTotalSaved = user.totalSaved - price_number;
+                    newTotalSaved = +user.totalSaved - +price_number;
                     newFinalPrice = 0;
                 }
                 else {
-                    newFinalPrice = newFinalPrice - user.totalSaved;
+                    newFinalPrice = +newFinalPrice - +user.totalSaved;
                     newTotalSaved = 0;
                 }
             }
 
             newTotalSaved_ = newTotalSaved;
-            newTotalSpent_ = user.totalSpent + newFinalPrice;
+            newTotalSpent_ = +user.totalSpent + +newFinalPrice;
 
             if (hasVoucher) {
                 numberToSavings = (voucherDiscountCode * newFinalPrice) / 100;
-                newTotalSaved_ = newTotalSaved + numberToSavings;
+                newTotalSaved_ = +newTotalSaved + +numberToSavings;
             }
 
             user.update(
@@ -87,8 +88,8 @@ router.post('/transaction', function(req, res, next) {
                 }
             );
 
-            console.log("user after updating values");
-            console.log(user.dataValues);
+            //console.log("user after updating values");
+            //console.log(user.dataValues);
         }
     }).catch(err => {
         console.log("Error calculating new Price.");
@@ -97,22 +98,20 @@ router.post('/transaction', function(req, res, next) {
 
     var discount = newVoucherGeneratorDiscount(newFinalPrice, req.body.user_uuid);
 
-    Voucher.create({
-        uuid: uuidv4(),
-        discount_number: discount,
-        used: false,
-        user_uuid: req.body.user_uuid,
-    }).then( voucher => {
-        console.log("Created voucher successfully: ");
-        console.log(voucher.dataValues);
-        res.status(200).json({
-            ok: true,
-            message: 'OPEN TERMINAL DOORS',
-        })
-    }).catch(err => {
-        console.log("Error creating voucher.");
-        res.status(500).json('Error generating transaction');
-    });
+    if (newFinalPrice > 100) {
+        Voucher.create({
+            uuid: uuidv4(),
+            discount_number: discount,
+            used: false,
+            user_uuid: req.body.user_uuid,
+        }).then( voucher => {
+            console.log("Created voucher successfully: ");
+            console.log(voucher.dataValues);
+        }).catch(err => {
+            console.log("Error creating voucher.");
+        });
+    }
+
 
     if (hasVoucher) {
         Transaction.create({
@@ -123,7 +122,6 @@ router.post('/transaction', function(req, res, next) {
             discount: req.body.discount,
             products_size: req.body.products_size,
         }).then(transaction => {
-
             res.status(200).json({
                 ok: true,
                 message: 'OPEN TERMINAL DOORS',
@@ -154,21 +152,18 @@ router.post('/transaction', function(req, res, next) {
 
 function newVoucherGeneratorDiscount(price) {
     var discount;
-
     var result = price / 100;
 
-    if (result < 1) {
+    if (result < 2) {
         discount = 15;
-    } else if (result < 2) {
+    } else if (result < 3) {
         discount = 30;
     }
-    else if (result < 3) {
+    else if (result < 4) {
         discount = 45;
     }
-    else if (result < 4) {
+    else {
         discount = 60;
-    } else {
-        discount = 17;
     }
 
     return discount;
@@ -176,25 +171,29 @@ function newVoucherGeneratorDiscount(price) {
 
 /** All transactions of a user of a given UUID */
 router.get('/transactions/:uuid', function(req, res, next) {
-    console.log(req.body);
-
     Transaction.findAll({
         where: {
             user_uuid: req.params.uuid
         }
-    }).then(transactions => res.json(transactions));
+    }).then(transactions => {
+        res.json( {
+            transactions: transactions
+        })
+    });
 });
 
 /** All vouchers of a user of a given UUID */
 router.get('/vouchers/:uuid', function(req, res, next) {
-    console.log(req.body);
-
     Voucher.findAll({
         where: {
             user_uuid: req.params.uuid,
             used: false
         }
-    }).then(vouchers => res.json(vouchers));
+    }).then(vouchers => {
+        res.json( {
+            vouchers: vouchers
+        })
+    });
 });
 
 

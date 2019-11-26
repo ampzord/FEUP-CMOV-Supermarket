@@ -21,7 +21,8 @@
         <activity android:name=".activities.ProfileActivity"></activity>
         <activity android:name=".activities.PastTransactionsActivity"></activity>
         <activity android:name=".utils.NFCSendActivity"></activity>
-        <activity android:name=".utils.QRTag" />
+        <activity android:name=".utils.QRTag"
+            android:screenOrientation="sensorPortrait" />
         <activity android:name=".activities.RegistrationActivity"></activity>
         <activity android:name=".activities.MainMenuActivity"
             android:screenOrientation="sensorPortrait" />

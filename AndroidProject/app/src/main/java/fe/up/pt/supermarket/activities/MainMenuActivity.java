@@ -29,11 +29,16 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
@@ -42,6 +47,7 @@ import java.nio.ReadOnlyBufferException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -67,11 +73,12 @@ public class MainMenuActivity extends AppCompatActivity {
     private ImageButton scanItem;
     private ImageButton profile;
     private ImageButton checkout_button;
-    private ImageButton coupons;
+    private ImageButton coupons_button;
     private ImageButton logout;
     private Switch discountSwitch;
     public Button clearList;
     public ArrayAdapter<String> spinnerArrayAdapter;
+    public TextView totalCost;
 
     private Spinner voucherSpinner;
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
@@ -80,13 +87,12 @@ public class MainMenuActivity extends AppCompatActivity {
     RecyclerView recyclerView;
 
     public List<String> vouchersList;
+    public static DecimalFormat df2 = new DecimalFormat("#.##");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
-
-
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -103,6 +109,8 @@ public class MainMenuActivity extends AppCompatActivity {
         scanItem = findViewById(R.id.bt_scan_item);
         checkout_button = findViewById(R.id.checkout_button);
         clearList = findViewById(R.id.clearList);
+        coupons_button = findViewById(R.id.coupons_button);
+        totalCost = findViewById(R.id.totalCost);
 
         discountSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -114,11 +122,10 @@ public class MainMenuActivity extends AppCompatActivity {
             }
         });
 
-        if (user.shoppingCart.size() == 0)
+        if (user.shoppingCart.size() == 0) {
             clearList.setVisibility(View.GONE);
-
-        //LoginActivity.user.vouchers.add(new Voucher(UUID.randomUUID(), 15));
-
+            totalCost.setVisibility(View.GONE);
+        }
 
         vouchersList = new ArrayList<>();
         vouchersList.add("No Voucher");
@@ -129,10 +136,8 @@ public class MainMenuActivity extends AppCompatActivity {
         }
         spinnerArrayAdapter = new ArrayAdapter<String>(
                 this,R.layout.voucher_spinner_item,vouchersList);
-
         spinnerArrayAdapter.setDropDownViewResource(R.layout.voucher_spinner_item);
         voucherSpinner.setAdapter(spinnerArrayAdapter);
-
 
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,7 +148,14 @@ public class MainMenuActivity extends AppCompatActivity {
             }
         });
 
-
+        coupons_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (MultipleClicksUtils.prevent())
+                    return;
+                updateVouchers();
+            }
+        });
 
         scanItem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,8 +167,11 @@ public class MainMenuActivity extends AppCompatActivity {
                     return;
                 }
                 scan(true);
-                if (user.shoppingCart.size() != 0)
+                if (user.shoppingCart.size() != 0) {
+                    totalCost.setText("Total Cost: " + df2.format(user.getTotalCost()) + "€");
                     clearList.setVisibility(View.VISIBLE);
+                    totalCost.setVisibility(View.VISIBLE);
+                }
             }
         });
         checkout_button.setOnClickListener(new View.OnClickListener() {
@@ -176,19 +191,14 @@ public class MainMenuActivity extends AppCompatActivity {
         clearList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                user.shoppingCart = new ArrayList<>();
                 adapter.clear();
                 adapter.notifyDataSetChanged();
                 clearList.setVisibility(View.GONE);
+                totalCost.setVisibility(View.GONE);
             }
         });
 
-
-        /*sendKey.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sendUserPublicKeyToTerminal();
-            }
-        });*/
         voucherSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -238,110 +248,6 @@ public class MainMenuActivity extends AppCompatActivity {
         }
     }
 
-    void generateCheckoutTag() {
-        //String name = edName.getText().toString();
-
-        /*if (!hasKey || edUUID.getText().toString().length() == 0 || name.length() == 0 ||
-                edEuros.getText().toString().length() == 0 || edCents.getText().toString().length() == 0) {
-            tvNoKey.setText(R.string.msg_empty);
-            return;
-        }*/
-        /*int len = 4 + 16 + 4 + 4 + 1 + edName.getText().toString().length();
-        int l = edName.getText().toString().length();
-        if (l > 35)
-            name = edName.getText().toString().substring(0, 35);
-        tag = ByteBuffer.allocate(len);
-        tag.putInt(Constants.tagId); //4 - tagID
-        tag.putLong(productUUID.getMostSignificantBits()); //16 - UUID
-        tag.putLong(productUUID.getLeastSignificantBits()); //16 - UUID
-        tag.putInt(Integer.parseInt(edEuros.getText().toString())); //4 - euros
-        tag.putInt(Integer.parseInt(edCents.getText().toString())); //4 - cents
-        tag.put((byte)name.length()); //name
-        tag.put(name.getBytes(StandardCharsets.ISO_8859_1)); //name*/
-
-        //
-
-
-        /*
-
-                - id
-                - price
-                - UUID (transmitted in registration)
-                - possibly ONE VOUCHER ID (selected by the user)
-                - possibility to discount the amount accumulated so far (BOOLEAN)
-                - N - number of products to read
-                - list of N products (max 10 items)
-         */
-
-        byte[] encTag = new byte[0];
-        ByteBuffer tag;
-        int discount_int = 0;
-        if (user.discount)
-            discount_int = 1;
-
-        UUID qrCodeUUID = UUID.randomUUID();
-        int n = user.shoppingCart.size();
-        //--------------------------------------------- REMOVED VOUCHER FOR TESTING
-        //int length = 16 + 16 + 4 + 4 + 4; //tagID, qrcodeUUID, userUUID, cost, (voucher), discount, N
-        int length = 16 + 16 + 4 + 4 + 4; //tagID, qrcodeUUID, userUUID, cost, (voucher), discount, N
-
-        /*for (int i = 0; i < n; i++) {
-            //length += 16 + 4 + 1 + LoginActivity.user.shoppingCart.get(i).name.length(); //cost float
-        }*/
-        try {
-            tag = ByteBuffer.allocate(length);
-            //tag.putInt(Constants.tagId); //4 - tagID
-            tag.putLong(qrCodeUUID.getMostSignificantBits()); // 8
-            tag.putLong(qrCodeUUID.getLeastSignificantBits()); // 8 - TRANSACTION UUID
-            tag.putLong(user.uuid.getMostSignificantBits()); // 8
-            tag.putLong(user.uuid.getLeastSignificantBits()); // 8 - User UUID
-            tag.putDouble(user.getTotalCost()); //4 - cost
-
-        /*tag.putLong(LoginActivity.user.selectedVoucher.uuid.getMostSignificantBits()); // 8
-        tag.putLong(LoginActivity.user.selectedVoucher.uuid.getLeastSignificantBits()); // 8 - Voucher UUID*/
-
-            tag.putInt(discount_int); //4 discount
-            tag.putInt(n); //4 size of shoppingList
-            //for (int i = 0; i < n; i++) {
-                /*UUID uuid_pro = UUID.fromString(LoginActivity.user.shoppingCart.get(i).s_uuid);
-                tag.putLong(uuid_pro.getMostSignificantBits()); // 8
-                tag.putLong(uuid_pro.getLeastSignificantBits()); // 8 - UUID of product*/
-
-                /*tag.putFloat(LoginActivity.user.shoppingCart.get(i).getDecimalCost()); //4 - cost 20,75
-                tag.put((byte) LoginActivity.user.shoppingCart.get(i).name.length()); //1 - name.length
-                tag.put(LoginActivity.user.shoppingCart.get(i).name.getBytes(StandardCharsets.ISO_8859_1)); //name.getBytes()*/
-            //}
-
-
-            tag.rewind();
-
-            // print the ByteBuffer
-            Log.d("MAIN_MENU", "Original ByteBuffer:  "
-                    + Arrays.toString(tag.array()));
-
-
-            //Log.d("MAIN_MENU", "UserPrivateKey: " + LoginActivity.user.privateKey.toString());
-            Cipher cipher = Cipher.getInstance(Constants.ENC_ALGO);
-            cipher.init(Cipher.ENCRYPT_MODE, user.privateKey);
-            encTag = cipher.doFinal(tag.array());
-        }
-        catch (IllegalArgumentException e) {
-            Log.d("MAIN_MENU", "IllegalArgumentException catched");
-        }
-
-        catch (ReadOnlyBufferException e) {
-            Log.d("MAIN_MENU", "ReadOnlyBufferException catched");
-        }
-        catch (Exception e) {
-            Toast.makeText(getApplicationContext(),"Error Generating Checkout QRCode.", Toast.LENGTH_SHORT).show();
-            Log.d("MAIN_MENU", "Error Generating Checkout QRCode.");
-        }
-
-        Intent qrAct = new Intent(this, QRTag.class);
-        qrAct.putExtra("data", encTag);
-        startActivity(qrAct);
-    }
-
     /*
 
         @Override
@@ -373,10 +279,29 @@ public class MainMenuActivity extends AppCompatActivity {
     public void onResume(){
         super.onResume();
         adapter.setProductsInfo(user.shoppingCart);
-        if (user.shoppingCart.size() == 0)
-            clearList.setVisibility(View.GONE);
         adapter.notifyDataSetChanged();
+        if (user.shoppingCart.size() == 0) {
+            clearList.setVisibility(View.GONE);
+            totalCost.setVisibility(View.GONE);
+        }
+        else {
+            totalCost.setText("Total Cost: " + df2.format(user.getTotalCost()) + "€");
+            clearList.setVisibility(View.VISIBLE);
+            totalCost.setVisibility(View.VISIBLE);
+        }
         spinnerArrayAdapter.notifyDataSetChanged();
+
+        vouchersList = new ArrayList<>();
+        vouchersList.add("No Voucher");
+        for (int i = 0; i < user.vouchers.size(); i++) {
+            if (user.vouchers.get(i).used == true)
+                break;
+            vouchersList.add(user.vouchers.get(i).toString());
+        }
+        spinnerArrayAdapter = new ArrayAdapter<String>(
+                this,R.layout.voucher_spinner_item,vouchersList);
+        spinnerArrayAdapter.setDropDownViewResource(R.layout.voucher_spinner_item);
+        voucherSpinner.setAdapter(spinnerArrayAdapter);
 
     }
 
@@ -488,14 +413,30 @@ public class MainMenuActivity extends AppCompatActivity {
                         //save vouchers, on LOGIN load vouchers.
 
                         try {
-                            JSONObject obj = response;
-                            String name = obj.getString("username");
-                            Toast.makeText(getApplicationContext(), name,Toast.LENGTH_LONG).show();
+                            JSONArray arr = response.getJSONArray("vouchers");
+                            ArrayList<String> vouchers_array = new ArrayList<>();
+                            for (int i = 0; i < arr.length(); i++) {
+                                JSONObject jsonobject = arr.getJSONObject(i);
+                                String uuid_voucher = jsonobject.getString("uuid");
+                                String discount_number = jsonobject.getString("discount_number");
+                                String used_voucher = jsonobject.getString("used");
+                                String voucher = uuid_voucher + "," + discount_number + "," + used_voucher;
+                                vouchers_array.add(voucher);
+                            }
 
-
-                            /*String vouchersToText = "";
-
-                            writeToFileVouchers(getApplicationContext(), user.uuid + "_vouchers", vouchersToText);*/
+                            writeToFileVouchers(getApplicationContext(), user.uuid + "_vouchers", vouchers_array);
+                            readFromFileVouchers(getApplicationContext(),user.uuid + "_vouchers");
+                            vouchersList = new ArrayList<>();
+                            vouchersList.add("No Voucher");
+                            for (int i = 0; i < user.vouchers.size(); i++) {
+                                if (user.vouchers.get(i).used == true)
+                                    break;
+                                vouchersList.add(user.vouchers.get(i).toString());
+                            }
+                            spinnerArrayAdapter = new ArrayAdapter<String>(
+                                    getApplicationContext(),R.layout.voucher_spinner_item,vouchersList);
+                            spinnerArrayAdapter.setDropDownViewResource(R.layout.voucher_spinner_item);
+                            voucherSpinner.setAdapter(spinnerArrayAdapter);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -516,14 +457,64 @@ public class MainMenuActivity extends AppCompatActivity {
     }
 
 
-    private void writeToFileVouchers(Context context, String filename, String data) {
+    private void writeToFileVouchers(Context context, String filename, ArrayList<String> data) {
         try {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
-            outputStreamWriter.write(data);
+            for (int i = 0; i < data.size(); i++) {
+                outputStreamWriter.write(data.get(i));
+                outputStreamWriter.write("\n");
+            }
             outputStreamWriter.close();
         }
         catch (IOException e) {
-            Log.d("Exception", "File write failed: " + e.toString());
+            Log.d("TAG_VOUCHER", "File write failed: " + e.toString());
         }
+    }
+
+    private String readFromFileVouchers(Context context, String filename) {
+
+        String ret = "";
+
+        try {
+            InputStream inputStream = context.openFileInput(filename);
+
+            if ( inputStream != null ) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+                user.vouchers = new ArrayList<>();
+                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                    stringBuilder.append(receiveString);
+                    //1 linha
+                    Log.d("TAG_VOUCHER", "Linha: " + receiveString);
+                    String[] vouchersArray = receiveString.split(",");
+                    String uuid_voucher = vouchersArray [0];
+                    String discount_voucher = vouchersArray [1];
+                    String used_voucher = vouchersArray [2];
+                    Voucher temp_voucher = new Voucher();
+                    temp_voucher.discount_percentage = Integer.parseInt(discount_voucher);
+                    temp_voucher.uuid = UUID.fromString(uuid_voucher);
+                    if (used_voucher == "true")
+                        temp_voucher.used = true;
+                    else
+                        temp_voucher.used = false;
+
+                    if (temp_voucher.used == false)
+                        user.vouchers.add(temp_voucher);
+
+                }
+
+                inputStream.close();
+                ret = stringBuilder.toString();
+            }
+        }
+        catch (FileNotFoundException e) {
+            Log.d("TAG_VOUCHER", "File not found: " + e.toString());
+        } catch (IOException e) {
+            Log.e("TAG_VOUCHER", "Can not read file: " + e.toString());
+        }
+
+        return ret;
     }
 }

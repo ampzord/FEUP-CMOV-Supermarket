@@ -31,7 +31,7 @@ const registrationValidationRules = [
   check('password_conf', 'Passwords do not match.').custom((value, {req}) => (value === req.body.password)),
   check('credit_card_number', 'Credit card must be 16 length number.').isLength(16),
   check('credit_card_cvc', 'Credit card must be 3 length number. (VISA)').isLength(3),
-
+  check('credit_card_name','Credit card must match first name and last name.').custom((value, {req}) => (value === req.body.fName + " " + req.body.lName)),
 ]
 
 /* Register user in database */

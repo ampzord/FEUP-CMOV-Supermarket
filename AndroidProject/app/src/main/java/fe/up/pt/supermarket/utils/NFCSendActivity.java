@@ -81,12 +81,9 @@ public class NFCSendActivity extends AppCompatActivity {
     UUID qrCodeUUID = UUID.randomUUID();
     int n = LoginActivity.user.shoppingCart.size();
     int length;
-    //if (user.selectedVoucherHelper) {
-      //  length = 16 + 16 + 8 + 16 + 4 + 4 + 4;
-    //}
-    //else {
-        length = 16 + 16 + 8 + 4 + 4 + 4;
-    //}
+
+    length = 16 + 16 + 8 + 4 + 4 + 4;
+
     int voucher_int = 0;
     if (user.selectedVoucherHelper)
         voucher_int = 1;
@@ -95,59 +92,38 @@ public class NFCSendActivity extends AppCompatActivity {
     UUID newUUIDVoucher;
       if (user.selectedVoucherHelper) {
           newUUIDVoucher = user.selectedVoucher.uuid;
-                  /*tag.putLong(LoginActivity.user.selectedVoucher.uuid.getMostSignificantBits()); // 8
-          tag.putLong(LoginActivity.user.selectedVoucher.uuid.getLeastSignificantBits()); // 8 - Voucher UUID*/
       } else {
           newUUIDVoucher = qrCodeUUID;
-          /*tag.putLong(LoginActivity.user.uuid.getMostSignificantBits()); // 8
-          tag.putLong(LoginActivity.user.uuid.getLeastSignificantBits()); // 8 - User UUID*/
       }
-
 
     try {
       tag = ByteBuffer.allocate(length);
-      /*tag.putLong(qrCodeUUID.getMostSignificantBits()); // 8
-      tag.putLong(qrCodeUUID.getLeastSignificantBits()); // 8 - TRANSACTION UUID*/
       tag.putLong(LoginActivity.user.uuid.getMostSignificantBits()); // 8
       tag.putLong(LoginActivity.user.uuid.getLeastSignificantBits()); // 8 - User UUID
-        tag.putLong(newUUIDVoucher.getMostSignificantBits()); // 8
-        tag.putLong(newUUIDVoucher.getLeastSignificantBits()); // 8 - Voucher UUID
-      tag.putDouble(LoginActivity.user.getTotalCost()); //8 - cost
-        /*if (user.selectedVoucherHelper) {
-            tag.putLong(LoginActivity.user.selectedVoucher.uuid.getMostSignificantBits()); // 8
-            tag.putLong(LoginActivity.user.selectedVoucher.uuid.getLeastSignificantBits()); // 8 - Voucher UUID
-        }
-        else {
-            tag.putLong(LoginActivity.user.uuid.getMostSignificantBits()); // 8
-            tag.putLong(LoginActivity.user.uuid.getLeastSignificantBits()); // 8 - User UUID
-        }*/
+      tag.putLong(newUUIDVoucher.getMostSignificantBits()); // 8
+      tag.putLong(newUUIDVoucher.getLeastSignificantBits()); // 8 - Voucher UUID
+
+      String s_double = MainMenuActivity.df2.format(LoginActivity.user.getTotalCost());
+      double value = Double.parseDouble( s_double.replace(",",".") );
+      tag.putDouble(value); //8 - cost
+
       tag.putInt(discount_int); //4 discount
-        tag.putInt(voucher_int); // 4 use
+      tag.putInt(voucher_int); // 4 use
       tag.putInt(n); //4 size of shoppingList
 
-
-      /*tag.rewind();
-
-      // print the ByteBuffer
-      Log.d("MAIN_MENU", "Original ByteBuffer:  "
-              + Arrays.toString(tag.array()));*/
-
-
-      //Log.d("MAIN_MENU", "UserPrivateKey: " + LoginActivity.user.privateKey.toString());
       Cipher cipher = Cipher.getInstance(Constants.ENC_ALGO);
       cipher.init(Cipher.ENCRYPT_MODE, LoginActivity.user.privateKey);
       encTag = cipher.doFinal(tag.array());
     }
     catch (IllegalArgumentException e) {
-      Log.d("MAIN_MENU", "IllegalArgumentException catched");
+      Log.d("TAG_QR", "IllegalArgumentException catched");
     }
-
     catch (ReadOnlyBufferException e) {
-      Log.d("MAIN_MENU", "ReadOnlyBufferException catched");
+      Log.d("TAG_QR", "ReadOnlyBufferException catched");
     }
     catch (Exception e) {
       Toast.makeText(getApplicationContext(),"Error Generating Checkout QRCode.", Toast.LENGTH_SHORT).show();
-      Log.d("MAIN_MENU", "Error Generating Checkout QRCode.");
+      Log.d("TAG_QR", "Error Generating Checkout QRCode.");
     }
 
     Intent qrAct = new Intent(this, QRTag.class);

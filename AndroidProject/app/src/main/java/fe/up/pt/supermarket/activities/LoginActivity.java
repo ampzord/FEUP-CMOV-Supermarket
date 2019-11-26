@@ -31,6 +31,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import fe.up.pt.supermarket.R;
@@ -53,8 +54,8 @@ public class LoginActivity extends AppCompatActivity {
     public static PublicKey SERVER_CERTIFICATE;
     public static User user;
 
-    public static String URL = "https://192.168.1.12:3001/api"; //HOME
-    //public static String URL = "https://10.227.159.111:3001/api"; //FEUP
+    //public static String URL = "https://192.168.1.12:3001/api"; //HOME
+    public static String URL = "https://10.227.154.87:3001/api"; //FEUP
     //public static String URL = "https://grisly-mummy-10353.herokuapp.com";
 
     @Override
@@ -123,8 +124,7 @@ public class LoginActivity extends AppCompatActivity {
                                 getUserKeys(username.getText().toString());
                             }
                             //TODO PROFILE
-                            user.vouchers.add(new Voucher(UUID.randomUUID(), 15));
-                            user.vouchers.add(new Voucher(UUID.randomUUID(), 30));
+                            readFromFileVouchers(getApplicationContext(), user.uuid + "_vouchers");
 
                             user.uuid = UUID.fromString(readFromFileUUID(getApplicationContext(), username.getText().toString()));
                             user.username = username.getText().toString();
@@ -206,6 +206,52 @@ public class LoginActivity extends AppCompatActivity {
     private void sendToRegister() {
         Intent intent = new Intent(this, RegistrationActivity.class);
         startActivity(intent);
+    }
+
+    private String readFromFileVouchers(Context context, String filename) {
+
+        String ret = "";
+
+        try {
+            InputStream inputStream = context.openFileInput(filename);
+
+            if ( inputStream != null ) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+                user.vouchers = new ArrayList<>();
+                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                    stringBuilder.append(receiveString);
+                    //1 linha
+                    Log.d("TAG_VOUCHER", "Linha: " + receiveString);
+                    String[] vouchersArray = receiveString.split(",");
+                    String uuid_voucher = vouchersArray [0];
+                    String discount_voucher = vouchersArray [1];
+                    String used_voucher = vouchersArray [2];
+                    Voucher temp_voucher = new Voucher();
+                    temp_voucher.discount_percentage = Integer.parseInt(discount_voucher);
+                    temp_voucher.uuid = UUID.fromString(uuid_voucher);
+                    if (used_voucher == "true")
+                        temp_voucher.used = true;
+                    else
+                        temp_voucher.used = false;
+
+                    if (temp_voucher.used == false)
+                        user.vouchers.add(temp_voucher);
+                }
+
+                inputStream.close();
+                ret = stringBuilder.toString();
+            }
+        }
+        catch (FileNotFoundException e) {
+            Log.d("TAG_VOUCHER", "File not found: " + e.toString());
+        } catch (IOException e) {
+            Log.e("TAG_VOUCHER", "Can not read file: " + e.toString());
+        }
+
+        return ret;
     }
 
 

@@ -290,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("TRANSACTION", response.toString());
                     String server_msg_response = null;
                     server_msg_response = response.getString("message");
-                    Toast.makeText(getApplicationContext(), server_msg_response, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), server_msg_response, Toast.LENGTH_LONG).show();
                   } catch (JSONException e) {
                     e.printStackTrace();
                   }

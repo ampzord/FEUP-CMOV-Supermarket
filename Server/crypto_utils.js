@@ -42,14 +42,16 @@ function generateKeys() {
   writeFileSync(__dirname + '/keys/server_public_key.pem', publicKey);
 }
 
+//encripta com public key
 function encrypt(toEncrypt, relativeOrAbsolutePathToPublicKey) {
   const absolutePath = path.resolve(relativeOrAbsolutePathToPublicKey)
   const publicKey = fs.readFileSync(absolutePath, 'utf8')
   const buffer = Buffer.from(toEncrypt, 'utf8')
-  const encrypted = crypto.publicEncrypt(publicKey, buffer)
+  const encrypted = crypto.publicDecrypt(publicKey, buffer)
   return encrypted.toString('base64')
 }
 
+//decrypt com private key
 function decrypt(toDecrypt, relativeOrAbsolutePathtoPrivateKey) {
   const absolutePath = path.resolve(relativeOrAbsolutePathtoPrivateKey)
   const privateKey = fs.readFileSync(absolutePath, 'utf8')
