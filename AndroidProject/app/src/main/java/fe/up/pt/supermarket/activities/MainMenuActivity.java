@@ -73,20 +73,19 @@ public class MainMenuActivity extends AppCompatActivity {
     private ImageButton scanItem;
     private ImageButton profile;
     private ImageButton checkout_button;
-    private ImageButton coupons_button;
-    private ImageButton logout;
+    private Button logout;
     private Switch discountSwitch;
     public Button clearList;
-    public ArrayAdapter<String> spinnerArrayAdapter;
+    public static ArrayAdapter<String> spinnerArrayAdapter;
     public TextView totalCost;
 
-    private Spinner voucherSpinner;
+    public static Spinner voucherSpinner;
     static final String ACTION_SCAN = "com.google.zxing.client.android.SCAN";
 
     public static ProductAdapter adapter;
     RecyclerView recyclerView;
 
-    public List<String> vouchersList;
+    public static List<String> vouchersList;
     public static DecimalFormat df2 = new DecimalFormat("#.##");
 
     @Override
@@ -105,12 +104,11 @@ public class MainMenuActivity extends AppCompatActivity {
         discountSwitch = this.findViewById(R.id.coupon_switch);
         voucherSpinner = this.findViewById(R.id.coupon_spinner);
         profile = findViewById(R.id.profile_button);
-        //sendKey = findViewById(R.id.sendKey);
         scanItem = findViewById(R.id.bt_scan_item);
         checkout_button = findViewById(R.id.checkout_button);
         clearList = findViewById(R.id.clearList);
-        coupons_button = findViewById(R.id.coupons_button);
         totalCost = findViewById(R.id.totalCost);
+        logout = findViewById(R.id.logout);
 
         discountSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -130,9 +128,8 @@ public class MainMenuActivity extends AppCompatActivity {
         vouchersList = new ArrayList<>();
         vouchersList.add("No Voucher");
         for (int i = 0; i < user.vouchers.size(); i++) {
-            if (user.vouchers.get(i).used == true)
-                break;
-            vouchersList.add(user.vouchers.get(i).toString());
+            if (!user.vouchers.get(i).used)
+                vouchersList.add(user.vouchers.get(i).toString());
         }
         spinnerArrayAdapter = new ArrayAdapter<String>(
                 this,R.layout.voucher_spinner_item,vouchersList);
@@ -148,12 +145,12 @@ public class MainMenuActivity extends AppCompatActivity {
             }
         });
 
-        coupons_button.setOnClickListener(new View.OnClickListener() {
+        logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (MultipleClicksUtils.prevent())
                     return;
-                updateVouchers();
+                sendtoLoginPage();
             }
         });
 
@@ -217,13 +214,16 @@ public class MainMenuActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-                //Toast.makeText(MainMenuActivity.this, "nada", Toast.LENGTH_LONG).show();
-            }
+            public void onNothingSelected(AdapterView<?> parentView) { }
 
         });
 
 
+    }
+
+    void sendtoLoginPage() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
     }
 
     void sendUserPublicKeyToTerminal() {
@@ -248,31 +248,13 @@ public class MainMenuActivity extends AppCompatActivity {
         }
     }
 
-    /*
-
-        @Override
-    public void onBackPressed() {
-        if(homepageBinding.fab.isExpanded())
-            homepageBinding.fab.setExpanded(false);
-        else if(filterBottomSheetBehaviour.getState() == BottomSheetBehavior.STATE_EXPANDED)
-            filterBottomSheetBehaviour.setState(BottomSheetBehavior.STATE_HIDDEN);
-        else
-            super.onBackPressed();
-     */
-
     @Override
     public void onSaveInstanceState(Bundle bundle) {
         super.onSaveInstanceState(bundle);
-        //bundle.putCharSequence("Message", message.getText());
-        //bundle.putParcelableArrayList("shoppingCart", RegistrationActivity.user.shoppingCart);
-        //adapter.setProductsInfo(RegistrationActivity.user.shoppingCart);
     }
 
     public void onRestoreInstanceState(Bundle bundle) {
         super.onRestoreInstanceState(bundle);
-        //ArrayList<Product> getShoppingCart = bundle.getSerializable("ShoppingCart");
-        //RegistrationActivity.user.shoppingCart = bundle.getParcelableArrayList("shoppingCart");
-        //adapter.setProductsInfo(RegistrationActivity.user.shoppingCart);
     }
 
     @Override
@@ -289,20 +271,23 @@ public class MainMenuActivity extends AppCompatActivity {
             clearList.setVisibility(View.VISIBLE);
             totalCost.setVisibility(View.VISIBLE);
         }
-        spinnerArrayAdapter.notifyDataSetChanged();
+        //spinnerArrayAdapter.notifyDataSetChanged();
+
+        //LoginActivity.readFromFileVouchers(getApplicationContext(), user.uuid + "_vouchers");
 
         vouchersList = new ArrayList<>();
         vouchersList.add("No Voucher");
         for (int i = 0; i < user.vouchers.size(); i++) {
-            if (user.vouchers.get(i).used == true)
-                break;
-            vouchersList.add(user.vouchers.get(i).toString());
+            if (!user.vouchers.get(i).used) {
+                vouchersList.add(user.vouchers.get(i).toString());
+                Log.d("TAG_VOUCHER", "(ONRESUME) Adding to list voucher: " + user.vouchers.get(i).toString());
+            }
         }
         spinnerArrayAdapter = new ArrayAdapter<String>(
                 this,R.layout.voucher_spinner_item,vouchersList);
         spinnerArrayAdapter.setDropDownViewResource(R.layout.voucher_spinner_item);
         voucherSpinner.setAdapter(spinnerArrayAdapter);
-
+        //spinnerArrayAdapter.notifyDataSetChanged();
     }
 
     public void scan(boolean qrcode) {
@@ -396,125 +381,4 @@ public class MainMenuActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void updateVouchers() {
-        HttpsTrustManagerUtils.allowAllSSL();
-        RequestQueue queue = Volley.newRequestQueue(this);
-
-        String newURL = URL + "/vouchers/" + user.uuid;
-
-        JsonObjectRequest objectRequest = new JsonObjectRequest(
-                Request.Method.GET,
-                newURL,
-                null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-                        //save vouchers, on LOGIN load vouchers.
-
-                        try {
-                            JSONArray arr = response.getJSONArray("vouchers");
-                            ArrayList<String> vouchers_array = new ArrayList<>();
-                            for (int i = 0; i < arr.length(); i++) {
-                                JSONObject jsonobject = arr.getJSONObject(i);
-                                String uuid_voucher = jsonobject.getString("uuid");
-                                String discount_number = jsonobject.getString("discount_number");
-                                String used_voucher = jsonobject.getString("used");
-                                String voucher = uuid_voucher + "," + discount_number + "," + used_voucher;
-                                vouchers_array.add(voucher);
-                            }
-
-                            writeToFileVouchers(getApplicationContext(), user.uuid + "_vouchers", vouchers_array);
-                            readFromFileVouchers(getApplicationContext(),user.uuid + "_vouchers");
-                            vouchersList = new ArrayList<>();
-                            vouchersList.add("No Voucher");
-                            for (int i = 0; i < user.vouchers.size(); i++) {
-                                if (user.vouchers.get(i).used == true)
-                                    break;
-                                vouchersList.add(user.vouchers.get(i).toString());
-                            }
-                            spinnerArrayAdapter = new ArrayAdapter<String>(
-                                    getApplicationContext(),R.layout.voucher_spinner_item,vouchersList);
-                            spinnerArrayAdapter.setDropDownViewResource(R.layout.voucher_spinner_item);
-                            voucherSpinner.setAdapter(spinnerArrayAdapter);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d("REST Error Response", error.toString());
-                    }
-                }
-
-
-        );
-
-        queue.add(objectRequest);
-    }
-
-
-    private void writeToFileVouchers(Context context, String filename, ArrayList<String> data) {
-        try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
-            for (int i = 0; i < data.size(); i++) {
-                outputStreamWriter.write(data.get(i));
-                outputStreamWriter.write("\n");
-            }
-            outputStreamWriter.close();
-        }
-        catch (IOException e) {
-            Log.d("TAG_VOUCHER", "File write failed: " + e.toString());
-        }
-    }
-
-    private String readFromFileVouchers(Context context, String filename) {
-
-        String ret = "";
-
-        try {
-            InputStream inputStream = context.openFileInput(filename);
-
-            if ( inputStream != null ) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                String receiveString = "";
-                StringBuilder stringBuilder = new StringBuilder();
-                user.vouchers = new ArrayList<>();
-                while ( (receiveString = bufferedReader.readLine()) != null ) {
-                    stringBuilder.append(receiveString);
-                    //1 linha
-                    Log.d("TAG_VOUCHER", "Linha: " + receiveString);
-                    String[] vouchersArray = receiveString.split(",");
-                    String uuid_voucher = vouchersArray [0];
-                    String discount_voucher = vouchersArray [1];
-                    String used_voucher = vouchersArray [2];
-                    Voucher temp_voucher = new Voucher();
-                    temp_voucher.discount_percentage = Integer.parseInt(discount_voucher);
-                    temp_voucher.uuid = UUID.fromString(uuid_voucher);
-                    if (used_voucher == "true")
-                        temp_voucher.used = true;
-                    else
-                        temp_voucher.used = false;
-
-                    if (temp_voucher.used == false)
-                        user.vouchers.add(temp_voucher);
-
-                }
-
-                inputStream.close();
-                ret = stringBuilder.toString();
-            }
-        }
-        catch (FileNotFoundException e) {
-            Log.d("TAG_VOUCHER", "File not found: " + e.toString());
-        } catch (IOException e) {
-            Log.e("TAG_VOUCHER", "Can not read file: " + e.toString());
-        }
-
-        return ret;
-    }
 }

@@ -4,19 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/regular_background"
     android:orientation="vertical"
-    tools:context=".MainActivity" >
-
-  <TextView
-      android:id="@+id/tv_title"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="10sp"
-      android:gravity="center"
-      android:text="Welcome to Supermarket Terminal!" />
-
-  <TextView
-      android:id="@+id/tv_text"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content" />
-</LinearLayout>
+    tools:context=".MainActivity"/>

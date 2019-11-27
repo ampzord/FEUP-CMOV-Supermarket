@@ -6,16 +6,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/regular_background"
-    android:orientation="vertical"
-    tools:context=".activities.LandingPageActivity">
+    android:orientation="vertical">
 
 
-    <ImageView
-        android:id="@+id/imageView2"
+    <TextView
+        android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
+        android:text="Transactions"
+        android:textColor="@android:color/white"
+        android:textSize="36sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.53"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/given_name2" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="98dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3"
         app:srcCompat="@drawable/logo" />
@@ -24,7 +38,6 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
         android:text="Profile"
         android:textColor="@android:color/white"
         android:textSize="36sp"
@@ -33,106 +46,86 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/profile_date"
-        android:layout_width="224dp"
-        android:layout_height="38dp"
-        android:text=""
-        android:textAlignment="viewStart"
-        android:textColor="@android:color/white"
-        android:textSize="30sp"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView2"
+        android:layout_width="390dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_username" />
-
-    <TextView
-        android:id="@+id/profile_first_name"
-        android:layout_width="224dp"
-        android:layout_height="38dp"
-        android:text="@string/text_first_name"
-        android:textAlignment="viewStart"
-        android:textColor="@android:color/white"
-        android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
-
-    <TextView
-        android:id="@+id/profile_last_name"
-        android:layout_width="224dp"
-        android:layout_height="38dp"
-        android:text="@string/text_last_name"
-        android:textAlignment="viewStart"
-        android:textColor="@android:color/white"
-        android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_first_name" />
-
-    <TextView
-        android:id="@+id/textView27"
-        android:layout_width="134dp"
-        android:layout_height="38dp"
-        android:layout_marginStart="16dp"
-        android:text="Date"
-        android:textColor="@android:color/white"
-        android:textSize="24sp"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView23" />
+        app:layout_constraintTop_toBottomOf="@+id/textView4">
+
+    </androidx.recyclerview.widget.RecyclerView>
 
     <TextView
-        android:id="@+id/textView23"
-        android:layout_width="134dp"
-        android:layout_height="38dp"
-        android:layout_marginStart="16dp"
-        android:text="Username"
+        android:id="@+id/fullname"
+        android:layout_width="53dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="28dp"
+        android:text="Name:"
         android:textColor="@android:color/white"
-        android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView22" />
-
-    <TextView
-        android:id="@+id/textView21"
-        android:layout_width="134dp"
-        android:layout_height="38dp"
-        android:layout_marginStart="16dp"
-        android:text="First Name"
-        android:textColor="@android:color/white"
-        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
     <TextView
-        android:id="@+id/textView22"
-        android:layout_width="134dp"
-        android:layout_height="38dp"
-        android:layout_marginStart="16dp"
-        android:text="Last Name"
-        android:textColor="@android:color/white"
-        android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView21" />
+        android:id="@+id/given_name"
+        android:layout_width="251dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="28dp"
+        android:textAlignment="textStart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.129"
+        app:layout_constraintStart_toEndOf="@id/fullname"
+        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
     <TextView
-        android:id="@+id/profile_username"
-        android:layout_width="224dp"
-        android:layout_height="38dp"
-        android:text="@string/text_username"
-        android:textAlignment="viewStart"
+        android:id="@+id/username_profile"
+        android:layout_width="77dp"
+        android:layout_height="26dp"
+        android:layout_marginStart="28dp"
+        android:text="Username:"
         android:textColor="@android:color/white"
-        android:textSize="30sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fullname" />
+
+    <TextView
+        android:id="@+id/given_name2"
+        android:layout_width="221dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="4dp"
+        android:textAlignment="textStart"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_last_name" />
+        app:layout_constraintStart_toEndOf="@+id/username_profile"
+        app:layout_constraintTop_toBottomOf="@+id/given_name" />
 
     <Button
-        android:id="@+id/bt_past_transactions"
-        android:layout_width="155dp"
-        android:layout_height="62dp"
-        android:background="#2F528F"
-        android:fontFamily="@font/archivo_black"
-        android:text="Transactions"
-        android:textColor="@android:color/white"
-        android:textStyle="bold"
+        android:id="@+id/updateVouchersProfile"
+        android:layout_width="104dp"
+        android:layout_height="59dp"
+        android:layout_marginStart="64dp"
+        android:text="Update Vouchers"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerView2"
+        app:layout_constraintVertical_bias="0.541" />
+
+    <Button
+        android:id="@+id/updateTransactions"
+        android:layout_width="152dp"
+        android:layout_height="55dp"
+        android:layout_marginEnd="48dp"
+        android:text="Update Transactions"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_date" />
+        app:layout_constraintHorizontal_bias="0.627"
+        app:layout_constraintStart_toEndOf="@+id/updateVouchersProfile"
+        app:layout_constraintTop_toBottomOf="@+id/recyclerView2"
+        app:layout_constraintVertical_bias="0.532" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

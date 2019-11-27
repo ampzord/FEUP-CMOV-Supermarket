@@ -97,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
   }
 
   void readKey() {
-    TextView tvTitle = findViewById(R.id.tv_title);
 
     try {
       KeyStore keyStore = KeyStore.getInstance(Constants.ANDROID_KEYSTORE);
@@ -109,17 +108,10 @@ public class MainActivity extends AppCompatActivity {
         //tvTitle.setText("User public key arrived!");
       }
     } catch (Exception e) {
-      tvTitle.setText(e.getMessage());
     }
-    /*if (hasKey) {
-      String text = "Public Key:\nModulus: " + byteArrayToHex(((RSAPublicKey)pub).getModulus().toByteArray()) + "\n" +
-              "Exponent: " + byteArrayToHex(((RSAPublicKey)pub).getPublicExponent().toByteArray());
-      ((TextView)findViewById(R.id.tv_text)).setText(text);
-    }*/
   }
 
   void showAndStoreKey(byte[] cert) {
-    TextView tvTitle = findViewById(R.id.tv_title);
 
     try {
       /*int i = 0;
@@ -133,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
       hasKey = true;
       //tvTitle.setText(R.string.msg_keyinfo);
     } catch (Exception e) {
-      tvTitle.setText(e.getMessage());
     }
     if (hasKey) {
       //Toast.makeText(getApplicationContext(), "A user public key has arrived!", Toast.LENGTH_SHORT).show();
@@ -179,7 +170,6 @@ public class MainActivity extends AppCompatActivity {
   }
 
   void decodeAndShow(byte[] encTag) {
-    TextView tvTitle = findViewById(R.id.tv_title);
     byte[] clearTag;
 
     try {
@@ -188,7 +178,6 @@ public class MainActivity extends AppCompatActivity {
       clearTag = cipher.doFinal(encTag);
     } catch (Exception e) {
       Log.d("INFO", "Error decrypting QR code of checkout.");
-      tvTitle.setText(e.getMessage());
       return;
     }
 
@@ -259,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
       jsonBody.put("uuid", transaction.id.toString());
       jsonBody.put("price", Double.toString(transaction.totalCost));
       jsonBody.put("user_uuid", transaction.user.uuid.toString());
-      jsonBody.put("discount", Integer.toString(transaction.discount));
+      jsonBody.put("discount_used", Integer.toString(transaction.discount));
       jsonBody.put("products_size", Integer.toString(transaction.productsSize));
       if (transaction.hasVoucher == 1) {
         jsonBody.put("voucher_uuid", transaction.voucher.uuid.toString());

@@ -6,6 +6,6 @@ module.exports = (sequelize, type) => {
         voucher_uuid: { type: type.STRING, allowNull: true },
         price: { type: type.DOUBLE, allowNull: false },
         products_size: { type: type.INTEGER, allowNull: false },
-        discount: { type: type.BOOLEAN, allowNull: false },
+        discount_used: { type: type.BOOLEAN, allowNull: false },
     })
 }

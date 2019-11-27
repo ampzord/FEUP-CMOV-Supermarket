@@ -21,36 +21,7 @@ router.post('/transaction', function(req, res, next) {
     let newFinalPrice = req.body.price;
     let newTotalSaved = 0;
     let voucherDiscountCode;
-
-    if (req.body.voucher_uuid) {
-        hasVoucher = true;
-        Voucher.findOne({
-            where : { uuid : req.body.voucher_uuid }
-        }).then( (voucher) => {
-            if (voucher) {
-               //console.log(voucher.dataValues);
-
-               if (voucher.user_uuid != req.body.user_uuid) {
-                   console.log("This voucher doesn't belong to this user.");
-                   res.status(500).json('This voucher doesn\'t belong to this user.');
-               }
-
-               if (voucher.used) {
-                   console.log("This voucher has already been used.");
-                   res.status(500).json('This voucher has already been used.');
-               }
-
-                voucherDiscountCode = voucher.discount_number;
-
-                voucher.update({
-                    used : true,
-                });
-
-                //console.log("After updating voucher.");
-                //console.log(voucher.dataValues);
-            }
-        })
-    }
+    let username_temp = req.body.user_uuid;
 
     User.findOne({
         where : { uuid : req.body.user_uuid }
@@ -58,11 +29,13 @@ router.post('/transaction', function(req, res, next) {
         if (user) {
             //console.log(user.dataValues);
 
+            username_temp = user.username;
+
             let newTotalSpent_;
             let newTotalSaved_;
             let numberToSavings;
 
-            if (req.body.discount == 1) {
+            if (req.body.discount_used == 1) {
                 if (user.totalSaved > price_number) {
                     newTotalSaved = +user.totalSaved - +price_number;
                     newFinalPrice = 0;
@@ -112,16 +85,44 @@ router.post('/transaction', function(req, res, next) {
         });
     }
 
+    if (req.body.voucher_uuid) {
+        Voucher.findOne({
+            where : { uuid : req.body.voucher_uuid }
+        }).then( (voucher) => {
+            if (voucher) {
+                //console.log(voucher.dataValues);
 
-    if (hasVoucher) {
+                if (voucher.user_uuid != req.body.user_uuid) {
+                    console.log("This voucher doesn't belong to this user.");
+                    res.status(500).json('This voucher doesn\'t belong to this user.');
+                }
+
+                if (voucher.used) {
+                    console.log("This voucher has already been used.");
+                    res.status(500).json('This voucher has already been used.');
+                }
+
+                voucherDiscountCode = voucher.discount_number;
+
+                voucher.update({
+                    used : true,
+                });
+                
+                //console.log("After updating voucher.");
+                //console.log(voucher.dataValues);
+            }
+        });
+
         Transaction.create({
             uuid: req.body.uuid,
             user_uuid: req.body.user_uuid,
             voucher_uuid: req.body.voucher_uuid,
             price: price_number,
-            discount: req.body.discount,
+            discount_used: req.body.discount_used,
             products_size: req.body.products_size,
         }).then(transaction => {
+            console.log("Transaction created for user: " + username_temp);
+            console.log(transaction.dataValues);
             res.status(200).json({
                 ok: true,
                 message: 'OPEN TERMINAL DOORS',
@@ -131,14 +132,17 @@ router.post('/transaction', function(req, res, next) {
             res.status(500).json('Error generating transaction');
         });
     }
+
     else {
         Transaction.create({
             uuid: req.body.uuid,
             user_uuid: req.body.user_uuid,
             price: req.body.price,
-            discount: req.body.discount,
+            discount_used: req.body.discount_used,
             products_size: req.body.products_size,
         }).then(transaction => {
+            console.log("Transaction created for user: " + username_temp);
+            console.log(transaction.dataValues);
             res.status(200).json({
                 ok: true,
                 message: 'OPEN TERMINAL DOORS',
@@ -173,11 +177,11 @@ function newVoucherGeneratorDiscount(price) {
 router.get('/transactions/:uuid', function(req, res, next) {
     Transaction.findAll({
         where: {
-            user_uuid: req.params.uuid
+            user_uuid: req.params.uuid,
         }
     }).then(transactions => {
-        res.json( {
-            transactions: transactions
+        res.status(200).json({
+            transactions: transactions,
         })
     });
 });
@@ -187,11 +191,10 @@ router.get('/vouchers/:uuid', function(req, res, next) {
     Voucher.findAll({
         where: {
             user_uuid: req.params.uuid,
-            used: false
         }
     }).then(vouchers => {
-        res.json( {
-            vouchers: vouchers
+        res.status(200).json({
+            vouchers: vouchers,
         })
     });
 });

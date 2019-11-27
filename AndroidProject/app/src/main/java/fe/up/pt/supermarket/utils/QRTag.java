@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -60,24 +61,39 @@ public class QRTag extends AppCompatActivity {
         Log.d(TAG, e.getMessage());
       }
     });
-    if (LoginActivity.user.selectedVoucherHelper) {
+    if (LoginActivity.user.selectedVoucher != null) {
       ArrayList<String> write = new ArrayList<>();
       for (int i = 0; i < user.vouchers.size(); i++) {
-        if (user.vouchers.get(i).uuid == user.selectedVoucher.uuid)
-          continue;
         String value = "";
         String uuid = user.vouchers.get(i).uuid.toString();
         String disc = Integer.toString(user.vouchers.get(i).discount_percentage);
-        String used;
+        String used_string = "false";
         if (user.vouchers.get(i).used)
-          used = "true";
-        else
-          used = "false";
-        value = uuid + "," + disc + "," + used;
+          used_string = "true";
+
+        if (user.vouchers.get(i).uuid == user.selectedVoucher.uuid) {
+          Log.d("TAG_VOUCHER", "Updating voucher by selectedVoucher");
+          used_string = "true";
+        }
+
+        value = uuid + "," + disc + "," + used_string;
+        Log.d("TAG_VOUCHER", "QRTAG - Voucher line Writing: " + value);
         write.add(value);
       }
       writeToFileVouchersAuxiliary(getApplicationContext(), user.uuid + "_vouchers", write);
       readFromFileVouchers(getApplicationContext(), user.uuid + "_vouchers");
+
+      MainMenuActivity.vouchersList = new ArrayList<>();
+      MainMenuActivity.vouchersList.add("No Voucher");
+      for (int i = 0; i < user.vouchers.size(); i++) {
+        if (!user.vouchers.get(i).used)
+          MainMenuActivity.vouchersList.add(user.vouchers.get(i).toString());
+      }
+      MainMenuActivity.spinnerArrayAdapter = new ArrayAdapter<>(
+              this,R.layout.voucher_spinner_item,MainMenuActivity.vouchersList);
+      MainMenuActivity.spinnerArrayAdapter.setDropDownViewResource(R.layout.voucher_spinner_item);
+      MainMenuActivity.voucherSpinner.setAdapter(MainMenuActivity.spinnerArrayAdapter);
+      MainMenuActivity.spinnerArrayAdapter.notifyDataSetChanged();
     }
 
     user.shoppingCart = new ArrayList<>();
@@ -142,7 +158,7 @@ public class QRTag extends AppCompatActivity {
         while ( (receiveString = bufferedReader.readLine()) != null ) {
           stringBuilder.append(receiveString);
           //1 linha
-          Log.d("TAG_VOUCHER", "Linha: " + receiveString);
+          Log.d("TAG_VOUCHER", "QRTAG - Reading from file: " + receiveString);
           String[] vouchersArray = receiveString.split(",");
           String uuid_voucher = vouchersArray [0];
           String discount_voucher = vouchersArray [1];
@@ -150,14 +166,20 @@ public class QRTag extends AppCompatActivity {
           Voucher temp_voucher = new Voucher();
           temp_voucher.discount_percentage = Integer.parseInt(discount_voucher);
           temp_voucher.uuid = UUID.fromString(uuid_voucher);
-          if (used_voucher == "true")
+
+          Log.d("TAG_VOUCHER", "QRTAG - String used value: " + used_voucher);
+
+          if (used_voucher.equals("true"))
             temp_voucher.used = true;
           else
             temp_voucher.used = false;
 
-          if (temp_voucher.used == false)
-            user.vouchers.add(temp_voucher);
+          Log.d("TAG_VOUCHER", "QRTAG - Value of Used in Voucher: " + temp_voucher.used);
 
+          if (temp_voucher.used == false) {
+            user.vouchers.add(temp_voucher);
+            Log.d("TAG_VOUCHER", "QRTAG - Adding voucher to list: " + temp_voucher.toString());
+          }
         }
 
         inputStream.close();

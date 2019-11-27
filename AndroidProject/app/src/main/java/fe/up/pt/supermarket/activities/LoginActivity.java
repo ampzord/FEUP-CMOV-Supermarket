@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import fe.up.pt.supermarket.R;
+import fe.up.pt.supermarket.models.Transaction;
 import fe.up.pt.supermarket.models.User;
 import fe.up.pt.supermarket.models.Voucher;
 import fe.up.pt.supermarket.utils.Constants;
@@ -54,8 +55,8 @@ public class LoginActivity extends AppCompatActivity {
     public static PublicKey SERVER_CERTIFICATE;
     public static User user;
 
-    //public static String URL = "https://192.168.1.12:3001/api"; //HOME
-    public static String URL = "https://10.227.154.87:3001/api"; //FEUP
+    public static String URL = "https://192.168.1.12:3001/api"; //HOME
+    //public static String URL = "https://10.227.154.87:3001/api"; //FEUP
     //public static String URL = "https://grisly-mummy-10353.herokuapp.com";
 
     @Override
@@ -117,18 +118,29 @@ public class LoginActivity extends AppCompatActivity {
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            Log.d(TAG_LOGIN, response.toString());
-                            KeyStoreUtils.getServerKeyFromKeyStore();
-                            //getUserKey()
-                            if (user.privateKey == null && user.publicKey == null) {
-                                getUserKeys(username.getText().toString());
-                            }
-                            //TODO PROFILE
-                            readFromFileVouchers(getApplicationContext(), user.uuid + "_vouchers");
+                            try {
+                                Log.d(TAG_LOGIN, response.toString());
+                                KeyStoreUtils.getServerKeyFromKeyStore();
 
-                            user.uuid = UUID.fromString(readFromFileUUID(getApplicationContext(), username.getText().toString()));
-                            user.username = username.getText().toString();
-                            sendToMainMenu();
+                                JSONObject getUser = response.getJSONObject("user");
+                                String s_f_name = getUser.get("fName").toString();
+                                String s_l_name = getUser.get("lName").toString();
+
+                                if (user.privateKey == null && user.publicKey == null) {
+                                    getUserKeys(username.getText().toString());
+                                }
+
+                                readFromFileVouchers(getApplicationContext(), user.uuid + "_vouchers");
+                                readFromFileTransactions(getApplicationContext(), user.uuid + "_transactions");
+
+                                user.uuid = UUID.fromString(readFromFileUUID(getApplicationContext(), username.getText().toString()));
+                                user.username = username.getText().toString();
+                                user.fullname = s_f_name + " " + s_l_name;
+                                sendToMainMenu();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
                         }
                     },
                     new Response.ErrorListener() {
@@ -208,7 +220,7 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private String readFromFileVouchers(Context context, String filename) {
+    public static String readFromFileVouchers(Context context, String filename) {
 
         String ret = "";
 
@@ -232,13 +244,98 @@ public class LoginActivity extends AppCompatActivity {
                     Voucher temp_voucher = new Voucher();
                     temp_voucher.discount_percentage = Integer.parseInt(discount_voucher);
                     temp_voucher.uuid = UUID.fromString(uuid_voucher);
-                    if (used_voucher == "true")
+                    if (used_voucher.equals("true"))
                         temp_voucher.used = true;
                     else
                         temp_voucher.used = false;
 
                     if (temp_voucher.used == false)
                         user.vouchers.add(temp_voucher);
+
+                    Log.d("TAG_VOUCHER", "Reading - LoginActivity: " + temp_voucher.toString() + " Used " + temp_voucher.used);
+                }
+
+                inputStream.close();
+                ret = stringBuilder.toString();
+            }
+        }
+        catch (FileNotFoundException e) {
+            Log.d("TAG_VOUCHER", "File not found: " + e.toString());
+        } catch (IOException e) {
+            Log.e("TAG_VOUCHER", "Can not read file: " + e.toString());
+        }
+
+        return ret;
+    }
+
+    private String readFromFileTransactions(Context context, String filename) {
+
+        String ret = "";
+
+        try {
+            InputStream inputStream = context.openFileInput(filename);
+
+            if ( inputStream != null ) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+                user.transactions = new ArrayList<>();
+                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                    stringBuilder.append(receiveString);
+                    //1 linha
+                    Log.d("TAG_TRANSACTION", "Linha: " + receiveString);
+                    String[] vouchersArray = receiveString.split(",");
+                    String transac_uuid;
+                    String trascan_user_uuid;
+                    String transac_price;
+                    String transac_discount_used;
+                    String transac_products_size;
+                    String transcan_voucher_uuid;
+
+                    if (vouchersArray.length == 6) {
+                        transac_uuid = vouchersArray [0];
+                        trascan_user_uuid = vouchersArray [1];
+                        transac_price = vouchersArray [2];
+                        transac_discount_used = vouchersArray [3];
+                        transac_products_size = vouchersArray [4];
+                        transcan_voucher_uuid = vouchersArray [5];
+
+                        Transaction temp_transaction = new Transaction();
+                        temp_transaction.uuid = UUID.fromString(transac_uuid);
+                        temp_transaction.totalCost = Double.parseDouble(transac_price);
+                        Boolean disc = false;
+                        if (transac_discount_used == "true")
+                            disc = true;
+                        temp_transaction.usedDiscount = disc;
+                        temp_transaction.transactionSize = Integer.parseInt(transac_products_size);
+                        temp_transaction.voucher_transac_uuid = transcan_voucher_uuid;
+
+                        String discount_temp = user.getVoucherDiscountFromStringUUID(temp_transaction.voucher_transac_uuid);
+
+                        temp_transaction.voucherUsedDiscount = discount_temp;
+
+                        user.transactions.add(temp_transaction);
+                    } else {
+                        transac_uuid = vouchersArray [0];
+                        trascan_user_uuid = vouchersArray [1];
+                        transac_price = vouchersArray [2];
+                        transac_discount_used = vouchersArray [3];
+                        transac_products_size = vouchersArray [4];
+
+                        Transaction temp_transaction = new Transaction();
+                        temp_transaction.uuid = UUID.fromString(transac_uuid);
+                        temp_transaction.totalCost = Double.parseDouble(transac_price);
+                        Boolean disc = false;
+                        if (Integer.parseInt(transac_discount_used) == 1)
+                            disc = true;
+                        temp_transaction.usedDiscount = disc;
+                        temp_transaction.transactionSize = Integer.parseInt(transac_products_size);
+
+                        user.transactions.add(temp_transaction);
+                    }
+
+
                 }
 
                 inputStream.close();

@@ -25,7 +25,8 @@ const Voucher = VoucherModel(sequelize, Sequelize)
 sequelize
   .authenticate()
   .then(() => {
-    console.log('SQLite connection has been established successfully.');
+    //console.log('SQLite connection has been established successfully.');
+    console.log('Supermarket Server is operational!');
   })
   .catch(error => {
     console.error('Unable to connect to the database:', error);
