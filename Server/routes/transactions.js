@@ -8,87 +8,24 @@ const { Voucher } = require('../database');
 const uuidv4 = require('uuid/v4');
 
 /* Perform a transaction */
-router.post('/transaction', function(req, res, next) {
+router.post('/transaction', async function(req, res, next) {
 
     // when the server receives a voucher in a payment he should
     // check if it belongs to the right user AND was not used.
 
     console.log(req.body);
 
-    const price_number = +req.body.price * 1;
-
     let hasVoucher = false;
-    let newFinalPrice = req.body.price;
-    let newTotalSaved = 0;
     let voucherDiscountCode;
     let username_temp = req.body.user_uuid;
-
-    User.findOne({
-        where : { uuid : req.body.user_uuid }
-    }).then( user => {
-        if (user) {
-            //console.log(user.dataValues);
-
-            username_temp = user.username;
-
-            let newTotalSpent_;
-            let newTotalSaved_;
-            let numberToSavings;
-
-            if (req.body.discount_used == 1) {
-                if (user.totalSaved > price_number) {
-                    newTotalSaved = +user.totalSaved - +price_number;
-                    newFinalPrice = 0;
-                }
-                else {
-                    newFinalPrice = +newFinalPrice - +user.totalSaved;
-                    newTotalSaved = 0;
-                }
-            }
-
-            newTotalSaved_ = newTotalSaved;
-            newTotalSpent_ = +user.totalSpent + +newFinalPrice;
-
-            if (hasVoucher) {
-                numberToSavings = (voucherDiscountCode * newFinalPrice) / 100;
-                newTotalSaved_ = +newTotalSaved + +numberToSavings;
-            }
-
-            user.update(
-                {
-                    totalSpent: newTotalSpent_,
-                    totalSaved: newTotalSaved_,
-                }
-            );
-
-            //console.log("user after updating values");
-            //console.log(user.dataValues);
-        }
-    }).catch(err => {
-        console.log("Error calculating new Price.");
-        console.log(err);
-    });
-
-    var discount = newVoucherGeneratorDiscount(newFinalPrice, req.body.user_uuid);
-
-    if (newFinalPrice > 100) {
-        Voucher.create({
-            uuid: uuidv4(),
-            discount_number: discount,
-            used: false,
-            user_uuid: req.body.user_uuid,
-        }).then( voucher => {
-            console.log("Created voucher successfully: ");
-            console.log(voucher.dataValues);
-        }).catch(err => {
-            console.log("Error creating voucher.");
-        });
-    }
+    let price_number = +req.body.price * 1;
+    var newFinalPrice = +req.body.price * 1;
 
     if (req.body.voucher_uuid) {
+        hasVoucher = true;
         Voucher.findOne({
-            where : { uuid : req.body.voucher_uuid }
-        }).then( (voucher) => {
+            where: {uuid: req.body.voucher_uuid}
+        }).then((voucher) => {
             if (voucher) {
                 //console.log(voucher.dataValues);
 
@@ -105,19 +42,92 @@ router.post('/transaction', function(req, res, next) {
                 voucherDiscountCode = voucher.discount_number;
 
                 voucher.update({
-                    used : true,
+                    used: true,
                 });
-                
+
                 //console.log("After updating voucher.");
                 //console.log(voucher.dataValues);
             }
         });
+    }
 
+
+
+    const newPrice2 = await User.findOne({
+        where : { uuid : req.body.user_uuid }
+    }).then( user => {
+        if (user) {
+            //console.log(user.dataValues);
+
+            username_temp = user.username;
+
+            let newTotalSaved = user.totalSaved;
+            let newTotalSpent_Acc;
+            let newTotalSaved_Acc;
+            let aux;
+
+            if (req.body.discount_used === "1") {
+                if (user.totalSaved > price_number) {
+                    newTotalSaved = user.totalSaved - req.body.price;
+                    newFinalPrice = 0;
+                }
+                else {
+                    newFinalPrice = req.body.price - user.totalSaved;
+                    newTotalSaved = 0;
+                }
+                price_number = newFinalPrice;
+            }
+
+            newTotalSaved_Acc = newTotalSaved;
+
+            if (hasVoucher) {
+                aux = (voucherDiscountCode * newFinalPrice) / 100;
+                newTotalSaved_Acc = +newTotalSaved + aux;
+            }
+
+            newTotalSpent_Acc = +user.totalSpent + +newFinalPrice;
+
+            user.update(
+                {
+                    totalSpent: newTotalSpent_Acc,
+                    totalSaved: newTotalSaved_Acc,
+                }
+            );
+
+
+
+            //console.log("User after updating values");
+            //console.log(user.dataValues);
+            return newFinalPrice;
+        }
+    }).catch(err => {
+        console.log("Error calculating new Price.");
+        console.log(err);
+    });
+
+    const discount = newVoucherGeneratorDiscount(newFinalPrice, req.body.user_uuid);
+
+    if (newFinalPrice > 100) {
+        Voucher.create({
+            uuid: uuidv4(),
+            discount_number: discount,
+            used: false,
+            user_uuid: req.body.user_uuid,
+        }).then( voucher => {
+            //console.log("Created voucher successfully: ");
+            //console.log(voucher.dataValues);
+        }).catch(err => {
+            console.log("Error creating voucher.");
+        });
+    }
+
+
+    if (req.body.voucher_uuid) {
         Transaction.create({
             uuid: req.body.uuid,
             user_uuid: req.body.user_uuid,
             voucher_uuid: req.body.voucher_uuid,
-            price: price_number,
+            price: newPrice2,
             discount_used: req.body.discount_used,
             products_size: req.body.products_size,
         }).then(transaction => {
@@ -137,7 +147,7 @@ router.post('/transaction', function(req, res, next) {
         Transaction.create({
             uuid: req.body.uuid,
             user_uuid: req.body.user_uuid,
-            price: req.body.price,
+            price: newPrice2,
             discount_used: req.body.discount_used,
             products_size: req.body.products_size,
         }).then(transaction => {

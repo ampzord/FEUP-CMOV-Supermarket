@@ -65,10 +65,19 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         user = new User();
 
+        String login_from_regis = "";
+        Intent intent = getIntent();
+        if (intent.hasExtra("login_name")) {
+            login_from_regis = intent.getExtras().getString("login_name");
+        }
+
         btLogin = findViewById(R.id.bt_send_login);
         btRegister = findViewById(R.id.bt_register);
         username = findViewById(R.id.login_username);
         password = findViewById(R.id.login_password);
+
+        username.setText(login_from_regis);
+
         btLogin.setOnClickListener(
                 new View.OnClickListener()
                 {
@@ -249,8 +258,8 @@ public class LoginActivity extends AppCompatActivity {
                     else
                         temp_voucher.used = false;
 
-                    if (temp_voucher.used == false)
-                        user.vouchers.add(temp_voucher);
+                    //if (temp_voucher.used == false)
+                    user.vouchers.add(temp_voucher);
 
                     Log.d("TAG_VOUCHER", "Reading - LoginActivity: " + temp_voucher.toString() + " Used " + temp_voucher.used);
                 }
@@ -284,7 +293,7 @@ public class LoginActivity extends AppCompatActivity {
                 while ( (receiveString = bufferedReader.readLine()) != null ) {
                     stringBuilder.append(receiveString);
                     //1 linha
-                    Log.d("TAG_TRANSACTION", "Linha: " + receiveString);
+                    Log.d("TAG_TRANSACTION", "LOGIN - READ - Linha: " + receiveString);
                     String[] vouchersArray = receiveString.split(",");
                     String transac_uuid;
                     String trascan_user_uuid;
@@ -292,6 +301,8 @@ public class LoginActivity extends AppCompatActivity {
                     String transac_discount_used;
                     String transac_products_size;
                     String transcan_voucher_uuid;
+
+                    Log.d("TAG_TRANSACTION", "vouchersArray size: " + vouchersArray.length);
 
                     if (vouchersArray.length == 6) {
                         transac_uuid = vouchersArray [0];
@@ -305,13 +316,15 @@ public class LoginActivity extends AppCompatActivity {
                         temp_transaction.uuid = UUID.fromString(transac_uuid);
                         temp_transaction.totalCost = Double.parseDouble(transac_price);
                         Boolean disc = false;
-                        if (transac_discount_used == "true")
+                        if (transac_discount_used.equals("true"))
                             disc = true;
                         temp_transaction.usedDiscount = disc;
                         temp_transaction.transactionSize = Integer.parseInt(transac_products_size);
                         temp_transaction.voucher_transac_uuid = transcan_voucher_uuid;
 
-                        String discount_temp = user.getVoucherDiscountFromStringUUID(temp_transaction.voucher_transac_uuid);
+
+                        UUID temp = UUID.fromString(transcan_voucher_uuid);
+                        String discount_temp = user.getVoucherDiscountFromUUID(temp);
 
                         temp_transaction.voucherUsedDiscount = discount_temp;
 
@@ -331,6 +344,7 @@ public class LoginActivity extends AppCompatActivity {
                             disc = true;
                         temp_transaction.usedDiscount = disc;
                         temp_transaction.transactionSize = Integer.parseInt(transac_products_size);
+                        temp_transaction.voucherUsedDiscount = "Not Used";
 
                         user.transactions.add(temp_transaction);
                     }

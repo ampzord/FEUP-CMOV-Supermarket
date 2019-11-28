@@ -135,7 +135,7 @@ public class RegistrationActivity extends AppCompatActivity {
                                 }
                                 writeToFileUUID(getApplicationContext(),s_username,s_uuid);
                                 user.uuid = UUID.fromString(s_uuid);
-                                sendToLoginPage();
+                                sendToLoginPage(s_username);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -214,8 +214,9 @@ public class RegistrationActivity extends AppCompatActivity {
         }
     }
 
-    private void sendToLoginPage() {
+    private void sendToLoginPage(String username) {
         Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        intent.putExtra("login_name", username);
         startActivity(intent);
     }
 

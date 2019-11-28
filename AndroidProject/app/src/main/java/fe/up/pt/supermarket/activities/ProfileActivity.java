@@ -98,6 +98,14 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        transaction_adapter.clear();
+        transaction_adapter.setTransactionInfo(user.transactions);
+        transaction_adapter.notifyDataSetChanged();
+    }
+
     private void updateTransactions() {
         HttpsTrustManagerUtils.allowAllSSL();
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -124,23 +132,29 @@ public class ProfileActivity extends AppCompatActivity {
                                 String transaction_price = jsonobject.getString("price");
                                 String transaction_discount_used = jsonobject.getString("discount_used");
                                 String transaction_size = jsonobject.getString("products_size");
-
-                                String voucher_uuid = "";
-                                if (jsonobject.has("voucher_uuid")) {
-                                    voucher_uuid = jsonobject.getString("voucher_uuid");
+                                String voucher_uuid = jsonobject.getString("voucher_uuid");
+                                if (voucher_uuid.equals("null")) {
+                                    voucher_uuid = "";
                                 }
+
                                 String trasac = transaction_uuid + "," + transaction_user_uuid + "," + transaction_price
                                         + "," + transaction_discount_used + "," + transaction_size + "," + voucher_uuid;
                                 transac_array.add(trasac);
+
+                                Log.d("TAG_TRA", "Profile Writing - Line:" + trasac);
                             }
 
                             writeToFileTransactions(getApplicationContext(), user.uuid + "_transactions", transac_array);
                             readFromFileTransactions(getApplicationContext(),user.uuid + "_transactions");
 
+                            /*transaction_adapter.clear();
+                            transaction_adapter.setTransactionInfo(user.transactions);
+                            transaction_adapter.notifyDataSetChanged();*/
+
+                            transaction_adapter = new TransactionsAdapter(getApplicationContext());
+                            recyclerView.setAdapter(transaction_adapter);
                             transaction_adapter.setTransactionInfo(user.transactions);
                             transaction_adapter.notifyDataSetChanged();
-
-                            ProfileActivity.super.onResume();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -263,8 +277,7 @@ public class ProfileActivity extends AppCompatActivity {
                     else
                         temp_voucher.used = false;
 
-                    if (temp_voucher.used == false)
-                        user.vouchers.add(temp_voucher);
+                    user.vouchers.add(temp_voucher);
 
                 }
 
@@ -311,7 +324,7 @@ public class ProfileActivity extends AppCompatActivity {
                 while ( (receiveString = bufferedReader.readLine()) != null ) {
                     stringBuilder.append(receiveString);
                     //1 linha
-                    Log.d("TAG_TRANSACTION", "Linha: " + receiveString);
+                    Log.d("TAG_TRANSACTION", "Profile - Reading Linha: " + receiveString);
                     String[] vouchersArray = receiveString.split(",");
                     String transac_uuid;
                     String trascan_user_uuid;
@@ -319,6 +332,8 @@ public class ProfileActivity extends AppCompatActivity {
                     String transac_discount_used;
                     String transac_products_size;
                     String transcan_voucher_uuid;
+
+                    Log.d("TAG_TRANSACTION", "vouchersArray size: " + vouchersArray.length);
 
                     if (vouchersArray.length == 6) {
                         transac_uuid = vouchersArray [0];
@@ -332,15 +347,19 @@ public class ProfileActivity extends AppCompatActivity {
                         temp_transaction.uuid = UUID.fromString(transac_uuid);
                         temp_transaction.totalCost = Double.parseDouble(transac_price);
                         Boolean disc = false;
-                        if (transac_discount_used == "true")
+                        if (transac_discount_used.equals("true"))
                             disc = true;
                         temp_transaction.usedDiscount = disc;
                         temp_transaction.transactionSize = Integer.parseInt(transac_products_size);
                         temp_transaction.voucher_transac_uuid = transcan_voucher_uuid;
 
-                        String discount_temp = user.getVoucherDiscountFromStringUUID(temp_transaction.voucher_transac_uuid);
+                        UUID temp_voucher_of_tran = UUID.fromString(transcan_voucher_uuid);
+                        String discount_temp = user.getVoucherDiscountFromUUID(temp_voucher_of_tran);
+                        Log.d("TAG_TRA", "Size 6 - String discount_temp: " + discount_temp);
 
                         temp_transaction.voucherUsedDiscount = discount_temp;
+
+                        Log.d("TAG_TRA", "Size 6 - Reading Line: " + temp_transaction.voucherUsedDiscount);
 
                         user.transactions.add(temp_transaction);
                     } else {
@@ -354,12 +373,15 @@ public class ProfileActivity extends AppCompatActivity {
                         temp_transaction.uuid = UUID.fromString(transac_uuid);
                         temp_transaction.totalCost = Double.parseDouble(transac_price);
                         Boolean disc = false;
-                        if (Integer.parseInt(transac_discount_used) == 1)
+                        if (transac_discount_used.equals("true"))
                             disc = true;
                         temp_transaction.usedDiscount = disc;
                         temp_transaction.transactionSize = Integer.parseInt(transac_products_size);
+                        temp_transaction.voucherUsedDiscount = "Not Used";
 
                         user.transactions.add(temp_transaction);
+
+                        Log.d("TAG_TRA", "Size 5 - Reading Line:" + temp_transaction.voucherUsedDiscount);
                     }
 
 

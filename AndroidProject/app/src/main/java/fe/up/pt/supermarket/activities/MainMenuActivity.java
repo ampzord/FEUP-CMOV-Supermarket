@@ -280,7 +280,7 @@ public class MainMenuActivity extends AppCompatActivity {
         for (int i = 0; i < user.vouchers.size(); i++) {
             if (!user.vouchers.get(i).used) {
                 vouchersList.add(user.vouchers.get(i).toString());
-                Log.d("TAG_VOUCHER", "(ONRESUME) Adding to list voucher: " + user.vouchers.get(i).toString());
+                //Log.d("TAG_VOUCHER", "(ONRESUME) Adding to list voucher: " + user.vouchers.get(i).toString());
             }
         }
         spinnerArrayAdapter = new ArrayAdapter<String>(

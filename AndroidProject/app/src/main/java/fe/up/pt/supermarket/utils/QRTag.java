@@ -176,10 +176,10 @@ public class QRTag extends AppCompatActivity {
 
           Log.d("TAG_VOUCHER", "QRTAG - Value of Used in Voucher: " + temp_voucher.used);
 
-          if (temp_voucher.used == false) {
-            user.vouchers.add(temp_voucher);
-            Log.d("TAG_VOUCHER", "QRTAG - Adding voucher to list: " + temp_voucher.toString());
-          }
+          //if (temp_voucher.used == false) {
+          user.vouchers.add(temp_voucher);
+            //Log.d("TAG_VOUCHER", "QRTAG - Adding voucher to list: " + temp_voucher.toString());
+          //}
         }
 
         inputStream.close();

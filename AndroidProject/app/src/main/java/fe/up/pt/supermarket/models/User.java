@@ -46,8 +46,23 @@ public class User {
 
     public String getVoucherDiscountFromStringUUID(String voucher_uuid) {
         for (int i = 0; i < vouchers.size(); i++) {
-            if (vouchers.get(i).uuid.toString().equals(voucher_uuid))
+            if (vouchers.get(i).uuid.toString().equals(voucher_uuid)) {
+                Log.d("TAG_TRA", "Found Equal UUID from Transac Voucher.");
                 return Integer.toString(vouchers.get(i).discount_percentage);
+            }
+        }
+        return "";
+    }
+
+    public String getVoucherDiscountFromUUID(UUID voucher_uuid) {
+        Log.d("TAG_TRA", "size of vouchers: " + vouchers.size());
+        Log.d("TAG_TRA", "UUID argument: " + voucher_uuid.toString());
+        for (int i = 0; i < vouchers.size(); i++) {
+            Log.d("TAG_TRA", "Voucher i: " + vouchers.get(i).uuid.toString());
+            if (vouchers.get(i).uuid.toString().equals(voucher_uuid.toString())) {
+                Log.d("TAG_TRA", "UUID - Found Equal UUID from Transac Voucher.");
+                return Integer.toString(vouchers.get(i).discount_percentage);
+            }
         }
         return "";
     }
