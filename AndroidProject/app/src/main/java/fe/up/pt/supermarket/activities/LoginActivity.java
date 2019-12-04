@@ -55,8 +55,8 @@ public class LoginActivity extends AppCompatActivity {
     public static PublicKey SERVER_CERTIFICATE;
     public static User user;
 
-    public static String URL = "https://192.168.1.12:3001/api"; //HOME
-    //public static String URL = "https://10.227.154.87:3001/api"; //FEUP
+    //public static String URL = "https://192.168.1.12:3001/api"; //HOME
+    public static String URL = "https://10.227.156.157:3001/api"; //FEUP
     //public static String URL = "https://grisly-mummy-10353.herokuapp.com";
 
     @Override
