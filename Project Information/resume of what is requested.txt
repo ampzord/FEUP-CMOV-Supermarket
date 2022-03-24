@@ -1,0 +1,98 @@
+REGISTRATION
+
+	- NAME
+	- USERNAME
+	- PASSWORD
+	- CARD INFORMATION
+
+cryptographic key pair generated in the phone app.
+private key goes to app (local)
+public key is transmitted with the other information to the server -> DB 
+
+	Server:
+		- generates unique identifier UUID (16 byte value)
+		- Sends supermarket public key + UUID to APP.
+
+
+SHOPPING BASKET
+
+	- when placing item in basket -> read QR code label in product.
+
+	QR CODES
+
+		- PRODUCT CODE UNIQUE 16 byte UUID
+		- Value (Euros)
+		- Value (Cents)
+		- Name (String)
+
+		ENCRYPTED WITH SUPERMARKET PRIVATE KEY
+
+CHECKOUT
+
+	- When CHECKOUT -> generate QR Code in the screen or an NFC message
+
+	QR CODE OR MESSAGE should contain:
+
+		- list of products (max 10 items)
+		- id
+		- price
+		- UUID (transmitted in registration)
+		- possibly ONE VOUCHER ID (selected by the user)
+		- possibility to discount the amount accumulated so far (BOOLEAN)
+
+	 SIGNED BY USER PRIVATE KEY
+	 AND SIGNATURE APPENDED (?????????)
+
+PAYMENT AND RESULT
+
+	Terminal reads QR CODE (or NFC MESSAGE) -> SENDS INFORMATION TO SERVER FOR PAYMENT
+
+	SERVER calculates final price and subtracts the existing accumulated discount(zeroing this value) if user asked for it
+	If Voucher is included (whose id belongs to this user)
+	- ADD 15% discount to ACCUMULATED from total paid. (if not used accumulate)
+	-UPDATE TOTAL ACCUMULATED EXPENSE OF THE USER 
+	- for each multiple of 100.00 € generate new voucher associated with USER AND KEPT ON THE SERVER for possible retrieve in future.
+	- success of operation and total amount paid are transmitted back to terminal
+	- if all GOOD -> OPEN DOORS.
+
+
+PAST TRANSACTIONS 
+
+	user can ask server for past transactions data using its UUID, signed with user private key. 
+	If available the server also transmits back all the emmited and still unused vouchers.
+	(UPDATES THE LOCAL LIST OF VOUCHERS THE USER HAS).
+
+VOUCHER
+
+	15% discount
+			- UUID
+			
+	when voucher are emmited the server takes note of the user possessing it.
+	when the server receives a voucher in a payment he should check if it belongs to the right user AND was not used.
+	the user should retrieve and store in the phone the emitted unused vouchers, in order to be able to use them in a checkout.
+
+CRYPTOGRAPHY
+
+	Labels printed with a QR-Code in each product are encrypted with a private key, preventing anyone of producing fake ones.
+	The app should possess the corresponding public key to read them
+	This key is transmitted in the registration process.
+	Algorithm used is RSA with 512 bits
+
+	Checkout information is signed with 
+		USER PRIVATE KEY (generated in the regis. process)
+			AND
+		signature transmitted together
+
+	To verify the signature the server should use the corresponding public key which was transmitted on the registration process.
+
+	For the signature use a key length of 512 bits with the algorithm "SHA256WithRSA"
+		this produces a signature of 64 bytes
+
+COMMUNICATIONS
+
+	HTTPS
+	REST service
+	customer app <-> terminal NFC / QR-code and camera (The reading of a label should use the camera and the QR-code on the label)
+	Preferable NFC with 2 phones.
+
+	
