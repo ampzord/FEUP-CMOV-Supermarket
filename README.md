@@ -38,7 +38,7 @@ The Architecture of the project is divided between 3 different applications:
 
 ---
 
-### Dependencies
+## Dependencies
 
 ### Install dependencies
 
@@ -50,3 +50,7 @@ npm install
 ```sh
 npm start
 ```
+
+## License
+
+This project is licensed under the terms of the **MIT** license.
