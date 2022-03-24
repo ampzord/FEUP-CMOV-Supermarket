@@ -7,6 +7,7 @@ An Electronic Supermarket - Scan'o'Mart - was developed with Node.js and Android
 ![Customer](https://i.imgur.com/3tLpvjw.jpg)
 ![Supermarket Cashier Terminal](https://i.imgur.com/VpPWMAt.jpg)
 ![Customer Menu](https://i.imgur.com/Q63ZKFw.jpg)
+![Waiting for NFC Communication](https://i.imgur.com/Ayn2CJ7.jpg)
 
 ---
 
